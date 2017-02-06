@@ -1,0 +1,105 @@
+import QtQuick 2.6
+import QtQuick.Controls 2.0
+import QtQuick.Layouts 1.3
+
+Page {
+    id: aboutPage
+    title: qsTr("About")
+    objectName: "about"
+
+    Keys.onReleased: {
+        if (event.key === Qt.Key_Back) {
+            console.log("*** Back button")
+            event.accepted = true;
+            rootStack.pop()
+        }
+    }
+
+    Rectangle {
+        color: "#e8e8e8"
+        anchors.fill: parent
+        Image {
+            fillMode: Image.PreserveAspectCrop
+            anchors.fill: parent
+            opacity: 0.4
+            source: "qrc:/images/bg/bg.jpg"
+        }
+    }
+
+    ColumnLayout {
+        anchors.fill: parent
+        Text {
+            Layout.fillWidth: true
+            wrapMode: Text.Wrap
+            text: "Kierrätys mobiiliohjelmisto"
+            horizontalAlignment: Text.AlignHCenter
+            font.pixelSize: 28
+        }
+        Text {
+            Layout.fillWidth: true
+            horizontalAlignment: Text.AlignHCenter
+            font.pixelSize: 26
+            text: appVersion
+        }
+        ColumnLayout {
+            visible: root.updateAvailable
+            Layout.fillWidth: true
+            Layout.margins: 8
+            Text {
+                id: name
+                Layout.fillWidth: true
+                horizontalAlignment: Text.AlignHCenter
+                font.pixelSize: 22
+                text: qsTr("Update is available!")
+                font.underline: true
+            }
+            Button {
+                Layout.fillWidth: true
+                text: qsTr("Download update")
+                onClicked: {
+                    updatePopup.open();
+                    root.api.downloadUpdate();
+                }
+            }
+        }
+    }
+
+    Popup {
+        id: updatePopup
+        contentHeight: c.height
+        width: parent.width/2
+        x: parent.width/4
+        y: parent.width/4
+        modal: true;
+        closePolicy: Popup.NoAutoClose
+        Column {
+            id: c
+            Label {
+                text: qsTr("Downloading update...")
+            }
+
+            ProgressBar {
+                id: downloadProgress
+                from: 0
+                to: 100
+                indeterminate: value==0.0
+                value: api.downloadProgress
+                width: parent.width/1.5
+            }
+        }
+    }
+
+    Connections {
+        target: api
+        onRequestFailure: {
+            updatePopup.close();
+        }
+        onUpdateDownloaded: {
+            updatePopup.close();
+        }
+    }
+
+    Component.onCompleted: {
+        aboutPage.forceActiveFocus();
+    }
+}

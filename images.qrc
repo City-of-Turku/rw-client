@@ -1,0 +1,47 @@
+<RCC>
+    <qresource prefix="/">
+        <file>images/icon_search.png</file>
+        <file>images/icon_menu.png</file>
+        <file>images/icon_menu_2.png</file>
+        <file>images/icon_back.png</file>
+        <file>images/icon_down_box.png</file>
+        <file>images/icon_camera.png</file>
+        <file>images/icon_camera@2x.png</file>
+        <file>images/icon_camera@4x.png</file>
+        <file>images/icon_tag@4x.png</file>
+        <file>images/icon_menu@4x.png</file>
+        <file>images/icon_menu_2@4x.png</file>
+        <file>images/icon_search@4x.png</file>
+        <file>images/icon_back@4x.png</file>
+        <file>images/icon_box_up.png</file>
+        <file>images/icon_down_box@4x.png</file>
+        <file>images/icon_home@4x.png</file>
+        <file>images/icon_home.png</file>
+        <file>images/icon_tag.png</file>
+        <file>images/icon_up_box@4x.png</file>
+        <file>images/icon_zoom_in.png</file>
+        <file>images/icon_zoom_out.png</file>
+        <file>images/icon_search@2x.png</file>
+        <file>images/icon_menu@2x.png</file>
+        <file>images/icon_zoom_in@4x.png</file>
+        <file>images/icon_zoom_out@4x.png</file>
+        <file>images/icon_zoom_in@2x.png</file>
+        <file>images/icon_zoom_out@2x.png</file>
+        <file>images/icon_up_box.png</file>
+        <file>images/icon_settings@4x.png</file>
+        <file>images/icon_location.png</file>
+        <file>images/icon_location@4x.png</file>
+        <file>images/icon_help@4x.png</file>
+        <file>images/icon_up_box@2x.png</file>
+        <file>images/icon_up_box@3x.png</file>
+        <file>images/icon_plus.png</file>
+        <file>images/icon_plus@4x.png</file>
+        <file>images/icon_menu_2@2x.png</file>
+        <file>images/icon_back@2x.png</file>
+        <file>images/icon_down_box@2x.png</file>
+        <file>images/product/dummy.png</file>
+        <file>images/badges/kayttoon_512.png</file>
+        <file>images/badges/kiertoon_512.png</file>
+        <file>images/badges/lainaan_512.png</file>
+    </qresource>
+</RCC>

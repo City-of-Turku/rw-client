@@ -1,0 +1,39 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qml/main.qml</file>
+        <file>qml/pages/PageMain.qml</file>
+        <file>qml/pages/PageLogin.qml</file>
+        <file>qml/pages/PageProductView.qml</file>
+        <file>qml/pages/PageSearch.qml</file>
+        <file>qml/pages/PageBrowse.qml</file>
+        <file>qml/pages/PageProductEdit.qml</file>
+        <file>qml/pages/PageSettings.qml</file>
+        <file>qml/pages/PageImageDisplay.qml</file>
+        <file>qml/pages/CameraPage.qml</file>
+        <file>qml/components/MessagePopup.qml</file>
+        <file>qml/components/BarcodeField.qml</file>
+        <file>qml/components/CameraItem.qml</file>
+        <file>qml/components/MultiBarcodeField.qml</file>
+        <file>qml/components/SizeField.qml</file>
+        <file>qml/components/SpinBoxLabel.qml</file>
+        <file>qml/components/DetailItem.qml</file>
+        <file>qml/components/PurposeBadge.qml</file>
+        <file>qml/components/BarcodeScannerField.qml</file>
+        <file>qml/delegates/ProductItemDelegate.qml</file>
+        <file>qml/components/ItemIcon.qml</file>
+        <file>qml/pages/PageHelp.qml</file>
+        <file>qml/components/ComboBoxLabel.qml</file>
+        <file>qml/pages/PageAbout.qml</file>
+        <file>qml/components/ProductAttributeDetailItem.qml</file>
+        <file>qml/models/ColorModel.qml</file>
+        <file>qml/models/PurposeModel.qml</file>
+        <file>qml/models/NewsModel.qml</file>
+        <file>qml/models/LatestProductsModel.qml</file>
+        <file>qml/delegates/NewsItemDelegate.qml</file>
+        <file>qml/delegates/LatestItemDelegate.qml</file>
+        <file>qml/components/+android/ImageGallerySelector.qml</file>
+        <file>qml/components/ImageGallerySelector.qml</file>
+        <file>qml/components/LocationListView.qml</file>
+        <file>qml/components/LocationPopup.qml</file>
+    </qresource>
+</RCC>
