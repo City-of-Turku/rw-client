@@ -25,10 +25,12 @@ The client application is meant for Android devices, but should run as a desktop
 The Android version has also been tested to run on deviecs with Android runtimes (Sailfish OS & BlackBerry 10)
 
 Contains: 
-* qt5-barcodevideofilter
 * A copy of qexifimageheader, originaly from Qt Extended 4.5
 * Pre-built Android armv7 OpenSSL library binaries
 * Subway icons, https://github.com/mariuszostrowski/subway, CC-SA 4.0
+
+Requires:
+* qt5-barcodevideofilter, https://github.com/oniongarlic/qt5-barcodevideofilter
 
 # Background
 
