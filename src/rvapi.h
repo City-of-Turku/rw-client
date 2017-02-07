@@ -141,6 +141,8 @@ signals:
 
     void authenticationFailure();
 
+    void secureConnectionFailure();
+
     void updateAvailable();
     void updateDownloaded(QString file);
 

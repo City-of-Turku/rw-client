@@ -17,6 +17,7 @@
 //#define LOGIN_DEBUG 1
 //#define DATA_DEBUG 1
 //#define JSON_DEBUG 1
+//#define SECURE_DEBUG 1
 
 #define ITEMS_MAX (10)
 
@@ -137,8 +138,12 @@ void RvAPI::setAuthentication(bool auth)
 
 void RvAPI::onIgnoreSSLErrors(QNetworkReply *reply, QList<QSslError> error)
 {
+#ifdef SECURE_DEBUG
     reply->ignoreSslErrors(error);
+#endif
     qWarning() << "SSL Error(s):" << error;
+
+    emit secureConnectionFailure();
 }
 
 void RvAPI::requestError(QNetworkReply::NetworkError code)
