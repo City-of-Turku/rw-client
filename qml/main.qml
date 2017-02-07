@@ -631,6 +631,10 @@ ApplicationWindow {
                 rootStack.currentItem.confirmProductSave(false, 0, msg);
         }
 
+        onSecureConnectionFailure: {
+            messagePopup.show("Failure", "Secure network request failure!");
+        }
+
         onRequestSuccessful: {
             console.debug("*** OK")
         }
