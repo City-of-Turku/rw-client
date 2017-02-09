@@ -53,7 +53,9 @@ QML_IMPORT_PATH =
 # Default rules for deployment.
 include(deployment.pri)
 
-include(qt5-barcodevideofilter/barcodevideofilter.pri)
+include(3rdparty/barcodevideofilter/barcodevideofilter.pri)
+
+INCLUDEPATH += 3rdparty/barcodevideofilter
 
 # Translation
 # From: https://wiki.qt.io/Automating_generation_of_qm_files

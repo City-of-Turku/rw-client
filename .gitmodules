@@ -1,0 +1,3 @@
+[submodule "3rdparty/barcodevideofilter"]
+	path = 3rdparty/barcodevideofilter
+	url = https://github.com/oniongarlic/qt5-barcodevideofilter

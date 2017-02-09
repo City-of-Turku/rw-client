@@ -15,7 +15,8 @@
 
 #include <QtWebView/QtWebView>
 
-#include "../qt5-barcodevideofilter/src/barcodevideofilter.h"
+#include "src/barcodevideofilter.h"
+
 #include "rvapi.h"
 #include "itemlistmodel.h"
 #include "settings.h"
