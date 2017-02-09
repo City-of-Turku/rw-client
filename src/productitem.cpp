@@ -7,7 +7,7 @@ ProductItem::ProductItem(QObject *parent) : QObject(parent)
 
 }
 
-ProductItem::ProductItem(const QString &barcode, const QString &title, const QString &description, QObject *parent)
+ProductItem::ProductItem(const QString &barcode, const QString &title, const QString &description, QObject *parent) : QObject(parent)
 {
     m_barcode=barcode;
     m_title=title;
