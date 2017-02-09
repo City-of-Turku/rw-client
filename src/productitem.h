@@ -19,6 +19,10 @@ class ProductItem : public QObject
     Q_PROPERTY(QString subCategory READ subCategory WRITE setSubCategory NOTIFY subCategoryChanged)
     Q_PROPERTY(uint stock READ getStock NOTIFY stockChanged)
 
+    // XXX:
+    Q_PROPERTY(uint price READ getPrize WRITE setPrice NOTIFY prizeChanged)
+    Q_PROPERTY(uint tax READ getTax WRITE setTax NOTIFY taxChanged)
+
 public:
     explicit ProductItem(QObject *parent = 0);
     explicit ProductItem(const QString &barcode,const QString &title,const QString &description, QObject *parent = 0);
@@ -71,6 +75,16 @@ public:
     Q_INVOKABLE void setAttribute(const QString key, const QVariant value);
     Q_INVOKABLE void setStock(uint stock);
 
+    Q_INVOKABLE uint getTax() const
+    {
+        return m_tax;
+    }
+
+    Q_INVOKABLE uint getPrize() const
+    {
+        return m_price;
+    }
+
 signals:
 
     void productIDChanged(uint id);
@@ -95,6 +109,10 @@ signals:
 
     void attributesChanged(const QString key, const QVariant value);
 
+    void taxChanged(uint tax);
+
+    void prizeChanged(uint price);
+
 public slots:
 
     void setTitle(QString title);
@@ -110,6 +128,10 @@ public slots:
     void setCategory(const QString category);
 
     void setSubCategory(const QString category);
+
+    Q_INVOKABLE void setTax(uint tax);
+
+    Q_INVOKABLE void setPrice(uint price);
 
 private:
     // Internal identifier
@@ -138,6 +160,8 @@ private:
     QString m_thumbnail;
 
     Q_DISABLE_COPY(ProductItem)
+    uint m_tax;
+    uint m_price;
 };
 
 #endif // PRODUCTITEM_H

@@ -37,6 +37,16 @@ ProductItem* ProductItem::fromVariantMap(QVariantMap &data, QObject *parent)
     else
         p->m_stock=1;
 
+    if (data.contains("price"))
+        p->m_price=data["price"].toString().toDouble();
+    else
+        p->m_price=0;
+
+    if (data.contains("tax"))
+        p->m_tax=data["tax"].toString().toInt();
+    else
+        p->m_tax=0;
+
     if (data.contains("images"))
         p->setImages(data["images"].toList());
 
@@ -68,6 +78,7 @@ ProductItem* ProductItem::fromVariantMap(QVariantMap &data, QObject *parent)
 
     if (data.contains("isbn"))
         p->setAttribute("isbn", data["isbn"].toString());
+
 
     return p;
 }
@@ -207,4 +218,22 @@ void ProductItem::setSubCategory(const QString category)
 
     m_subcategory = category;
     emit subCategoryChanged(category);
+}
+
+void ProductItem::setTax(uint tax)
+{
+    if (m_tax == tax)
+        return;
+
+    m_tax = tax;
+    emit taxChanged(tax);
+}
+
+void ProductItem::setPrice(uint price)
+{
+    if (m_price == price)
+        return;
+
+    m_price = price;
+    emit prizeChanged(price);
 }
