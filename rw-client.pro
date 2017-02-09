@@ -113,6 +113,6 @@ ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 
 contains(ANDROID_TARGET_ARCH,armeabi-v7a) {
     ANDROID_EXTRA_LIBS = \
-        $$PWD/3pbin/libcrypto.so \
-        $$PWD/3pbin/libssl.so
+        $$PWD/3rdparty/openssl-armv7/libcrypto.so \
+        $$PWD/3rdparty/openssl-armv7/libssl.so
 }
