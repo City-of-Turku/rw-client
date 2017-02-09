@@ -59,6 +59,9 @@ Page {
     property bool categoryHasMakeAndModel: categoryFlags & CategoryModel.HasMakeAndModel
     property bool categoryHasAuthor: categoryFlags & CategoryModel.HasAuthor
     property bool categoryHasStock: categoryFlags & CategoryModel.HasStock
+    property bool categoryHasPrice: categoryFlags & CategoryModel.HasPrice
+
+    property bool hasTax: true
 
     property int defaultWarehouse;
 
@@ -775,6 +778,24 @@ Page {
                         font.pointSize: 18
                         wrapMode: Text.Wrap
                         horizontalAlignment: Text.AlignHCenter
+                    }
+
+                    RowLayout {
+                        visible: categoryHasPrice
+                        SpinBoxLabel {
+                            id: productPrice
+                            value: hasProduct ? product.price : 0
+                            from: 0
+                            to: 99999
+                            label: qsTr("Price")
+                        }
+                        ComboBox {
+                            id: productTax
+                            visible: hasTax
+                            // XXX: Make this configurable
+                            displayText: qsTr("Tax: ")+currentText
+                            model: [ "0%", "10%", "14%", "24%" ]
+                        }
                     }
 
                     RowLayout {
