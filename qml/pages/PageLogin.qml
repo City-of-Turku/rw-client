@@ -50,9 +50,10 @@ Page {
     }
 
     Rectangle {
-        color: "#b8b8b8"
+        color: bgImage.status==Image.Ready ? "#b8b8b8" : "#ffffff"
         anchors.fill: parent
         Image {
+            id: bgImage
             fillMode: Image.PreserveAspectCrop
             anchors.fill: parent
             opacity: 0.4
