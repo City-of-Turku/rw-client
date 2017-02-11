@@ -16,7 +16,7 @@ HEADERS += \
     src/locationitem.h \
     src/locationmodel.h \
     src/categorymodel.h src/settings.h \
-    qexifimageheader/qexifimageheader.h \
+    3rdparty/qexifimageheader/qexifimageheader.h \
     src/apputility.h
 
 SOURCES += src/main.cpp \
@@ -25,7 +25,7 @@ SOURCES += src/main.cpp \
     src/productitem.cpp \
     src/locationmodel.cpp \
     src/categorymodel.cpp src/settings.cpp \
-    qexifimageheader/qexifimageheader.cpp \
+    3rdparty/qexifimageheader/qexifimageheader.cpp \
     src/apputility.cpp
 
 lupdate_only {

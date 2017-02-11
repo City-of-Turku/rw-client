@@ -2,7 +2,7 @@
 
 #include "apputility.h"
 
-#include "qexifimageheader/qexifimageheader.h"
+#include "3rdparty/qexifimageheader/qexifimageheader.h"
 
 AppUtility::AppUtility(QObject *parent) : QObject(parent)
 {
