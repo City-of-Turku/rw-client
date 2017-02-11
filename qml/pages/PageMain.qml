@@ -12,7 +12,7 @@ Page {
 
     signal productClicked(string sku);
 
-    title: qsTr("Resurssiviisas Turku")
+    title: appName
 
     Rectangle {
         color: "#e8e8e8"

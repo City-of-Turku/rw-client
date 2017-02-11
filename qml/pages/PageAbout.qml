@@ -31,7 +31,7 @@ Page {
         Text {
             Layout.fillWidth: true
             wrapMode: Text.Wrap
-            text: "Kierrätys mobiiliohjelmisto"
+            text: appName
             horizontalAlignment: Text.AlignHCenter
             font.pixelSize: 28
         }
