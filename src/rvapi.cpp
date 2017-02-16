@@ -399,43 +399,62 @@ void RvAPI::parseErrorResponse(int code, const QString op, const QByteArray &res
     emit requestFailure(code, m_msg);
 }
 
+void RvAPI::parseCategoryMap(CategoryModel &model, QVariantMap &tmp)
+{
+    CategoryModel::FeatureFlags flags;
+
+    QString id=tmp.value("id").toString();
+
+    if (tmp.value("hasSize").toBool())
+        flags|=CategoryModel::HasSize;
+    if (tmp.value("hasWeight").toBool())
+        flags|=CategoryModel::HasWeight;
+    if (tmp.value("hasColor").toBool())
+        flags|=CategoryModel::HasColor;
+    if (tmp.value("hasStock").toBool())
+        flags|=CategoryModel::HasStock;
+    if (tmp.value("hasAuthor").toBool())
+        flags|=CategoryModel::HasAuthor;
+    if (tmp.value("hasMakeAndModel").toBool())
+        flags|=CategoryModel::HasMakeAndModel;
+    if (tmp.value("hasISBN").toBool())
+        flags|=CategoryModel::HasISBN;
+    if (tmp.value("hasEAN").toBool())
+        flags|=CategoryModel::HasEAN;
+    if (tmp.value("hasPrice").toBool())
+        flags|=CategoryModel::HasPrice;
+
+    model.addCategory(id, tmp.value("name").toString(), flags);
+
+    if (tmp.contains("subcategories")) {
+        QVariantMap smap=tmp.value("subcategories").toMap();
+        QMapIterator<QString, QVariant> i(smap);
+        CategoryModel *cm=new CategoryModel(id, this);
+        while (i.hasNext()) {
+            i.next();
+            QVariantMap cmap=i.value().toMap();
+
+            parseCategoryMap(*cm, cmap);
+        }
+        m_subcategorymodels.insert(id, cm);
+    }
+}
+
 bool RvAPI::parseCategoryData(QVariantMap &data)
 {
-    Q_UNUSED(data)
-    // XXX: Needs to be implemented
-
     m_categorymodel.clear();
+    m_categorymodel.addCategory("", "", CategoryModel::InvalidCategory);
 
     QMapIterator<QString, QVariant> i(data);
     while (i.hasNext()) {
         i.next();
+        QVariantMap cmap=i.value().toMap();
 
-        QVariantMap tmp=i.value().toMap();
-
-        // CategoryModel::HasSize | CategoryModel::HasWeight | CategoryModel::HasMakeAndModel | CategoryModel::HasEAN
-        CategoryModel::FeatureFlags flags;
-
-        if (tmp.value("hasSize").toBool())
-            flags|=CategoryModel::HasSize;
-        if (tmp.value("hasWeight").toBool())
-            flags|=CategoryModel::HasWeight;
-        if (tmp.value("hasColor").toBool())
-            flags|=CategoryModel::HasColor;
-        if (tmp.value("hasMakeAndModel").toBool())
-            flags|=CategoryModel::HasMakeAndModel;
-        if (tmp.value("hasISBN").toBool())
-            flags|=CategoryModel::HasISBN;
-        if (tmp.value("hasEAN").toBool())
-            flags|=CategoryModel::HasEAN;
-        if (tmp.value("hasPrice").toBool())
-            flags|=CategoryModel::HasPrice;
-
-        m_categorymodel.addCategory(tmp.value("id").toString(), tmp.value("name").toString(), flags);
+        parseCategoryMap(m_categorymodel, cmap);
     }
 
     return true;
 }
-
 
 bool RvAPI::parseLocationData(QVariantMap &data)
 {    
