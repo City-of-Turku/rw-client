@@ -735,6 +735,12 @@ void RvAPI::setAuthenticationHeaders(QNetworkRequest *request)
         request->setRawHeader(QByteArray("X-Auth-Token"), m_authtoken.toUtf8());
 }
 
+void RvAPI::queueRequest(QNetworkReply *req, const QString op)
+{
+    m_requests.insert(req, op);
+    setBusy(true);
+}
+
 /**
  * @brief RvAPI::login
  * @return bool
@@ -769,9 +775,7 @@ bool RvAPI::login()
     addParameter(mp, QStringLiteral("apiversion"), m_apiversion);
     addParameter(mp, QStringLiteral("appversion"), m_appversion);
 
-    QNetworkReply *req=post(request, mp);
-
-    m_requests.insert(req, op_auth_login);
+    queueRequest(post(request, mp), op_auth_login);
 
     return true;
 }
@@ -793,9 +797,7 @@ bool RvAPI::logout()
 
     QHttpMultiPart *mp = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
-    QNetworkReply *req=post(request, mp);
-
-    m_requests.insert(req, op_auth_logout);
+    queueRequest(post(request, mp), op_auth_logout);
 
     return true;
 }
@@ -852,13 +854,7 @@ bool RvAPI::products(uint page, uint amount, const QString category, const QStri
     url.setQuery(query);
     request.setUrl(url);
 
-    qDebug() << url;
-
-    QNetworkReply *req=get(request);
-
-    m_requests.insert(req, op_products);
-
-    setBusy(true);
+    queueRequest(get(request), op_products);
 
     return true;
 }
@@ -913,10 +909,7 @@ bool RvAPI::searchBarcode(const QString barcode, bool checkOnly)
     QNetworkReply *req;
 
     req=checkOnly ? head(request) : get(request);
-
-    m_requests.insert(req, op_product_barcode);
-
-    setBusy(true);
+    queueRequest(req, op_product_barcode);
 
     return true;
 }
@@ -993,9 +986,7 @@ bool RvAPI::add(ProductItem *product)
 
     request.setUrl(url);
 
-    QNetworkReply *req=post(request, mp);
-
-    m_requests.insert(req, op_product);
+    queueRequest(post(request, mp), op_product);
 
     return true;
 }
@@ -1029,10 +1020,7 @@ bool RvAPI::update(ProductItem *product)
     // XXX: Needs to be implemented
 
     request.setUrl(url);
-
-    QNetworkReply *req=post(request, mp);
-
-    m_requests.insert(req, op_product);
+    queueRequest(post(request, mp), op_product);
 
     return true;
 }
@@ -1065,13 +1053,8 @@ bool RvAPI::requestLocations()
     QNetworkRequest request;
     setAuthenticationHeaders(&request);
 
-    request.setUrl(url);
-
-    QNetworkReply *req;
-
-    req=get(request);
-
-    m_requests.insert(req, op_locations);
+    request.setUrl(url);    
+    queueRequest(get(request), op_locations);
 
     return true;
 }
@@ -1090,11 +1073,7 @@ bool RvAPI::requestCategories()
 
     request.setUrl(url);
 
-    QNetworkReply *req;
-
-    req=get(request);
-
-    m_requests.insert(req, op_locations);
+    queueRequest(get(request), op_locations);
 
     return true;
 }
@@ -1169,11 +1148,7 @@ bool RvAPI::downloadUpdate()
 
     request.setUrl(url);
 
-    QNetworkReply *req;
-
-    req=get(request);
-
-    m_requests.insert(req, op_download);
+    queueRequest(get(request), op_download);
 
     return true;
 }

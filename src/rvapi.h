@@ -204,6 +204,8 @@ public slots:
         emit apikeyChanged(apikey);
     }
 
+protected:
+    void queueRequest(QNetworkReply *req, const QString op);
 protected slots:
     void onIgnoreSSLErrors(QNetworkReply *reply, QList<QSslError> error);
     void connectReply(QNetworkReply *reply);
