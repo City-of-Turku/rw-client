@@ -94,6 +94,9 @@ RvAPI::RvAPI(QObject *parent) :
     m_subcategorymodels.insert("sekalaista", cm);
 
     m_attributes << "width" << "height" << "depth" << "weight" << "color" << "ean" << "isbn" << "purpose" << "make" << "model" << "author" << "location" << "locationdetail";
+
+    m_taxes << "0%" << "10%" << "14%" << "24%";
+    m_tax_model.setStringList(m_taxes);
 }
 
 RvAPI::~RvAPI()
@@ -205,6 +208,7 @@ QVariantMap RvAPI::parseJsonResponse(const QByteArray &data)
 {
     QJsonDocument json=QJsonDocument::fromJson(data);
 #ifdef JSON_DEBUG
+    qDebug() << data;
     qDebug() << json.toJson();
     qDebug() << "json object " << json.isObject();
 #endif
@@ -753,7 +757,7 @@ bool RvAPI::login()
     }
 
     if (isRequestActive(op_auth_login)) {
-        qDebug("Request is active");
+        qDebug("Login request is already active");
         return false;
     }
 
@@ -1144,6 +1148,11 @@ CategoryModel *RvAPI::getCategoryModel()
 CategoryModel *RvAPI::getSubCategoryModel(const QString key)
 {
     return m_subcategorymodels.value(key, Q_NULLPTR);
+}
+
+QStringListModel *RvAPI::getTaxModel()
+{
+    return &m_tax_model;
 }
 
 bool RvAPI::downloadUpdate()
