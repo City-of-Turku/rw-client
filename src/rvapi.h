@@ -286,6 +286,8 @@ private:
 
     QString m_apk;
 
+    QString m_hversion;
+
     bool m_authenticated;
     QString m_username;
     QString m_password;

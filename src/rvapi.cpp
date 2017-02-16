@@ -12,6 +12,7 @@
 #include <QGeoCoordinate>
 #include <QRegularExpression>
 
+#include <QCoreApplication>
 #include <QStandardPaths>
 
 //#define LOGIN_DEBUG 1
@@ -41,6 +42,9 @@ RvAPI::RvAPI(QObject *parent) :
     QNetworkDiskCache *diskCache = new QNetworkDiskCache(this);
     diskCache->setCacheDirectory(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
     m_NetManager->setCache(diskCache);
+
+    // Create network request application header string
+    m_hversion=QString("RW/%1").arg(QCoreApplication::applicationVersion());
 
     // XXX: We should load this from a JSON/XML/something!!
     m_categorymodel.addCategory("", "", CategoryModel::InvalidCategory);
@@ -725,7 +729,7 @@ const QUrl RvAPI::createRequestUrl(QString endpoint)
 
 void RvAPI::setAuthenticationHeaders(QNetworkRequest *request)
 {
-    request->setHeader(QNetworkRequest::UserAgentHeader, "RVTku/1.0");
+    request->setHeader(QNetworkRequest::UserAgentHeader, m_hversion);
     request->setRawHeader(QByteArray("Accept"), "application/json");
     if (!m_apikey.isEmpty())
         request->setRawHeader(QByteArray("X-AuthenticationKey"), m_apikey.toUtf8());
