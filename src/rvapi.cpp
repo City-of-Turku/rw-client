@@ -1068,16 +1068,15 @@ bool RvAPI::requestCategories()
     if (!m_authenticated)
         return false;
 
-    if (isRequestActive(op_locations))
+    if (isRequestActive(op_categories))
         return false;
 
-    QUrl url=createRequestUrl(op_locations);
+    QUrl url=createRequestUrl(op_categories);
     QNetworkRequest request;
     setAuthenticationHeaders(&request);
 
     request.setUrl(url);
-
-    queueRequest(get(request), op_locations);
+    queueRequest(get(request), op_categories);
 
     return true;
 }
