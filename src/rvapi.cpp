@@ -33,7 +33,8 @@ RvAPI::RvAPI(QObject *parent) :
     m_loadedPage(0),
     m_itemsmodel(this),
     m_categorymodel(0, this),
-    m_locations(this)
+    m_locations(this),
+    m_tax_model(this)
 {
     CategoryModel *cm;
 
