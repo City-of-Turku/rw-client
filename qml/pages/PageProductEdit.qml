@@ -28,7 +28,7 @@ Page {
     // The minimum amount of data that needs to be entered toggles this
 
     property bool validBaseEntry: barcodeText.acceptableInput && categoryID!='' && productTitle.acceptableInput;
-    property bool validEntry: validBaseEntry && productWarehouse.currentIndex>0 && purposeSelection.currentIndex>0 && hasImages;
+    property bool validEntry: validBaseEntry && productWarehouse.currentIndex>=0 && purposeSelection.currentIndex>0 && hasImages;
 
     property int maxImages: 5;
 
@@ -201,6 +201,9 @@ Page {
             }
             ToolButton {
                 text: "Add image"
+                contentItem: ItemIcon {
+                    source: "qrc:/images/icon_gallery.png"
+                }
                 enabled: canAddImages && hasFileView
                 visible: canAddImages && hasFileView
                 onClicked: {
@@ -455,9 +458,7 @@ Page {
                         Layout.alignment: Qt.AlignTop
                         Layout.margins: 8
 
-                        //RowLayout {
-                        // This is the "main" category (Product type in Drupal)
-                        //Layout.alignment: Qt.AlignTop
+                        // This is the "main" category
                         ComboBoxLabel {
                             id: categorySelection
                             currentIndex: 0
@@ -467,32 +468,26 @@ Page {
 
                             enabled: barcodeText.acceptableInput
                             textRole: "category"
-                            onActivated: {
-                                console.debug("New category selected: "+index)
-                                updateCategoryData();
-                            }
-                            onModelChanged: console.debug("Categories available: "+model.count)
                             Component.onCompleted: {
                                 model=root.api.getCategoryModel();
                             }
                             onCurrentIndexChanged: {
+                                console.debug("CategoryIndex: "+currentIndex)
                                 updateCategoryData();
                             }
                             function updateCategoryData() {
                                 var cdata=categorySelection.model.get(currentIndex);
-                                if (!cdata) {
+                                if (!cdata || currentIndex==0) {
                                     console.debug("Category de-selected, clearing")
                                     categoryFlags=0;
                                     categoryID=''
+                                    categorySubID=''
                                     subCategorySelection.model=false;
                                     return;
                                 }
 
                                 categoryFlags=cdata.flags;
                                 categoryID=cdata.cid;
-
-                                console.debug("Category: "+categoryID)
-                                console.debug("Flags: "+categoryFlags)
 
                                 var scm=root.api.getSubCategoryModel(cdata.cid);
                                 if (scm)
@@ -503,7 +498,7 @@ Page {
 
                         }
 
-                        // This is the specific category, gets mapped to Product category taxonomy in Drupal
+                        // This is the specific category
                         ComboBoxLabel {
                             id: subCategorySelection
                             enabled: categorySelection.enabled && categorySelection.currentIndex>0 && model
@@ -511,28 +506,25 @@ Page {
                             placeHolder: qsTr("Subcategory")
                             Layout.fillWidth: true
 
-                            Component.onCompleted: {
-
-                            }
                             onCurrentIndexChanged: {
-                                if (!model)
-                                    return;
-                                var cdata=subCategorySelection.model.get(currentIndex)
-                                categoryFlags=cdata.flags;
-                                categorySubID=cdata.cid;
-
-                                productTitle.setDefaultProductTitle("", cdata.category)
+                                updateSubcategory()
                             }
                             onModelChanged: {
+                                updateSubcategory();
+                            }
+                            function updateSubcategory() {
                                 if (!model) {
-                                    categorySubID="";
+                                    categorySubID=''
+                                    return;
                                 }
-
-                                console.debug("SubCategories available: "+model.count)
+                                var cdata=subCategorySelection.model.get(currentIndex)
+                                if (!cdata)
+                                    return;
+                                categoryFlags=cdata.flags;
+                                categorySubID=cdata.cid;
+                                productTitle.setDefaultProductTitle("", cdata.category)
                             }
                         }
-
-                        //}
 
                         ComboBoxLabel {
                             id: purposeSelection
@@ -782,19 +774,25 @@ Page {
 
                     RowLayout {
                         visible: categoryHasPrice
-                        SpinBoxLabel {
+                        Layout.alignment: Layout.Center
+                        TextField {
                             id: productPrice
-                            value: hasProduct ? product.price : 0
-                            from: 0
-                            to: 99999
-                            label: qsTr("Price")
+                            text: hasProduct ? product.price : ''
+                            inputMethodHints: Qt.ImhPreferNumbers | Qt.ImhFormattedNumbersOnly
+                            placeholderText: qsTr("Price")
+                            validator: DoubleValidator {
+                                bottom: 0.0
+                                top: 99999.0
+                                decimals: 2
+                                notation: DoubleValidator.StandardNotation
+                            }
                         }
                         ComboBox {
                             id: productTax
-                            visible: hasTax
-                            // XXX: Make this configurable
+                            visible: hasTax                            
                             displayText: qsTr("Tax: ")+currentText
-                            model: [ "0%", "10%", "14%", "24%" ]
+                            model: api.getTaxModel();
+                            textRole: "display"
                         }
                     }
 

@@ -43,5 +43,8 @@
         <file>images/badges/kayttoon_512.png</file>
         <file>images/badges/kiertoon_512.png</file>
         <file>images/badges/lainaan_512.png</file>
+        <file>images/icon_gallery@2x.png</file>
+        <file>images/icon_gallery.png</file>
+        <file>images/icon_gallery@4x.png</file>
     </qresource>
 </RCC>

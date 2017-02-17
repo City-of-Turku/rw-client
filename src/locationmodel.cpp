@@ -116,7 +116,7 @@ QVariant LocationListModel::data(const QModelIndex &index, int role) const
             qreal dist=m_geo.distanceTo(item->geo)/1000;
             return QVariant(dist);
         }
-        return QVariant();
+        return QVariant(false);
         break;
     }
 
