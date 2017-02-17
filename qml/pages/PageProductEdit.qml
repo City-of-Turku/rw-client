@@ -201,6 +201,9 @@ Page {
             }
             ToolButton {
                 text: "Add image"
+                contentItem: ItemIcon {
+                    source: "qrc:/images/icon_gallery.png"
+                }
                 enabled: canAddImages && hasFileView
                 visible: canAddImages && hasFileView
                 onClicked: {
