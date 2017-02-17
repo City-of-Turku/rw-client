@@ -32,8 +32,9 @@ RvAPI::RvAPI(QObject *parent) :
     m_hasMore(false),    
     m_loadedPage(0),
     m_itemsmodel(this),
-    m_categorymodel(0, this),
-    m_locations(this)
+    m_categorymodel(0, this),    
+    m_locations(this),
+    m_tax_model(this)
 {
     CategoryModel *cm;
 
@@ -1131,27 +1132,27 @@ bool RvAPI::validateBarcodeEAN(const QString code) const
     return code.at(12).digitValue()==cd ? true : false;
 }
 
-ItemListModel *RvAPI::getItemModel()
+const ItemListModel *RvAPI::getItemModel() const
 {    
     return &m_itemsmodel;
 }
 
-LocationListModel *RvAPI::getLocationsModel()
+const LocationListModel *RvAPI::getLocationsModel() const
 {
     return &m_locations;
 }
 
-CategoryModel *RvAPI::getCategoryModel()
+const CategoryModel *RvAPI::getCategoryModel() const
 {    
     return &m_categorymodel;
 }
 
-CategoryModel *RvAPI::getSubCategoryModel(const QString key)
+const CategoryModel *RvAPI::getSubCategoryModel(const QString key)
 {
     return m_subcategorymodels.value(key, Q_NULLPTR);
 }
 
-QStringListModel *RvAPI::getTaxModel()
+const QStringListModel *RvAPI::getTaxModel() const
 {
     return &m_tax_model;
 }
