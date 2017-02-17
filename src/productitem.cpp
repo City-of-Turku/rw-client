@@ -229,11 +229,11 @@ void ProductItem::setTax(uint tax)
     emit taxChanged(tax);
 }
 
-void ProductItem::setPrice(uint price)
+void ProductItem::setPrice(double price)
 {
     if (m_price == price)
         return;
 
     m_price = price;
-    emit prizeChanged(price);
+    emit priceChanged(price);
 }

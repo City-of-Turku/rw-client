@@ -116,6 +116,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<ItemListModel>("net.ekotuki", 1,0, "ItemListModel");
     //qmlRegisterType<LocationListModel>("net.ekotuki", 1,0, "LocationListModel");
 
+    qRegisterMetaType<QStringListModel*>();
     qRegisterMetaType<CategoryModel*>();
     qRegisterMetaType<ItemListModel*>();
     qRegisterMetaType<LocationListModel*>();

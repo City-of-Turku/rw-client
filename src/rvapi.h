@@ -22,6 +22,8 @@
 #include <QCache>
 #include <QNetworkDiskCache>
 
+#include <QStringListModel>
+
 #include "productitem.h"
 #include "itemlistmodel.h"
 #include "categorymodel.h"
@@ -115,6 +117,8 @@ public:
     Q_INVOKABLE CategoryModel *getCategoryModel();
     Q_INVOKABLE CategoryModel *getSubCategoryModel(const QString key);
 
+    Q_INVOKABLE QStringListModel *getTaxModel();
+
     Q_INVOKABLE bool downloadUpdate();
 
     bool authenticated() const;
@@ -200,6 +204,10 @@ public slots:
         emit apikeyChanged(apikey);
     }
 
+protected:
+    void queueRequest(QNetworkReply *req, const QString op);
+    void parseCategoryMap(CategoryModel &model, QVariantMap &tmp);
+
 protected slots:
     void onIgnoreSSLErrors(QNetworkReply *reply, QList<QSslError> error);
     void connectReply(QNetworkReply *reply);
@@ -280,6 +288,8 @@ private:
 
     QString m_apk;
 
+    QString m_hversion;
+
     bool m_authenticated;
     QString m_username;
     QString m_password;
@@ -295,6 +305,9 @@ private:
     ItemListModel m_itemsmodel;
     CategoryModel m_categorymodel;
     LocationListModel m_locations;
+
+    QStringList m_taxes;
+    QStringListModel m_tax_model;
 
     QMap<QString, CategoryModel *>m_subcategorymodels;
 

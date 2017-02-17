@@ -20,7 +20,7 @@ class ProductItem : public QObject
     Q_PROPERTY(uint stock READ getStock NOTIFY stockChanged)
 
     // XXX:
-    Q_PROPERTY(uint price READ getPrize WRITE setPrice NOTIFY prizeChanged)
+    Q_PROPERTY(double price READ getPrize WRITE setPrice NOTIFY priceChanged)
     Q_PROPERTY(uint tax READ getTax WRITE setTax NOTIFY taxChanged)
 
 public:
@@ -80,7 +80,7 @@ public:
         return m_tax;
     }
 
-    Q_INVOKABLE uint getPrize() const
+    Q_INVOKABLE double getPrize() const
     {
         return m_price;
     }
@@ -111,7 +111,7 @@ signals:
 
     void taxChanged(uint tax);
 
-    void prizeChanged(uint price);
+    void priceChanged(double price);
 
 public slots:
 
@@ -131,9 +131,11 @@ public slots:
 
     Q_INVOKABLE void setTax(uint tax);
 
-    Q_INVOKABLE void setPrice(uint price);
+    Q_INVOKABLE void setPrice(double price);
 
 private:
+    Q_DISABLE_COPY(ProductItem)
+
     // Internal identifier
     uint m_id;
     uint m_uid;
@@ -159,9 +161,8 @@ private:
     QVariantMap m_attributes;
     QString m_thumbnail;
 
-    Q_DISABLE_COPY(ProductItem)
     uint m_tax;
-    uint m_price;
+    double m_price;
 };
 
 #endif // PRODUCTITEM_H

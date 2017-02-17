@@ -12,6 +12,7 @@
 #include <QGeoCoordinate>
 #include <QRegularExpression>
 
+#include <QCoreApplication>
 #include <QStandardPaths>
 
 //#define LOGIN_DEBUG 1
@@ -32,7 +33,8 @@ RvAPI::RvAPI(QObject *parent) :
     m_loadedPage(0),
     m_itemsmodel(this),
     m_categorymodel(0, this),
-    m_locations(this)
+    m_locations(this),
+    m_tax_model(this)
 {
     CategoryModel *cm;
 
@@ -41,6 +43,9 @@ RvAPI::RvAPI(QObject *parent) :
     QNetworkDiskCache *diskCache = new QNetworkDiskCache(this);
     diskCache->setCacheDirectory(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
     m_NetManager->setCache(diskCache);
+
+    // Create network request application header string
+    m_hversion=QString("RW/%1").arg(QCoreApplication::applicationVersion());
 
     // XXX: We should load this from a JSON/XML/something!!
     m_categorymodel.addCategory("", "", CategoryModel::InvalidCategory);
@@ -94,6 +99,9 @@ RvAPI::RvAPI(QObject *parent) :
     m_subcategorymodels.insert("sekalaista", cm);
 
     m_attributes << "width" << "height" << "depth" << "weight" << "color" << "ean" << "isbn" << "purpose" << "make" << "model" << "author" << "location" << "locationdetail";
+
+    m_taxes << "0%" << "10%" << "14%" << "24%";
+    m_tax_model.setStringList(m_taxes);
 }
 
 RvAPI::~RvAPI()
@@ -205,6 +213,7 @@ QVariantMap RvAPI::parseJsonResponse(const QByteArray &data)
 {
     QJsonDocument json=QJsonDocument::fromJson(data);
 #ifdef JSON_DEBUG
+    qDebug() << data;
     qDebug() << json.toJson();
     qDebug() << "json object " << json.isObject();
 #endif
@@ -391,43 +400,62 @@ void RvAPI::parseErrorResponse(int code, const QString op, const QByteArray &res
     emit requestFailure(code, m_msg);
 }
 
+void RvAPI::parseCategoryMap(CategoryModel &model, QVariantMap &tmp)
+{
+    CategoryModel::FeatureFlags flags;
+
+    QString id=tmp.value("id").toString();
+
+    if (tmp.value("hasSize").toBool())
+        flags|=CategoryModel::HasSize;
+    if (tmp.value("hasWeight").toBool())
+        flags|=CategoryModel::HasWeight;
+    if (tmp.value("hasColor").toBool())
+        flags|=CategoryModel::HasColor;
+    if (tmp.value("hasStock").toBool())
+        flags|=CategoryModel::HasStock;
+    if (tmp.value("hasAuthor").toBool())
+        flags|=CategoryModel::HasAuthor;
+    if (tmp.value("hasMakeAndModel").toBool())
+        flags|=CategoryModel::HasMakeAndModel;
+    if (tmp.value("hasISBN").toBool())
+        flags|=CategoryModel::HasISBN;
+    if (tmp.value("hasEAN").toBool())
+        flags|=CategoryModel::HasEAN;
+    if (tmp.value("hasPrice").toBool())
+        flags|=CategoryModel::HasPrice;
+
+    model.addCategory(id, tmp.value("name").toString(), flags);
+
+    if (tmp.contains("subcategories")) {
+        QVariantMap smap=tmp.value("subcategories").toMap();
+        QMapIterator<QString, QVariant> i(smap);
+        CategoryModel *cm=new CategoryModel(id, this);
+        while (i.hasNext()) {
+            i.next();
+            QVariantMap cmap=i.value().toMap();
+
+            parseCategoryMap(*cm, cmap);
+        }
+        m_subcategorymodels.insert(id, cm);
+    }
+}
+
 bool RvAPI::parseCategoryData(QVariantMap &data)
 {
-    Q_UNUSED(data)
-    // XXX: Needs to be implemented
-
     m_categorymodel.clear();
+    m_categorymodel.addCategory("", "", CategoryModel::InvalidCategory);
 
     QMapIterator<QString, QVariant> i(data);
     while (i.hasNext()) {
         i.next();
+        QVariantMap cmap=i.value().toMap();
 
-        QVariantMap tmp=i.value().toMap();
-
-        // CategoryModel::HasSize | CategoryModel::HasWeight | CategoryModel::HasMakeAndModel | CategoryModel::HasEAN
-        CategoryModel::FeatureFlags flags;
-
-        if (tmp.value("hasSize").toBool())
-            flags|=CategoryModel::HasSize;
-        if (tmp.value("hasWeight").toBool())
-            flags|=CategoryModel::HasWeight;
-        if (tmp.value("hasColor").toBool())
-            flags|=CategoryModel::HasColor;
-        if (tmp.value("hasMakeAndModel").toBool())
-            flags|=CategoryModel::HasMakeAndModel;
-        if (tmp.value("hasISBN").toBool())
-            flags|=CategoryModel::HasISBN;
-        if (tmp.value("hasEAN").toBool())
-            flags|=CategoryModel::HasEAN;
-        if (tmp.value("hasPrice").toBool())
-            flags|=CategoryModel::HasPrice;
-
-        m_categorymodel.addCategory(tmp.value("id").toString(), tmp.value("name").toString(), flags);
+        parseCategoryMap(m_categorymodel, cmap);
     }
 
     return true;
 }
-
 
 bool RvAPI::parseLocationData(QVariantMap &data)
 {    
@@ -721,7 +749,7 @@ const QUrl RvAPI::createRequestUrl(QString endpoint)
 
 void RvAPI::setAuthenticationHeaders(QNetworkRequest *request)
 {
-    request->setHeader(QNetworkRequest::UserAgentHeader, "RVTku/1.0");
+    request->setHeader(QNetworkRequest::UserAgentHeader, m_hversion);
     request->setRawHeader(QByteArray("Accept"), "application/json");
     if (!m_apikey.isEmpty())
         request->setRawHeader(QByteArray("X-AuthenticationKey"), m_apikey.toUtf8());
@@ -729,6 +757,12 @@ void RvAPI::setAuthenticationHeaders(QNetworkRequest *request)
         qWarning("API Key is not set! This won't work at all.");
     if (!m_authtoken.isEmpty())
         request->setRawHeader(QByteArray("X-Auth-Token"), m_authtoken.toUtf8());
+}
+
+void RvAPI::queueRequest(QNetworkReply *req, const QString op)
+{
+    m_requests.insert(req, op);
+    setBusy(true);
 }
 
 /**
@@ -753,7 +787,7 @@ bool RvAPI::login()
     }
 
     if (isRequestActive(op_auth_login)) {
-        qDebug("Request is active");
+        qDebug("Login request is already active");
         return false;
     }
 
@@ -765,9 +799,7 @@ bool RvAPI::login()
     addParameter(mp, QStringLiteral("apiversion"), m_apiversion);
     addParameter(mp, QStringLiteral("appversion"), m_appversion);
 
-    QNetworkReply *req=post(request, mp);
-
-    m_requests.insert(req, op_auth_login);
+    queueRequest(post(request, mp), op_auth_login);
 
     return true;
 }
@@ -789,9 +821,7 @@ bool RvAPI::logout()
 
     QHttpMultiPart *mp = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
-    QNetworkReply *req=post(request, mp);
-
-    m_requests.insert(req, op_auth_logout);
+    queueRequest(post(request, mp), op_auth_logout);
 
     return true;
 }
@@ -848,13 +878,7 @@ bool RvAPI::products(uint page, uint amount, const QString category, const QStri
     url.setQuery(query);
     request.setUrl(url);
 
-    qDebug() << url;
-
-    QNetworkReply *req=get(request);
-
-    m_requests.insert(req, op_products);
-
-    setBusy(true);
+    queueRequest(get(request), op_products);
 
     return true;
 }
@@ -909,10 +933,7 @@ bool RvAPI::searchBarcode(const QString barcode, bool checkOnly)
     QNetworkReply *req;
 
     req=checkOnly ? head(request) : get(request);
-
-    m_requests.insert(req, op_product_barcode);
-
-    setBusy(true);
+    queueRequest(req, op_product_barcode);
 
     return true;
 }
@@ -989,9 +1010,7 @@ bool RvAPI::add(ProductItem *product)
 
     request.setUrl(url);
 
-    QNetworkReply *req=post(request, mp);
-
-    m_requests.insert(req, op_product);
+    queueRequest(post(request, mp), op_product);
 
     return true;
 }
@@ -1025,10 +1044,7 @@ bool RvAPI::update(ProductItem *product)
     // XXX: Needs to be implemented
 
     request.setUrl(url);
-
-    QNetworkReply *req=post(request, mp);
-
-    m_requests.insert(req, op_product);
+    queueRequest(post(request, mp), op_product);
 
     return true;
 }
@@ -1061,13 +1077,8 @@ bool RvAPI::requestLocations()
     QNetworkRequest request;
     setAuthenticationHeaders(&request);
 
-    request.setUrl(url);
-
-    QNetworkReply *req;
-
-    req=get(request);
-
-    m_requests.insert(req, op_locations);
+    request.setUrl(url);    
+    queueRequest(get(request), op_locations);
 
     return true;
 }
@@ -1077,20 +1088,15 @@ bool RvAPI::requestCategories()
     if (!m_authenticated)
         return false;
 
-    if (isRequestActive(op_locations))
+    if (isRequestActive(op_categories))
         return false;
 
-    QUrl url=createRequestUrl(op_locations);
+    QUrl url=createRequestUrl(op_categories);
     QNetworkRequest request;
     setAuthenticationHeaders(&request);
 
     request.setUrl(url);
-
-    QNetworkReply *req;
-
-    req=get(request);
-
-    m_requests.insert(req, op_locations);
+    queueRequest(get(request), op_categories);
 
     return true;
 }
@@ -1146,6 +1152,11 @@ CategoryModel *RvAPI::getSubCategoryModel(const QString key)
     return m_subcategorymodels.value(key, Q_NULLPTR);
 }
 
+QStringListModel *RvAPI::getTaxModel()
+{
+    return &m_tax_model;
+}
+
 bool RvAPI::downloadUpdate()
 {
     if (!m_authenticated)
@@ -1160,11 +1171,7 @@ bool RvAPI::downloadUpdate()
 
     request.setUrl(url);
 
-    QNetworkReply *req;
-
-    req=get(request);
-
-    m_requests.insert(req, op_download);
+    queueRequest(get(request), op_download);
 
     return true;
 }
