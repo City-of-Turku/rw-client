@@ -112,12 +112,12 @@ public:
     Q_INVOKABLE bool validateBarcode(const QString barcode) const;
     Q_INVOKABLE bool validateBarcodeEAN(const QString code) const;
 
-    Q_INVOKABLE const ItemListModel *getItemModel() const;
-    Q_INVOKABLE const LocationListModel *getLocationsModel() const;
-    Q_INVOKABLE const CategoryModel *getCategoryModel() const;
-    Q_INVOKABLE const CategoryModel *getSubCategoryModel(const QString key);
+    Q_INVOKABLE ItemListModel *getItemModel();
+    Q_INVOKABLE LocationListModel *getLocationsModel();
+    Q_INVOKABLE CategoryModel *getCategoryModel();
+    Q_INVOKABLE CategoryModel *getSubCategoryModel(const QString key);
 
-    Q_INVOKABLE const QStringListModel *getTaxModel() const;
+    Q_INVOKABLE QStringListModel *getTaxModel();
 
     Q_INVOKABLE bool downloadUpdate();
 
