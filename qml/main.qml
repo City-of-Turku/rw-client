@@ -74,8 +74,9 @@ ApplicationWindow {
         repeat: false;
         onTriggered: {
             var r=api.login();
-            if (r===false)
+            if (r===false) {
                 messagePopup.show("Login", "Invalid login credentials");
+            }
         }
     }
 
@@ -576,6 +577,7 @@ ApplicationWindow {
                 rootStack.pop();
             }
             requestLocations();
+            requestCategories();
         }
 
         onUpdateAvailable: {
