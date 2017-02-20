@@ -518,7 +518,7 @@ Page {
                                     return;
                                 }
                                 var cdata=subCategorySelection.model.get(currentIndex)
-                                if (!cdata)
+                                if (!cdata.cid)
                                     return;
                                 categoryFlags=cdata.flags;
                                 categorySubID=cdata.cid;
