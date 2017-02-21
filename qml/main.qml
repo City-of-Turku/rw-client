@@ -576,6 +576,7 @@ ApplicationWindow {
                 rootStack.pop();
             }
             requestLocations();
+            requestCategories();
         }
 
         onUpdateAvailable: {
