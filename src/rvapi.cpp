@@ -794,6 +794,7 @@ bool RvAPI::login()
     }
 
     QNetworkRequest request(createRequestUrl(op_auth_login));
+    setAuthenticationHeaders(&request);
     QHttpMultiPart *mp = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
     addParameter(mp, QStringLiteral("username"), m_username);
@@ -974,6 +975,12 @@ bool RvAPI::add(ProductItem *product)
     if (s!=1) {
         QString num;
         addParameter(mp, QStringLiteral("stock"), num.setNum(s));
+    }
+    double p=product->getPrize();
+    if (p>0.0) {
+        QString num;
+        addParameter(mp, QStringLiteral("price"), num.setNum(p,'f',2));
+        addParameter(mp, QStringLiteral("tax"), product->getTax());
     }
 
     // Add attributes
