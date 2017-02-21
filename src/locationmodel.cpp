@@ -58,7 +58,7 @@ int LocationListModel::findLocationByID(uint id)
             return i;
         }
     }
-    return 0;
+    return -1;
 }
 
 int LocationListModel::rowCount(const QModelIndex &parent) const

@@ -99,7 +99,7 @@ Page {
         if (defaultWarehouse!=0) {
             var i=locationsModel.findLocationByID(defaultWarehouse);
             console.debug(i)
-            if (i>0) {
+            if (i>-1) {
                 productWarehouse.currentIndex=i;
                 locationID=defaultWarehouse;
             }
