@@ -206,7 +206,7 @@ public slots:
 
 protected:
     void queueRequest(QNetworkReply *req, const QString op);
-    void parseCategoryMap(CategoryModel &model, QVariantMap &tmp);
+    void parseCategoryMap(const QString key, CategoryModel &model, QVariantMap &tmp);
 
 protected slots:
     void onIgnoreSSLErrors(QNetworkReply *reply, QList<QSslError> error);

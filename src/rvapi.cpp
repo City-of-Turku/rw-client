@@ -48,6 +48,7 @@ RvAPI::RvAPI(QObject *parent) :
     m_hversion=QString("RW/%1").arg(QCoreApplication::applicationVersion());
 
     // XXX: We should load this from a JSON/XML/something!!
+#if 0
     m_categorymodel.addCategory("", "", CategoryModel::InvalidCategory);
     m_categorymodel.addCategory("huonekalu", "Huonekalu", CategoryModel::HasSize | CategoryModel::HasWeight | CategoryModel::HasColor);
     m_categorymodel.addCategory("laite", "Laite", CategoryModel::HasSize | CategoryModel::HasWeight | CategoryModel::HasMakeAndModel | CategoryModel::HasEAN);
@@ -97,6 +98,7 @@ RvAPI::RvAPI(QObject *parent) :
     cm=new CategoryModel("sekalaista", this);
     cm->addCategory("sekalaistamuu", "Muu", 0);
     m_subcategorymodels.insert("sekalaista", cm);
+#endif
 
     m_attributes << "width" << "height" << "depth" << "weight" << "color" << "ean" << "isbn" << "purpose" << "make" << "model" << "author" << "location" << "locationdetail";
 
@@ -400,11 +402,11 @@ void RvAPI::parseErrorResponse(int code, const QString op, const QByteArray &res
     emit requestFailure(code, m_msg);
 }
 
-void RvAPI::parseCategoryMap(CategoryModel &model, QVariantMap &tmp)
+void RvAPI::parseCategoryMap(const QString key, CategoryModel &model, QVariantMap &tmp)
 {
     CategoryModel::FeatureFlags flags;
 
-    QString id=tmp.value("id").toString();
+    //QString id=tmp.value("id").toString();
 
     if (tmp.value("hasSize").toBool())
         flags|=CategoryModel::HasSize;
@@ -425,19 +427,19 @@ void RvAPI::parseCategoryMap(CategoryModel &model, QVariantMap &tmp)
     if (tmp.value("hasPrice").toBool())
         flags|=CategoryModel::HasPrice;
 
-    model.addCategory(id, tmp.value("name").toString(), flags);
+    model.addCategory(key, tmp.value("name").toString(), flags);
 
     if (tmp.contains("subcategories")) {
         QVariantMap smap=tmp.value("subcategories").toMap();
         QMapIterator<QString, QVariant> i(smap);
-        CategoryModel *cm=new CategoryModel(id, this);
+        CategoryModel *cm=new CategoryModel(key, this);
         while (i.hasNext()) {
             i.next();
             QVariantMap cmap=i.value().toMap();
 
-            parseCategoryMap(*cm, cmap);
+            parseCategoryMap(i.key(), *cm, cmap);
         }
-        m_subcategorymodels.insert(id, cm);
+        m_subcategorymodels.insert(key, cm);
     }
 }
 
@@ -448,10 +450,10 @@ bool RvAPI::parseCategoryData(QVariantMap &data)
 
     QMapIterator<QString, QVariant> i(data);
     while (i.hasNext()) {
-        i.next();
+        i.next();        
         QVariantMap cmap=i.value().toMap();
 
-        parseCategoryMap(m_categorymodel, cmap);
+        parseCategoryMap(i.key(), m_categorymodel, cmap);
     }
 
     return true;
@@ -792,6 +794,7 @@ bool RvAPI::login()
     }
 
     QNetworkRequest request(createRequestUrl(op_auth_login));
+    setAuthenticationHeaders(&request);
     QHttpMultiPart *mp = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
     addParameter(mp, QStringLiteral("username"), m_username);
@@ -972,6 +975,12 @@ bool RvAPI::add(ProductItem *product)
     if (s!=1) {
         QString num;
         addParameter(mp, QStringLiteral("stock"), num.setNum(s));
+    }
+    double p=product->getPrize();
+    if (p>0.0) {
+        QString num;
+        addParameter(mp, QStringLiteral("price"), num.setNum(p,'f',2));
+        addParameter(mp, QStringLiteral("tax"), product->getTax());
     }
 
     // Add attributes
