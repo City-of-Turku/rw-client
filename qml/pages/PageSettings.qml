@@ -63,14 +63,9 @@ Page {
                 ColumnLayout {
                     CheckBox {
                         id: checkDevelopment
-                        text: "Development debug mode"
-                        checked: false
-                    }
-                    CheckBox {
-                        id: checkServer
                         text: "Development server"
                         checked: false
-                    }
+                    }                    
                 }
             }
         }
