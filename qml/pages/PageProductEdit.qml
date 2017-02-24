@@ -28,7 +28,7 @@ Page {
     // The minimum amount of data that needs to be entered toggles this
 
     property bool validBaseEntry: barcodeText.acceptableInput && categoryID!='' && productTitle.acceptableInput;
-    property bool validEntry: validBaseEntry && productWarehouse.currentIndex>=0 && purposeSelection.currentIndex>0 && hasImages;
+    property bool validEntry: validBaseEntry && productWarehouse.currentIndex>=0 && (hasPurpose && purposeSelection.currentIndex>0) && hasImages;
 
     property int maxImages: 5;
 
@@ -62,6 +62,9 @@ Page {
     property bool categoryHasPrice: categoryFlags & CategoryModel.HasPrice
 
     property bool hasTax: true
+
+    property bool hasPurpose: true
+    property bool hasLocation: true
 
     property int defaultWarehouse;
 
@@ -530,6 +533,7 @@ Page {
                             id: purposeSelection
                             model: root.purposeModel
                             enabled: true
+                            visible: hasPurpose
                             textRole: "purpose"
                             placeHolder: qsTr("Usage")
                             Layout.fillWidth: true
@@ -997,12 +1001,16 @@ Page {
                                                images: imageList
                                            })
 
-        p.setAttribute("subcategory", categorySubID)
-        p.setAttribute("purpose", purposeID)
-        p.setAttribute("location", locationID)
+        if (categorySubID!='')
+            p.setAttribute("subcategory", categorySubID)
+        if (hasPurpose)
+            p.setAttribute("purpose", purposeID)
 
-        if (locationDetail!='')
-            p.setAttribute("locationdetail", locationDetail)
+        if (hasLocation) {
+            p.setAttribute("location", locationID)
+            if (locationDetail!='')
+                p.setAttribute("locationdetail", locationDetail)
+        }
 
         if (categoryHasColor && colorID!='')
             p.setAttribute("color", colorID)
@@ -1039,6 +1047,16 @@ Page {
         } else {
             p.setStock(1);
         }
+
+        if (categoryHasPrice) {
+            p.setPrice(parseFloat(productPrice.text))
+        } else {
+            p.setPrice(0.0);
+        }
+
+        // XXX: Hmm...
+        if (categoryHasPrice && hasTax)
+            p.setTax(productTax.currentIndex)
 
         return p;
     }
