@@ -20,7 +20,7 @@ class ProductItem : public QObject
     Q_PROPERTY(uint stock READ getStock NOTIFY stockChanged)
 
     // XXX:
-    Q_PROPERTY(double price READ getPrize WRITE setPrice NOTIFY priceChanged)
+    Q_PROPERTY(double price READ getPrice WRITE setPrice NOTIFY priceChanged)
     Q_PROPERTY(uint tax READ getTax WRITE setTax NOTIFY taxChanged)
 
 public:
@@ -80,7 +80,7 @@ public:
         return m_tax;
     }
 
-    Q_INVOKABLE double getPrize() const
+    Q_INVOKABLE double getPrice() const
     {
         return m_price;
     }

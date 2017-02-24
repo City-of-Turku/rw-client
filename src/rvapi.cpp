@@ -976,7 +976,7 @@ bool RvAPI::add(ProductItem *product)
         QString num;
         addParameter(mp, QStringLiteral("stock"), num.setNum(s));
     }
-    double p=product->getPrize();
+    double p=product->getPrice();
     if (p>0.0) {
         QString num;
         addParameter(mp, QStringLiteral("price"), num.setNum(p,'f',2));
