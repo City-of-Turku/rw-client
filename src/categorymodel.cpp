@@ -81,9 +81,18 @@ void CategoryModel::clear()
 QVariantMap CategoryModel::get(int index) const
 {
     QVariantMap map;
-    const QList<QString> keys=m_data.keys();
-    QString key=keys.at(index);
 
+    if (m_data.size()==0)
+        return map;
+
+    const QList<QString> keys=m_data.keys();
+
+    qDebug() << keys.size() << index;
+
+    if (index>keys.size())
+        return map;
+
+    QString key=keys.at(index);
     QPair<QString, FeatureFlags> tmp=m_data.value(key);
 
     map["cid"] = key;

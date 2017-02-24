@@ -71,7 +71,7 @@ ListView {
                     }
                     Text {
                         Layout.fillWidth: false
-                        text: " (" +model.distance.toFixed(2) + " km)"
+                        text: model.distance!==false ? " (" +model.distance.toFixed(2) + " km)" : ''
                         font.pixelSize: 12
                     }
                 }
