@@ -990,7 +990,8 @@ Page {
                                                title: productTitle.text,
                                                description: productDescription.text,
                                                barcode: barcodeText.text,
-                                               category: categoryID
+                                               category: categoryID,
+                                               subCategory: categorySubID
                                            })
         p.keepImages=keepImages;
 
@@ -999,10 +1000,6 @@ Page {
             p.addImage(s.image, s.source);
         }
 
-
-
-        if (categorySubID!='')
-            p.setAttribute("subcategory", categorySubID)
         if (hasPurpose)
             p.setAttribute("purpose", purposeID)
 
