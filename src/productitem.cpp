@@ -2,17 +2,29 @@
 
 #include <QDebug>
 
-ProductItem::ProductItem(QObject *parent) : QObject(parent)
+ProductItem::ProductItem(QObject *parent)
+    : QObject(parent)
+    , m_id(0)
+    , m_uid(0)
+    , m_stock(1)
+    , m_tax(0)
+    , m_price(0.0)
 {
 
 }
 
-ProductItem::ProductItem(const QString &barcode, const QString &title, const QString &description, QObject *parent) : QObject(parent)
+ProductItem::ProductItem(const QString &barcode, const QString &title, const QString &description, QObject *parent)
+    : QObject(parent)
+    , m_id(0)
+    , m_uid(0)
+    , m_barcode(barcode)
+    , m_title(title)
+    , m_description(description)
+    , m_stock(1)
+    , m_tax(0)
+    , m_price(0.0)
 {
-    m_barcode=barcode;
-    m_title=title;
-    m_description=description;
-    m_stock=1;
+
 }
 
 ProductItem* ProductItem::fromVariantMap(QVariantMap &data, QObject *parent)
@@ -40,7 +52,7 @@ ProductItem* ProductItem::fromVariantMap(QVariantMap &data, QObject *parent)
     if (data.contains("price"))
         p->m_price=data["price"].toString().toDouble();
     else
-        p->m_price=0;
+        p->m_price=0.0;
 
     if (data.contains("tax"))
         p->m_tax=data["tax"].toString().toInt();

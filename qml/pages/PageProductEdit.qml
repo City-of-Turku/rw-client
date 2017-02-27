@@ -1030,6 +1030,13 @@ Page {
             }
         }
 
+        if (categoryHasPrice) {
+            p.setPrice(parseFloat(productPrice.text));
+            if (hasTax) {
+                p.setTax(productTax.currentIndex)
+            }
+        }
+
         if (categoryHasMakeAndModel) {
             if (productModel.text!='')
                 p.setAttribute("model", productModel.text)

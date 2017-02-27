@@ -17,7 +17,7 @@ ApplicationWindow {
     visible: true
     width: 480
     height: 800
-    title: qsTr("Turku - Resurssit")
+    title: appName
 
     property bool isLogged: false
     property bool debugBuild: true

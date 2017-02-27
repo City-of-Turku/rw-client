@@ -102,7 +102,7 @@ RvAPI::RvAPI(QObject *parent) :
 
     m_attributes << "width" << "height" << "depth" << "weight" << "color" << "ean" << "isbn" << "purpose" << "make" << "model" << "author" << "location" << "locationdetail";
 
-    m_taxes << "0%" << "10%" << "14%" << "24%";
+    m_taxes << "0%" << "24%" << "14%" << "10%";
     m_tax_model.setStringList(m_taxes);
 }
 

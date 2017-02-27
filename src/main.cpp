@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
     user.insert("username", settings.getSettingsStr("username", ""));
     user.insert("password", settings.getSettingsStr("password", ""));
     user.insert("apikey", API_KEY);
-    user.insert("urlSanbox", API_SERVER_SANDBOX);
+    user.insert("urlSandbox", API_SERVER_SANDBOX);
     user.insert("urlProduction", API_SERVER_PRODUCTION);
 
     QString locale(QLocale().name());
@@ -130,6 +130,7 @@ int main(int argc, char *argv[])
 
     engine.rootContext()->setContextProperty("settings", &settings);
     engine.rootContext()->setContextProperty("appVersion", appversion);
+    engine.rootContext()->setContextProperty("appName", QCoreApplication::applicationName());
     engine.rootContext()->setContextProperty("appVersionCode", appvcode);
     engine.rootContext()->setContextProperty("userData", &user);
     engine.rootContext()->setContextProperty("appUtil", &apputil);
