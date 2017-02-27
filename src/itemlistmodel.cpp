@@ -79,10 +79,9 @@ QVariant ItemListModel::data(const QModelIndex &index, int role) const
     case ItemListModel::DescriptionRole:
         return QVariant(item->getDescription());
         break;
-    case ItemListModel::ThumbnailRole: {
-        QVariantList i=item->images();
-        if (i.size()>0)
-            return i.first();
+    case ItemListModel::ThumbnailRole: {        
+        if (!item->images().isEmpty())
+            return item->images().first();
         return QVariant();
     }
         break;
