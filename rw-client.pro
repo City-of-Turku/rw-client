@@ -6,9 +6,8 @@ QT += positioning
 CONFIG += c++11
 
 # Change this to your !
-#include(profiles/sample-profile.pri)
-#include(profiles/turku-profile.pri)
-include(profiles/kv-profile.pri)
+include(profiles/sample-profile.pri)
+# include(profiles/turku-profile.pri)
 
 HEADERS += \
     src/rvapi.h \
