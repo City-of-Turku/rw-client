@@ -1,4 +1,5 @@
 #include <QDebug>
+#include <QFile>
 
 #include "apputility.h"
 
@@ -52,4 +53,9 @@ int AppUtility::getImageRotation(QString file)
     }
 
     return 0;
+}
+
+bool AppUtility::remoteFile(QString file)
+{
+    return QFile::remove(file);
 }
