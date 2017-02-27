@@ -68,7 +68,7 @@ void CategoryModel::addCategory(const QString id, const QString category, Featur
 
     emit countChanged(m_data.count());
 
-    qDebug() << "Categories: " << m_data.count();
+    qDebug() << "Categories: " << m_data.count() << id << category << flags;
 }
 
 void CategoryModel::clear()
