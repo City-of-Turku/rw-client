@@ -9,6 +9,7 @@ ProductItem::ProductItem(QObject *parent)
     , m_stock(1)
     , m_tax(0)
     , m_price(0.0)
+    , m_keepImages(true)
 {
 
 }
@@ -23,6 +24,7 @@ ProductItem::ProductItem(const QString &barcode, const QString &title, const QSt
     , m_stock(1)
     , m_tax(0)
     , m_price(0.0)
+    , m_keepImages(true)
 {
 
 }
@@ -59,8 +61,10 @@ ProductItem* ProductItem::fromVariantMap(QVariantMap &data, QObject *parent)
     else
         p->m_tax=0;
 
-    if (data.contains("images"))
-        p->setImages(data["images"].toList());
+    if (data.contains("images")) {
+        QVariantList tmp=data["images"].toList();
+        p->setImages(tmp);
+    }
 
     if (data.contains("size")) {
         QVariantMap sm=data["size"].toMap();
@@ -97,7 +101,7 @@ ProductItem* ProductItem::fromVariantMap(QVariantMap &data, QObject *parent)
 
 ProductItem::~ProductItem()
 {
-    qDebug() << "*** Delete Product " << m_barcode;
+    qDebug() << "*** Delete Product " << m_barcode << m_keepImages;
 }
 
 uint ProductItem::getID() const
@@ -132,10 +136,8 @@ const QString ProductItem::getDescription() const
 }
 
 QString ProductItem::thumbnail() const
-{
-    if (m_images.size()>0)
-        return m_images.at(0).toString();
-    return "";
+{    
+    return m_images.isEmpty() ? "" : m_images.first().toString();
 }
 
 bool ProductItem::hasAttribute(const QString key) const
@@ -195,23 +197,45 @@ void ProductItem::setDescription(QString description)
     emit descriptionChanged(description);
 }
 
-void ProductItem::addImage(const QVariant image)
+void ProductItem::addImage(const QVariant image, const ImageSource source)
 {
     m_images.append(image);
+    m_imagesource.insert(image, source);
     emit imagesChanged(m_images);
 }
 
-void ProductItem::setImages(QVariantList images)
+void ProductItem::removeImages()
 {
-    if (m_images == images)
+    if (!m_keepImages) {
+        for (int i = 0; i < m_images.size(); i++) {
+            QString f=m_images.at(i).toString();
+
+            ImageSource is=m_imagesource.value(f, UnknownSource);
+            if (is!=CameraSource)
+                continue;
+
+            if (!QFile::exists(f))
+                continue;
+
+            qDebug() << "Removing file: " << f;
+            QFile::remove(f);
+        }
+    }
+    m_images.clear();
+    m_imagesource.clear();
+}
+
+void ProductItem::setImages(QVariantList images)
+{    
+    if (m_images==images)
         return;
 
+    qDebug() << images;
+
+    m_imagesource.clear();
     m_images = images;
     emit imagesChanged(images);
-    if (images.size()>0)
-        emit thumbnailChanged(images.at(0).toString());
-    else
-        emit thumbnailChanged("");
+    emit thumbnailChanged(images.isEmpty() ? "" : images.first().toString());
 }
 
 void ProductItem::setCategory(const QString category)
