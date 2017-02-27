@@ -9,6 +9,7 @@ Page {
 
     property alias developmentMode: checkDevelopment.checked
     property alias keepImages: checkKeepImages.checked
+    property alias askMultiple: checkMultiAdd.checked
 
     Keys.onReleased: {
         if (event.key === Qt.Key_Back) {
@@ -63,14 +64,9 @@ Page {
                 ColumnLayout {
                     CheckBox {
                         id: checkDevelopment
-                        text: "Development debug mode"
+                        text: qsTr("Development sandbox mode")
                         checked: false
-                    }
-                    CheckBox {
-                        id: checkServer
-                        text: "Development server"
-                        checked: false
-                    }
+                    }                    
                 }
             }
         }
