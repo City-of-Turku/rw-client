@@ -9,7 +9,7 @@ class AppUtility : public QObject
 public:
     explicit AppUtility(QObject *parent = 0);
     Q_INVOKABLE int getImageRotation(QString file);
-    Q_INVOKABLE bool remoteFile(QString file);
+    Q_INVOKABLE bool removeFile(QString file);
 
 signals:
 

@@ -55,7 +55,7 @@ int AppUtility::getImageRotation(QString file)
     return 0;
 }
 
-bool AppUtility::remoteFile(QString file)
+bool AppUtility::removeFile(QString file)
 {
     return QFile::remove(file);
 }
