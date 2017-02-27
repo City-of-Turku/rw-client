@@ -735,7 +735,7 @@ Page {
                                 productWarehouse.model.clearFilter();
                             }
                         }
-                    }                    
+                    }
 
                     LocationListView {
                         id: productWarehouse
@@ -756,7 +756,7 @@ Page {
 
                     TextField {
                         id: productWarehouseLocation
-                        enabled: productWarehouse.currentIndex>1
+                        enabled: productWarehouse.currentIndex>=0
                         Layout.fillWidth: true
                         placeholderText: qsTr("Enter storage location")
                         onTextChanged: {
