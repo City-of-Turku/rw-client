@@ -19,6 +19,7 @@
 //#define DATA_DEBUG 1
 //#define JSON_DEBUG 1
 //#define SECURE_DEBUG 1
+//#define DUMMY_CATEGORIES 1
 
 #define ITEMS_MAX (10)
 
@@ -47,15 +48,10 @@ RvAPI::RvAPI(QObject *parent) :
     // Create network request application header string
     m_hversion=QString("RW/%1").arg(QCoreApplication::applicationVersion());
 
-    // XXX: We should load this from a JSON/XML/something!!
-#if 0
+    // Dummy categories for development purposes
+#ifdef DUMMY_CATEGORIES
     m_categorymodel.addCategory("", "", CategoryModel::InvalidCategory);
-    m_categorymodel.addCategory("huonekalu", "Huonekalu", CategoryModel::HasSize | CategoryModel::HasWeight | CategoryModel::HasColor);
-    m_categorymodel.addCategory("laite", "Laite", CategoryModel::HasSize | CategoryModel::HasWeight | CategoryModel::HasMakeAndModel | CategoryModel::HasEAN);
-    m_categorymodel.addCategory("kirja", "Kirja", CategoryModel::HasISBN | CategoryModel::HasAuthor);
-    m_categorymodel.addCategory("askartelu", "Askartelu", CategoryModel::HasSize | CategoryModel::HasColor | CategoryModel::HasStock);
-    m_categorymodel.addCategory("liikunta", "Liikunta", 0);
-    m_categorymodel.addCategory("rakennusmateriaali", "Rakennusmateriaali", 0);
+    m_categorymodel.addCategory("huonekalu", "Huonekalu", CategoryModel::HasSize | CategoryModel::HasWeight | CategoryModel::HasColor);    
     m_categorymodel.addCategory("sekalaista", "Sekalaista", 0);
 
     cm=new CategoryModel("huonekalu", this);
@@ -71,33 +67,6 @@ RvAPI::RvAPI(QObject *parent) :
     cm->addCategory("vaatekaappi", "Kaappi/Vaatekaappi", CategoryModel::HasSize | CategoryModel::HasWeight| CategoryModel::HasColor);
     cm->addCategory("huonemuu", "Muu", CategoryModel::HasSize | CategoryModel::HasWeight| CategoryModel::HasColor);
     m_subcategorymodels.insert("huonekalu", cm);
-
-    cm=new CategoryModel("laite", this);
-    cm->addCategory("kodinkone", "Kodinkone", CategoryModel::HasSize | CategoryModel::HasWeight | CategoryModel::HasEAN);
-    cm->addCategory("it", "IT", CategoryModel::HasMakeAndModel | CategoryModel::HasEAN);
-    cm->addCategory("laitemuu", "Muut", CategoryModel::HasSize | CategoryModel::HasWeight | CategoryModel::HasMakeAndModel | CategoryModel::HasEAN);
-    m_subcategorymodels.insert("laite", cm);
-
-    cm=new CategoryModel("kirja", this);
-    cm->addCategory("kirjakauno", "Kaunokirjallisuus", CategoryModel::HasISBN | CategoryModel::HasAuthor);
-    cm->addCategory("kirjamuu", "Muu", CategoryModel::HasISBN | CategoryModel::HasAuthor);
-    m_subcategorymodels.insert("kirja", cm);
-
-    cm=new CategoryModel("askartelu", this);
-    cm->addCategory("askartelumuu", "Muu", CategoryModel::HasSize | CategoryModel::HasColor | CategoryModel::HasStock);
-    m_subcategorymodels.insert("askartelu", cm);
-
-    cm=new CategoryModel("liikunta", this);
-    cm->addCategory("liikuntamuu", "Muu", CategoryModel::HasSize | CategoryModel::HasWeight | CategoryModel::HasColor);
-    m_subcategorymodels.insert("liikunta", cm);
-
-    cm=new CategoryModel("rakennusmateriaali", this);
-    cm->addCategory("rakmuu", "Muu", CategoryModel::HasSize | CategoryModel::HasWeight | CategoryModel::HasColor);
-    m_subcategorymodels.insert("rakennusmateriaali", cm);
-
-    cm=new CategoryModel("sekalaista", this);
-    cm->addCategory("sekalaistamuu", "Muu", 0);
-    m_subcategorymodels.insert("sekalaista", cm);
 #endif
 
     m_attributes << "width" << "height" << "depth" << "weight" << "color" << "ean" << "isbn" << "purpose" << "make" << "model" << "author" << "location" << "locationdetail";
