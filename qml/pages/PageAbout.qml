@@ -41,6 +41,13 @@ Page {
             font.pixelSize: 26
             text: appVersion
         }
+        Text {
+            Layout.fillWidth: true
+            horizontalAlignment: Text.AlignHCenter
+            font.pixelSize: 16
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+            text: "Uses icons from the Subway icon set\nCC BY 4.0"
+        }
         ColumnLayout {
             visible: root.updateAvailable
             Layout.fillWidth: true
