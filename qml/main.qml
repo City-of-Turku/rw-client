@@ -25,6 +25,8 @@ ApplicationWindow {
     property bool updateAvailable: false
 
     property bool settingsDevelopmentMode: false
+    property bool settingsKeepImages: true
+    property bool settingsAskMultiple: true
 
     property ServerApi api: api    
     property alias colorModel: colorModel
@@ -61,12 +63,18 @@ ApplicationWindow {
 
     Component.onCompleted: {
         settingsDevelopmentMode=settings.getSettingsBool("developmentMode", false);
-        if (userData.username!=='' && userData.password!=='')
-            loginTimer.start();
+        settingsAskMultiple=settings.getSettingsBool("askMultiple", true);
+        settingsKeepImages=settings.getSettingsBool("keepImages", true);
+
         savedLocation=settings.getSettingsInt("location", 0);
+
+        if (userData.username!=='' && userData.password!=='')
+            loginTimer.start();        
     }
 
     onSettingsDevelopmentModeChanged: settings.setSettings("developmentMode", settingsDevelopmentMode)
+    onSettingsAskMultipleChanged: settings.setSettings("askMultiple", settingsAskMultiple)
+    onSettingsKeepImagesChanged: settings.setSettings("keepImages", settingsKeepImages)
 
     Timer {
         id: loginTimer
@@ -513,8 +521,18 @@ ApplicationWindow {
     Component {
         id: pageSettings
         PageSettings {
+            developmentMode: settingsDevelopmentMode
+            keepImages: settingsKeepImages
+            askMultiple: settingsAskMultiple
+
             onDevelopmentModeChanged: {
                 settingsDevelopmentMode=developmentMode
+            }
+            onKeepImagesChanged: {
+                settingsKeepImages=keepImages
+            }
+            onAskMultipleChanged: {
+                settingsAskMultiple=askMultiple
             }
         }
     }
