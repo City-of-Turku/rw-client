@@ -237,6 +237,18 @@ ApplicationWindow {
 
             Label {
                 Layout.fillWidth: true
+                visible: settingsDevelopmentMode
+                anchors.margins: 16
+                font.pixelSize: 18
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                wrapMode: Text.Wrap
+                text: "DEBUG MODE"
+                color: "#ff0000"
+            }
+
+            Label {
+                Layout.fillWidth: true
                 visible: !isLogged
                 anchors.margins: 16
                 font.pixelSize: 20
@@ -450,15 +462,20 @@ ApplicationWindow {
         PageProductEdit {
             id: editPage
             defaultWarehouse: root.savedLocation
+            keepImages: settingsKeepImages
+            addMoreEnabled: settingsAskMultiple
+
+            property Product tempProduct;
+
             onRequestProductSave: {
-                var p=editPage.createProduct();
-                if (!p) {
+                tempProduct=editPage.createProduct();
+                if (!tempProduct) {
                     console.debug("*** Failed to get product!")
                     editPage.saveFailed();
                     return;
                 }
 
-                var rs=api.add(p);
+                var rs=api.add(tempProduct);
                 if (rs)
                     editPage.saveInProgress();
                 else
@@ -467,10 +484,14 @@ ApplicationWindow {
             Connections {
                 target: api
                 onProductSaved: {                    
-                    editPage.confirmProductSave(true, null, "");                    
+                    if (editPage.confirmProductSave(true, null, "")) {
+                        tempProduct.removeImages();
+                    }
+                    tempProduct.destroy();
                 }
                 onProductFail: {                    
                     editPage.confirmProductSave(false, null, msg);
+                    tempProduct.destroy();
                 }
             }
 

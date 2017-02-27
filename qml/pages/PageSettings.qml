@@ -37,13 +37,11 @@ Page {
                         id: checkKeepImages
                         text: qsTr("Keep uploaded images on device")
                         checked: true
-                        enabled: false
                     }
                     CheckBox {
                         id: checkMultiAdd
                         text: qsTr("Ask to add more after save")
                         checked: true
-                        enabled: false
                     }
                 }
             }

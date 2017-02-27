@@ -27,7 +27,7 @@ Page {
     property bool hasProduct: product ? true : false;
     // The minimum amount of data that needs to be entered toggles this
 
-    property bool validBaseEntry: barcodeText.acceptableInput && categoryID!='' && productTitle.acceptableInput;
+    property bool validBaseEntry: barcodeText.acceptableInput && categoryID!='' && productTitle.acceptableInput && (hasPurpose && purposeSelection.currentIndex>0)
     property bool validEntry: validBaseEntry && productWarehouse.currentIndex>=0 && (hasPurpose && purposeSelection.currentIndex>0) && hasImages;
 
     property int maxImages: 5;
@@ -39,6 +39,8 @@ Page {
     signal requestProductSave()
 
     property bool isSaving: false;
+
+    property bool keepImages: true;
 
     property alias locationsModel: productWarehouse.model
 
@@ -83,17 +85,18 @@ Page {
         isSaving=false;
         if (saved) {
             savingPopup.close();
-            if (addMoreEnabled)
+            if (addMoreEnabled) {
                 addMoreProducts.open();
-            else {
-                messagePopup.show(qsTr("Product saved"), qsTr("Product saved succesfully"));
-                rootStack.pop();
+                return false;
             }
-        } else {
-            console.debug("*** Saved failed")
-            messagePopup.show(qsTr("Save failed"), qsTr("Saving item failed")+"\n"+"(Error '"+msg+"')");
-            savingPopup.close();
+            messagePopup.show(qsTr("Product saved"), qsTr("Product saved succesfully"));
+            rootStack.pop();
+            return true;
         }
+        console.debug("*** Saved failed")
+        messagePopup.show(qsTr("Save failed"), qsTr("Saving item failed")+"\n"+"(Error '"+msg+"')");
+        savingPopup.close();
+        return false;
     }
 
     onLocationsModelChanged: {        
@@ -165,7 +168,7 @@ Page {
         id: igs
 
         onFileSelected: {
-            imageModel.addImage(src, "gallery");
+            imageModel.addImage(src, Product.GallerySource);
         }
     }
 
@@ -247,7 +250,7 @@ Page {
                 pCamera.startCamera();
             }
             onImageCaptured: {
-                imageModel.addImage("file:/"+path, "camera");
+                imageModel.addImage("file:/"+path, Product.CameraSource);
                 rootStack.pop();
             }
         }
@@ -982,24 +985,21 @@ Page {
         id: locationPopup
     }
 
-    function getImageList() {
-        var images=[];
-
-        for (var i=0;i<imageModel.count;i++)
-            images.push(imageModel.get(i).image);
-
-        return images;
-    }
-
     function createProduct() {
-        var imageList=getImageList();
         var p=productTemplate.createObject(null, {
                                                title: productTitle.text,
                                                description: productDescription.text,
                                                barcode: barcodeText.text,
-                                               category: categoryID,
-                                               images: imageList
+                                               category: categoryID
                                            })
+        p.keepImages=keepImages;
+
+        for (var i=0;i<imageModel.count;i++) {
+            var s=imageModel.get(i);
+            p.addImage(s.image, s.source);
+        }
+
+
 
         if (categorySubID!='')
             p.setAttribute("subcategory", categorySubID)
