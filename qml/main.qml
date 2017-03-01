@@ -310,6 +310,9 @@ ApplicationWindow {
         ListElement { title: qsTr("Browse products"); viewId: 4; roles: 1; image: "qrc:/images/icon_browse.png"}
         ListElement { title: qsTr("Search products"); viewId: 2; roles: 1; image: "qrc:/images/icon_search.png"}
         ListElement { title: qsTr("Add product"); viewId: 3; roles: 2; image: "qrc:/images/icon_add.png" }
+
+        ListElement { title: qsTr("Order"); viewId: 8; roles: 3; image: "" }
+
         //ListElement { title: qsTr("Help"); viewId: 6; roles: 0; image: "qrc:/images/icon_help.png" }
         ListElement { title: qsTr("About"); viewId: 7; roles: 0; image: "qrc:/images/icon_about.png" }
     }
@@ -350,6 +353,8 @@ ApplicationWindow {
                 return rootStack.push(helpView)
             case 7: // About
                 return rootStack.push(aboutView)
+            case 8: // Order
+                return rootStack.push(orderView)
             default:
                 console.debug("Unknown view requested!")
             }
@@ -377,6 +382,13 @@ ApplicationWindow {
                 console.debug("*** Latest products clicked, triggering search page for: "+sku)
                 showProduct(sku);
             }
+        }
+    }
+
+    Component {
+        id: orderView
+        PageOrder {
+
         }
     }
 

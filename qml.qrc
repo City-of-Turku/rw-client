@@ -35,5 +35,6 @@
         <file>qml/components/ImageGallerySelector.qml</file>
         <file>qml/components/LocationListView.qml</file>
         <file>qml/components/LocationPopup.qml</file>
+        <file>qml/pages/PageOrder.qml</file>
     </qresource>
 </RCC>
