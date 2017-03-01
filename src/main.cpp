@@ -112,9 +112,6 @@ int main(int argc, char *argv[])
     qmlRegisterType<BarcodeVideoFilter>("net.ekotuki", 1,0, "BarcodeScanner");
     qmlRegisterType<ProductItem>("net.ekotuki", 1,0, "Product");
     qmlRegisterType<RvAPI>("net.ekotuki", 1,0, "ServerApi");
-    qmlRegisterType<CategoryModel>("net.ekotuki", 1,0, "CategoryModel");
-    qmlRegisterType<ItemListModel>("net.ekotuki", 1,0, "ItemListModel");
-    //qmlRegisterType<LocationListModel>("net.ekotuki", 1,0, "LocationListModel");
 
     qRegisterMetaType<QStringListModel*>();
     qRegisterMetaType<CategoryModel*>();
