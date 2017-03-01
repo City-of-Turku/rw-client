@@ -24,7 +24,7 @@ public:
 
     bool canFetchMore(const QModelIndex &parent=QModelIndex()) const;
 
-    enum Roles {BarcodeRole = Qt::UserRole, TitleRole, DescriptionRole, ThumbnailRole, PurposeRole, StockRole};
+    enum Roles {BarcodeRole = Qt::UserRole, TitleRole, DescriptionRole, ThumbnailRole, PurposeRole, StockRole, PriceRole, TaxRole};
 
     // QAbstractItemModel interface
     int rowCount(const QModelIndex &parent=QModelIndex()) const;
@@ -38,6 +38,8 @@ public:
         roles[ThumbnailRole]="thumbnail";
         roles[PurposeRole]="purpose";
         roles[StockRole]="stock";
+        roles[PriceRole]="price";
+        roles[TaxRole]="tax";
         return roles;
     }
 

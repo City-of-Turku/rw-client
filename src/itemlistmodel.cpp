@@ -106,6 +106,12 @@ QVariant ItemListModel::data(const QModelIndex &index, int role) const
     case ItemListModel::StockRole:
         return QVariant(item->getStock());
         break;
+    case ItemListModel::PriceRole:
+        return QVariant(item->getPrice());
+        break;
+    case ItemListModel::TaxRole:
+        return QVariant(item->getTax());
+        break;
     }
 
     return QVariant();
