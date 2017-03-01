@@ -78,6 +78,7 @@ RvAPI::RvAPI(QObject *parent) :
 RvAPI::~RvAPI()
 {
     qDebug("*** API going away");
+    clearProductStore();
 }
 
 void RvAPI::setUrl(QUrl url)
