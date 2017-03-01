@@ -19,7 +19,7 @@
 //#define DATA_DEBUG 1
 //#define JSON_DEBUG 1
 //#define SECURE_DEBUG 1
-//#define DUMMY_CATEGORIES 1
+#define DUMMY_CATEGORIES 1
 
 #define ITEMS_MAX (10)
 
@@ -32,7 +32,7 @@ RvAPI::RvAPI(QObject *parent) :
     m_busy(false),
     m_hasMore(false),    
     m_loadedPage(0),
-    m_itemsmodel(this),
+    m_itemsmodel(&m_product_store, this),
     m_categorymodel(0, this),
     m_locations(this),
     m_tax_model(this)
@@ -482,7 +482,7 @@ bool RvAPI::parseProductData(QVariantMap &data, const QNetworkAccessManager::Ope
     }
 
     ProductItem *p=ProductItem::fromVariantMap(data, this);
-    m_product_cache.insert(p->barcode(), p);
+    m_product_store.insert(p->barcode(), p);
 
     return true;
 }
@@ -509,8 +509,8 @@ bool RvAPI::parseProductsData(QVariantMap &data)
 
         QVariantMap tmp=i.value().toMap();
         ProductItem *p=ProductItem::fromVariantMap(tmp, this);
-        m_itemsmodel.appendProduct(p);
-        // m_product_cache.insert(p->barcode(), p);
+        m_product_store.insert(p->barcode(), p);
+        m_itemsmodel.appendProduct(p);        
     }
 
     qDebug() << "Loaded items: " << m_itemsmodel.rowCount();
@@ -890,6 +890,17 @@ bool RvAPI::searchBarcode(const QString barcode, bool checkOnly)
 
     if (isRequestActive(op_product_barcode))
         return false;
+
+    // Check if we already know about it
+    if (m_product_store.contains(barcode)) {
+        qDebug() << "Product for barcode " << barcode << "found in local storage";
+
+        ProductItem *item=m_product_store.value(barcode);
+        m_itemsmodel.clear();
+        m_itemsmodel.appendProduct(item);
+        emit searchCompleted(false);
+        return true;
+    }
 
     QUrl url=createRequestUrl(op_product_barcode+"/"+barcode);
     QUrlQuery query;

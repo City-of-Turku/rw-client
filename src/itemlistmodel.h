@@ -11,7 +11,7 @@ class ItemListModel : public QAbstractListModel
     Q_OBJECT
     Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
 public:
-    explicit ItemListModel(QObject *parent=0);
+    explicit ItemListModel(QMap<QString, ProductItem *> *storage, QObject *parent=0);
     virtual ~ItemListModel();
 
     bool prependProduct(ProductItem *item);
@@ -45,7 +45,8 @@ signals:
     void countChanged(int);
 
 private:
-    QList<ProductItem*> m_data;
+    QMap<QString, ProductItem *> *m_productstore;
+    QList<QString> m_data;
     bool m_hasMore;
 };
 

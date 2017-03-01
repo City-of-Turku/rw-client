@@ -302,6 +302,8 @@ private:
     int m_loadedAmount;
     int m_loadedPage;
 
+    QMap<QString, ProductItem *>m_product_store;
+
     ItemListModel m_itemsmodel;
     CategoryModel m_categorymodel;
     LocationListModel m_locations;
@@ -309,9 +311,7 @@ private:
     QStringList m_taxes;
     QStringListModel m_tax_model;
 
-    QMap<QString, CategoryModel *>m_subcategorymodels;
-
-    QCache<QString, ProductItem>m_product_cache;
+    QMap<QString, CategoryModel *>m_subcategorymodels;    
 
     bool addFilePart(QHttpMultiPart *mp, QString prefix, QString fileName);
     QNetworkReply *post(QNetworkRequest &request, QHttpMultiPart *mp);

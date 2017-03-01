@@ -1,8 +1,9 @@
 #include "itemlistmodel.h"
 #include <QDebug>
 
-ItemListModel::ItemListModel(QObject *parent) :
+ItemListModel::ItemListModel(QMap<QString, ProductItem *> *storage, QObject *parent) :
     QAbstractListModel(parent),
+    m_productstore(storage),
     m_hasMore(false)
 {
 
@@ -16,9 +17,8 @@ ItemListModel::~ItemListModel()
 
 bool ItemListModel::prependProduct(ProductItem *item)
 {
-    beginInsertRows(QModelIndex(), 0, 0);
-    item->setParent(this);
-    m_data.insert(0, item);
+    beginInsertRows(QModelIndex(), 0, 0);    
+    m_data.insert(0, item->barcode());
     endInsertRows();
 
     return true;
@@ -35,9 +35,8 @@ bool ItemListModel::prependProduct(ProductItem *item)
 bool ItemListModel::appendProduct(ProductItem *item)
 {
     int p=m_data.size();    
-    beginInsertRows(QModelIndex(), p, p);
-    item->setParent(this);
-    m_data.append(item);
+    beginInsertRows(QModelIndex(), p, p);    
+    m_data.append(item->barcode());
     endInsertRows();
     emit countChanged(m_data.size());
 
@@ -52,7 +51,13 @@ bool ItemListModel::updateProduct(ProductItem *item)
 
 bool ItemListModel::removeProduct(ProductItem *item)
 {
-    Q_UNUSED(item)
+    if (!m_data.contains(item->barcode()))
+            return false;
+
+    beginResetModel();
+
+
+    endResetModel();
     return false;
 }
 
@@ -67,7 +72,16 @@ QVariant ItemListModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    const ProductItem *item=m_data.at(index.row());
+    if (index.row()>m_data.size())
+        return QVariant();
+
+    const QString k=m_data.at(index.row());
+    const ProductItem *item=m_productstore->value(k);
+
+    if (!item) {
+        qWarning("Product not found in storage!");
+        return QVariant();
+    }
 
     switch (role) {
     case ItemListModel::BarcodeRole:
@@ -101,8 +115,6 @@ void ItemListModel::clear()
 {
     qDebug("*** Clearing product model");
     beginResetModel();
-    while (!m_data.isEmpty())
-        delete m_data.takeFirst();
     m_data.clear();
     endResetModel();
     emit countChanged(0);
@@ -111,7 +123,12 @@ void ItemListModel::clear()
 ProductItem *ItemListModel::get(int index)
 {
     qDebug() << "GET " << index;
-    ProductItem *item=m_data.at(index);
+
+    if (index>m_data.size())
+        return nullptr;
+
+    const QString k=m_data.at(index);
+    ProductItem *item=m_productstore->value(k);
 
     return item;
 }
