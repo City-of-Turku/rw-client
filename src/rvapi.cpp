@@ -180,6 +180,13 @@ void RvAPI::requestFinished() {
     reply->deleteLater();
 }
 
+void RvAPI::clearProductStore()
+{
+    m_itemsmodel.clear();
+    qDeleteAll(m_product_store);
+    m_product_store.clear();
+}
+
 QVariantMap RvAPI::parseJsonResponse(const QByteArray &data)
 {
     QJsonDocument json=QJsonDocument::fromJson(data);
@@ -496,7 +503,7 @@ bool RvAPI::parseProductsData(QVariantMap &data)
     qDebug() << "parseProductsData " << page << " : " << amount;
 
     if (page==1) {
-        m_itemsmodel.clear();
+        clearProductStore();
     }
 
     m_loadedAmount=amount;

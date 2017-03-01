@@ -304,6 +304,8 @@ private:
 
     QMap<QString, ProductItem *>m_product_store;
 
+    void clearProductStore();
+
     ItemListModel m_itemsmodel;
     CategoryModel m_categorymodel;
     LocationListModel m_locations;
