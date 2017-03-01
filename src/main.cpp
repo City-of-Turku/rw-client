@@ -113,6 +113,8 @@ int main(int argc, char *argv[])
     qmlRegisterType<ProductItem>("net.ekotuki", 1,0, "Product");
     qmlRegisterType<RvAPI>("net.ekotuki", 1,0, "ServerApi");
 
+    qmlRegisterUncreatableType<CategoryModel>("net.ekotuki", 1, 0, "CategoryModel", "Used in C++ only");
+
     qRegisterMetaType<QStringListModel*>();
     qRegisterMetaType<CategoryModel*>();
     qRegisterMetaType<ItemListModel*>();
