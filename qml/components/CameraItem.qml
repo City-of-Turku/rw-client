@@ -16,6 +16,8 @@ Item {
 
     property bool autoStart: false
 
+    property bool externalControls: true
+
     property string barcode;
 
     // Metadata
@@ -201,6 +203,9 @@ Item {
         }
     }
 
+    property bool captureEnabled: camera.cameraStatus==Camera.ActiveStatus && !scanOnly
+    property bool multipleCameras: cameraList.count>1
+
     RowLayout {
         Layout.fillWidth: true
         Layout.minimumHeight: 32
@@ -208,9 +213,11 @@ Item {
         anchors.bottom: parent.bottom
         anchors.horizontalCenter: parent.horizontalCenter
 
+        visible: !externalControls
+
         Button
         {
-            enabled: camera.cameraStatus==Camera.ActiveStatus && !scanOnly
+            enabled: captureEnabled
             visible: !scanOnly
             Layout.fillHeight: true
             Layout.fillWidth: true
@@ -229,7 +236,7 @@ Item {
 
         Button {
             text: "Cameras"
-            visible: cameraSelectionEnabled && cameraList.count>1
+            visible: cameraSelectionEnabled && multipleCameras
             onClicked: {
                 cameraPopup.open();
             }
@@ -246,10 +253,7 @@ Item {
             text: getFocusTitle(camera.lockStatus)
             enabled: camera.cameraStatus==Camera.ActiveStatus && Camera.lockStatus!=Camera.Searching
             onClicked: {
-                if (camera.lockStatus==Camera.Unlocked)
-                    camera.searchAndLock();
-                else
-                    camera.unlock();
+                focusCamera();
             }
             Layout.fillHeight: true
             Layout.fillWidth: true
@@ -279,6 +283,13 @@ Item {
 
     function captureImage() {
         camera.imageCapture.capture();
+    }
+
+    function focusCamera() {
+        if (camera.lockStatus==Camera.Unlocked)
+            camera.searchAndLock();
+        else
+            camera.unlock();
     }
 
     function startCamera() {

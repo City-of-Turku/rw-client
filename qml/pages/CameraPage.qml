@@ -36,7 +36,31 @@ Page {
 
     Component.onCompleted: {
         camera.forceActiveFocus();
-    }        
+    }
+
+    footer: ToolBar {
+        RowLayout {
+            anchors.fill: parent
+            ToolButton {
+                Layout.alignment: Qt.AlignCenter
+                text: "Capture"
+                visible: imageCapture
+                enabled: camera.captureEnabled
+                contentItem: ItemIcon {
+                    source: "qrc:/images/icon_camera.png"
+                }
+                onClicked: {
+                    camera.captureImage();
+                }
+            }
+            ToolButton {
+                text: "Focus"
+                onClicked: {
+                    camera.focusCamera();
+                }
+            }
+        }
+    }
 
     CameraItem {
         id: camera
