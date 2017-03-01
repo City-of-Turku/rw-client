@@ -62,6 +62,11 @@ Page {
         }
     }
 
+    Rectangle {
+        anchors.fill: parent
+        color: "black"
+    }
+
     CameraItem {
         id: camera
         anchors.fill: parent
