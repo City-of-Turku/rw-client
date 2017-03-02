@@ -26,6 +26,8 @@ Page {
 
     property alias model: searchResults.model
 
+    property ItemModel cartModel;
+
     signal searchRequested(string str, string category);
     signal searchBarcodeRequested(string barcode);
     signal searchCancel();
@@ -66,6 +68,8 @@ Page {
         console.debug("*** Completed: "+objectName)
         console.debug(searchString)
         console.debug(searchString.length)
+        model=root.api.getItemModel();
+        cartModel=root.api.getCartModel();
         searchResults.currentIndex=-1;
         if (searchString.length>0) {
             console.debug("Created with pre-populated search string: "+searchString)
@@ -79,7 +83,7 @@ Page {
 
     Component.onDestruction: {
         console.debug("*** Destroy: "+objectName)
-        model.clear();
+        //model.clear();
     }
 
     footer: ToolBar {
@@ -187,7 +191,7 @@ Page {
                 ProductItemDelegate {
                     width: searchResults.cellWidth
                     height: searchResults.cellHeight
-                    onClicked: {
+                    onClicked: {                        
                         openProductAtIndex(index)
                     }
 
@@ -196,7 +200,35 @@ Page {
                     }
 
                     onPressandhold: {
-                        openProductImageAtIndex(index)
+                        //openProductImageAtIndex(index)
+                        searchResults.currentIndex=index;
+                        productMenu.open();
+                    }
+
+                    Menu {
+                        id: productMenu
+                        title: "Product"
+                        modal: true
+                        dim: true
+                        x: parent.width/3
+                        MenuItem {
+                            text: qsTr("View images")
+                            onClicked: {
+                                openProductImageAtIndex(index)
+                            }
+                        }
+
+                        MenuItem {
+                            text: qsTr("Add to cart")
+                            onClicked: {
+                                addProductAtIndexToCart(index);
+                            }
+                        }
+                    }
+
+                    function addProductAtIndexToCart(index) {
+                        var p=searchPage.model.get(index);
+                        cartModel.appendProduct(p.barcode);
                     }
 
                     function openProductAtIndex(index) {

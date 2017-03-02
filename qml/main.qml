@@ -383,14 +383,7 @@ ApplicationWindow {
                 showProduct(sku);
             }
         }
-    }
-
-    Component {
-        id: orderView
-        PageOrder {
-
-        }
-    }
+    }    
 
     Component {
         id: feedbackView
@@ -436,16 +429,19 @@ ApplicationWindow {
                     setSearchActive(r);
             }
 
-            Component.onCompleted: {                
-                model=root.api.getItemModel();
-            }
-
             Connections {
                 target: api
                 onSearchCompleted: {
                     setSearchActive(false);
                 }
             }
+        }
+    }
+
+    Component {
+        id: orderView
+        PageOrder {
+
         }
     }
 

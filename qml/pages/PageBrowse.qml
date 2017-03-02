@@ -8,8 +8,7 @@ PageSearch {
     objectName: "browse"
     searchVisible: false;
 
-    Component.onCompleted: {        
-        model=root.api.getItemModel();
+    Component.onCompleted: {
         root.api.products(1);
     }
 }

@@ -45,6 +45,9 @@ Page {
 
     Component.onCompleted: {        
         orderPage.forceActiveFocus();
+        model=root.api.getCartModel();
+
+        console.debug("Cart contains: "+model.count)
     }
 
     MessageDialog {
@@ -53,10 +56,14 @@ Page {
         title: qsTr("Confirm order")
         text: qsTr("Commit product order ?")
 
-        onAccepted: {
-            console.debug("*** Save accepted");
+        onAccepted: {            
             confirmDialog.close();
-            // XXX: Do it
+            var r=api.createOrder(true);
+            if (!r) {
+                messagePopup.show("Order", "Failed to create order");
+            } else {
+
+            }
         }
 
         onRejected: {
@@ -100,15 +107,15 @@ Page {
                     searchBarcodeRequested(searchString);
                     rootStack.pop();
                 } else {
-                    invalidBarcodeMessage.show(qsTr("Barcode"), qsTr("Barcode format is not recognized. Please try again."));
+                    messagePopup.show(qsTr("Barcode"), qsTr("Barcode format is not recognized. Please try again."));
                 }
             }
         }
     }
 
     MessagePopup {
-        id: invalidBarcodeMessage
-    }
+        id: messagePopup
+    }    
 
     Component {
         id: imageDisplayPageComponent
@@ -148,7 +155,10 @@ Page {
 
             delegate: Component {
                 ProductItemDelegate {
-
+                    width: parent.width
+                    height: childrenRect.height
+                    showImage: false
+                    compact: true
                     onClicked: {
                         openProductAtIndex(index)
                     }
@@ -176,6 +186,8 @@ Page {
             }
         }
         RowLayout {
+            Layout.fillWidth: true
+            Layout.fillHeight: false
             BarcodeField {
                 onAccepted: {
 
