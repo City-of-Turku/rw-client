@@ -15,9 +15,15 @@ public:
     virtual ~ItemListModel();
 
     bool prependProduct(ProductItem *item);
-    bool appendProduct(ProductItem *item);
+
+    Q_INVOKABLE bool appendProduct(ProductItem *item);
+    Q_INVOKABLE bool appendProduct(const QString barcode);
+
     bool updateProduct(ProductItem *item);
-    bool removeProduct(ProductItem *item);
+    Q_INVOKABLE bool removeProduct(ProductItem *item);
+    Q_INVOKABLE bool removeProduct(const QString barcode);
+
+    Q_INVOKABLE uint count();
 
     Q_INVOKABLE void clear();
     Q_INVOKABLE ProductItem *get(int index);

@@ -43,6 +43,17 @@ bool ItemListModel::appendProduct(ProductItem *item)
     return true;
 }
 
+bool ItemListModel::appendProduct(const QString barcode)
+{
+    int p=m_data.size();
+    beginInsertRows(QModelIndex(), p, p);
+    m_data.append(barcode);
+    endInsertRows();
+    emit countChanged(m_data.size());
+
+    return true;
+}
+
 bool ItemListModel::updateProduct(ProductItem *item)
 {
     Q_UNUSED(item)
@@ -59,6 +70,19 @@ bool ItemListModel::removeProduct(ProductItem *item)
 
     endResetModel();
     return false;
+}
+
+bool ItemListModel::removeProduct(const QString barcode)
+{
+    if (!m_data.contains(barcode))
+            return false;
+
+    return true;
+}
+
+uint ItemListModel::count()
+{
+    return m_data.size();
 }
 
 int ItemListModel::rowCount(const QModelIndex &parent) const
@@ -79,7 +103,7 @@ QVariant ItemListModel::data(const QModelIndex &index, int role) const
     const ProductItem *item=m_productstore->value(k);
 
     if (!item) {
-        qWarning("Product not found in storage!");
+        qWarning() << "Product " << k << " not found in storage!";
         return QVariant();
     }
 
