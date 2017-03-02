@@ -113,6 +113,7 @@ public:
     Q_INVOKABLE bool validateBarcodeEAN(const QString code) const;
 
     Q_INVOKABLE ItemListModel *getItemModel();
+    Q_INVOKABLE ItemListModel *getCartModel();
     Q_INVOKABLE LocationListModel *getLocationsModel();
     Q_INVOKABLE CategoryModel *getCategoryModel();
     Q_INVOKABLE CategoryModel *getSubCategoryModel(const QString key);
@@ -126,6 +127,8 @@ public:
 
     Q_INVOKABLE bool haveLocations();
 
+    Q_INVOKABLE bool isOrderEmpty();
+    Q_INVOKABLE bool createOrder(bool done);
 signals:
 
     void urlChanged(QUrl url);
@@ -256,6 +259,8 @@ private:
     const QString op_product=QStringLiteral("product");
     const QString op_products=QStringLiteral("products");
 
+    const QString op_orders=QStringLiteral("orders");
+
     // Search endpoints
     const QString op_product_barcode=QStringLiteral("product/barcode");
     const QString op_products_search=QStringLiteral("products/search");    
@@ -307,6 +312,7 @@ private:
     void clearProductStore();
 
     ItemListModel m_itemsmodel;
+    ItemListModel m_cartmodel;
     CategoryModel m_categorymodel;
     LocationListModel m_locations;
 

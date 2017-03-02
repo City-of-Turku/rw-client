@@ -19,7 +19,7 @@
 //#define DATA_DEBUG 1
 //#define JSON_DEBUG 1
 //#define SECURE_DEBUG 1
-#define DUMMY_CATEGORIES 1
+//#define DUMMY_CATEGORIES 1
 
 #define ITEMS_MAX (10)
 
@@ -28,11 +28,12 @@ RvAPI::RvAPI(QObject *parent) :
     m_NetManager(new QNetworkAccessManager(this)),
     m_apiversion(1),
     m_appversion(0),
-    m_authenticated(false),    
+    m_authenticated(false),
     m_busy(false),
-    m_hasMore(false),    
+    m_hasMore(false),
     m_loadedPage(0),
     m_itemsmodel(&m_product_store, this),
+    m_cartmodel(&m_product_store, this),
     m_categorymodel(0, this),
     m_locations(this),
     m_tax_model(this)
@@ -51,7 +52,7 @@ RvAPI::RvAPI(QObject *parent) :
     // Dummy categories for development purposes
 #ifdef DUMMY_CATEGORIES
     m_categorymodel.addCategory("", "", CategoryModel::InvalidCategory);
-    m_categorymodel.addCategory("huonekalu", "Huonekalu", CategoryModel::HasSize | CategoryModel::HasWeight | CategoryModel::HasColor);    
+    m_categorymodel.addCategory("huonekalu", "Huonekalu", CategoryModel::HasSize | CategoryModel::HasWeight | CategoryModel::HasColor);
     m_categorymodel.addCategory("sekalaista", "Sekalaista", 0);
 
     cm=new CategoryModel("huonekalu", this);
@@ -183,7 +184,9 @@ void RvAPI::requestFinished() {
 
 void RvAPI::clearProductStore()
 {
+    qDebug("Clearing product models and storage");
     m_itemsmodel.clear();
+    m_cartmodel.clear();
     qDeleteAll(m_product_store);
     m_product_store.clear();
 }
@@ -343,7 +346,7 @@ void RvAPI::parseErrorResponse(int code, const QString op, const QByteArray &res
     qDebug() << "ErrorDATA:\n" << data;
 #endif
 
-    if (op==op_auth_login || code==403) {        
+    if (op==op_auth_login || code==403) {
         setAuthentication(false);
         const QString error=data.value("error").toString();
         emit loginFailure(error);
@@ -427,7 +430,7 @@ bool RvAPI::parseCategoryData(QVariantMap &data)
 
     QMapIterator<QString, QVariant> i(data);
     while (i.hasNext()) {
-        i.next();        
+        i.next();
         QVariantMap cmap=i.value().toMap();
 
         parseCategoryMap(i.key(), m_categorymodel, cmap);
@@ -471,6 +474,11 @@ bool RvAPI::haveLocations()
     return m_locations.rowCount()==0 ? true : false;
 }
 
+bool RvAPI::isOrderEmpty()
+{
+    return m_cartmodel.count()==0 ? true : false;
+}
+
 bool RvAPI::parseProductData(QVariantMap &data, const QNetworkAccessManager::Operation method)
 {
     switch (method) {
@@ -504,7 +512,8 @@ bool RvAPI::parseProductsData(QVariantMap &data)
     qDebug() << "parseProductsData " << page << " : " << amount;
 
     if (page==1) {
-        clearProductStore();
+        //clearProductStore();
+        m_itemsmodel.clear();
     }
 
     m_loadedAmount=amount;
@@ -518,7 +527,7 @@ bool RvAPI::parseProductsData(QVariantMap &data)
         QVariantMap tmp=i.value().toMap();
         ProductItem *p=ProductItem::fromVariantMap(tmp, this);
         m_product_store.insert(p->barcode(), p);
-        m_itemsmodel.appendProduct(p);        
+        m_itemsmodel.appendProduct(p);
     }
 
     qDebug() << "Loaded items: " << m_itemsmodel.rowCount();
@@ -671,8 +680,8 @@ void RvAPI::parseResponse(QNetworkReply *reply)
     case 200:
     case 201:
         if (reply->header(QNetworkRequest::ContentTypeHeader)=="application/octet-stream" && op==op_download) {
-                if (parseFileDownload(data)==false)
-                    emit requestFailure(500, "Unexpected error");
+            if (parseFileDownload(data)==false)
+                emit requestFailure(500, "Unexpected error");
         } else {
             if (parseOKResponse(op, data, reply->operation())==false) {
                 emit requestFailure(500, "Unexpected error");
@@ -1047,6 +1056,66 @@ bool RvAPI::update(ProductItem *product)
 }
 
 /**
+ * @brief RvAPI::sendOrder
+ * @return
+ *
+ * Send cart and creates a product order on server.
+ *
+ */
+bool RvAPI::createOrder(bool done)
+{
+    if (!m_authenticated)
+        return false;
+
+    if (isRequestActive(op_orders))
+        return false;
+
+    if (m_cartmodel.count()==0)
+        return false;
+
+    QVariantMap prods;
+    uint pc=m_cartmodel.count();
+
+    // Collect and count the products barcodes
+    for (uint i=0;i<pc;i++) {
+        ProductItem *pi=m_cartmodel.get(i);
+        if (!pi) {
+            qWarning("Failed to find product!");
+            return false;
+        }
+        if (prods.contains(pi->barcode())) {
+            uint i=prods.value(pi->barcode()).toUInt();
+            i++;
+            prods.insert(pi->barcode(), i);
+        } else {
+            prods.insert(pi->barcode(), 1);
+        }
+    }
+
+    QUrl url=createRequestUrl(op_orders);
+    QNetworkRequest request;
+    setAuthenticationHeaders(&request);
+
+    QHttpMultiPart *mp = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+
+    addParameter(mp, QStringLiteral("done"), done);
+
+    QMapIterator<QString, QVariant> i(prods);
+    while (i.hasNext()) {
+        i.next();
+
+        addParameter(mp, "product["+i.key()+"]", i.value());
+    }
+
+    request.setUrl(url);
+    queueRequest(post(request, mp), op_orders);
+
+    return true;
+}
+
+
+
+/**
  * @brief RvAPI::getImageUrl
  * @param image
  * @return
@@ -1074,7 +1143,7 @@ bool RvAPI::requestLocations()
     QNetworkRequest request;
     setAuthenticationHeaders(&request);
 
-    request.setUrl(url);    
+    request.setUrl(url);
     queueRequest(get(request), op_locations);
 
     return true;
@@ -1132,6 +1201,11 @@ bool RvAPI::validateBarcodeEAN(const QString code) const
 ItemListModel *RvAPI::getItemModel()
 {    
     return &m_itemsmodel;
+}
+
+ItemListModel *RvAPI::getCartModel()
+{
+    return &m_cartmodel;
 }
 
 LocationListModel *RvAPI::getLocationsModel()
