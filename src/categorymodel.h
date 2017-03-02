@@ -29,7 +29,7 @@ public:
         HasStock=1 << 6,
         HasAuthor=1 << 7,
         HasPrice=1 << 8,
-        PlaceHolder005=1 << 9,
+        HasPurpose=1 << 9,
         PlaceHolder006=1 << 10,
         InvalidCategory=1 << 11
     };
