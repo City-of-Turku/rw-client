@@ -16,13 +16,16 @@ Rectangle {
     property int imageSize: width-8 // 4px margins
     property bool compact: false
 
+    property bool showImage: true
+
     Item {
         id: r
         //spacing: 4
         width: parent.width
-        height: imageItem.height
+        height: showImage ? imageItem.height : bgrect.height
         Rectangle {
             id: imageItem
+            visible: showImage
             color: "#f0f0f0"
             width: imageSize
             height: imageSize
@@ -39,7 +42,7 @@ Rectangle {
                 smooth: false
                 cache: true
                 anchors.margins: 4
-                source: thumbnail!=='' ? api.getImageUrl(thumbnail) : ''
+                source: (showImage && thumbnail!=='') ? api.getImageUrl(thumbnail) : ''
                 opacity: status==Image.Ready ? 1 : 0
                 Behavior on opacity { OpacityAnimator { duration: 300; } }                
             }
@@ -73,9 +76,10 @@ Rectangle {
         }
 
         Rectangle {
+            id: bgrect
             color: "white"
             opacity: 0.8
-            anchors.bottom: imageItem.bottom
+            anchors.bottom: r.bottom
             width: r.width
             height: ic.height+16
         }
@@ -88,7 +92,7 @@ Rectangle {
             anchors.margins: 8
             //leftPadding: 4
             //rightPadding: 4
-            anchors.bottom: imageItem.bottom
+            anchors.bottom: r.bottom
 
             Text {
                 //Layout.alignment: Qt.AlignTop
@@ -108,7 +112,7 @@ Rectangle {
                 minimumPixelSize: 12
             }            
             Text {
-                visible: stock>1
+                visible: stock>1 && !compact
                 font.pixelSize: 12
                 minimumPixelSize: 10
                 fontSizeMode: Text.HorizontalFit
