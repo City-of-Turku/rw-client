@@ -27,8 +27,10 @@ Page {
     property bool hasProduct: product ? true : false;
     // The minimum amount of data that needs to be entered toggles this
 
-    property bool validBaseEntry: barcodeText.acceptableInput && categoryID!='' && productTitle.acceptableInput && (hasPurpose && purposeSelection.currentIndex>0)
-    property bool validEntry: validBaseEntry && productWarehouse.currentIndex>=0 && (hasPurpose && purposeSelection.currentIndex>0) && hasImages;
+    property bool validBaseEntry: barcodeText.acceptableInput && categoryID!='' && productTitle.acceptableInput && validPurpose
+    property bool validEntry: validBaseEntry && productWarehouse.currentIndex>=0 && validPurpose && hasImages;
+
+    property bool validPurpose: (categoryHasPurpose && purposeSelection.currentIndex>0) || !categoryHasPurpose
 
     property int maxImages: 5;
 
@@ -62,10 +64,10 @@ Page {
     property bool categoryHasAuthor: categoryFlags & CategoryModel.HasAuthor
     property bool categoryHasStock: categoryFlags & CategoryModel.HasStock
     property bool categoryHasPrice: categoryFlags & CategoryModel.HasPrice
+    property bool categoryHasPurpose: categoryFlags & CategoryModel.HasPurpose
 
     property bool hasTax: true
 
-    property bool hasPurpose: true
     property bool hasLocation: true
 
     property int defaultWarehouse;
@@ -536,7 +538,7 @@ Page {
                             id: purposeSelection
                             model: root.purposeModel
                             enabled: true
-                            visible: hasPurpose
+                            visible: categoryHasPurpose
                             textRole: "purpose"
                             placeHolder: qsTr("Usage")
                             Layout.fillWidth: true
@@ -1000,7 +1002,7 @@ Page {
             p.addImage(s.image, s.source);
         }
 
-        if (hasPurpose)
+        if (categoryHasPurpose)
             p.setAttribute("purpose", purposeID)
 
         if (hasLocation) {
