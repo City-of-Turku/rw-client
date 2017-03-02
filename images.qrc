@@ -46,5 +46,6 @@
         <file>images/icon_gallery@2x.png</file>
         <file>images/icon_gallery.png</file>
         <file>images/icon_gallery@4x.png</file>
+        <file>images/icon_flash.png</file>
     </qresource>
 </RCC>
