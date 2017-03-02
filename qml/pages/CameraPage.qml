@@ -54,6 +54,11 @@ Page {
                 }
             }
             ToolButton {
+                text: "Flash"
+                onClicked: camera.flash=!camera.flash
+            }
+
+            ToolButton {
                 text: "Focus"
                 onClicked: {
                     camera.focusCamera();
@@ -82,6 +87,14 @@ Page {
         onDecodeDone: {
             cameraPage.decodeDone();
         }
+    }
+
+    Image {
+        id: flashIcon
+        source: "qrc:/images/icon_flash.png"
+        visible: camera.flash
+        anchors.top: camera.top
+        anchors.right: camera.right
     }
 
     function startCamera() {
