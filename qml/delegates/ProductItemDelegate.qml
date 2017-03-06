@@ -38,6 +38,7 @@ Rectangle {
                 id: i
                 asynchronous: true
                 sourceSize.width: 512
+                fillMode: Image.PreserveAspectCrop
                 anchors.fill: parent
                 smooth: false
                 cache: true
