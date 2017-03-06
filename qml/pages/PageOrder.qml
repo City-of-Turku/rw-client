@@ -21,10 +21,11 @@ Page {
 
     objectName: "order"
 
+    property string searchString;
+
     property bool searchActive: false;
     property alias model: searchResults.model
 
-    signal searchRequested(string str, string category);
     signal searchBarcodeRequested(string barcode);
     signal searchCancel();
 
@@ -33,6 +34,14 @@ Page {
         searchActive=a;
         if (a && Qt.inputMethod.visible)
             Qt.inputMethod.hide();
+    }
+
+    function searchBarcode(barcode) {
+        if (api.validateBarcode(barcode)) {
+            searchBarcodeRequested(barcode);
+        } else {
+            messagePopup.show(qsTr("Barcode"), qsTr("Barcode format is not recognized. Please try again."));
+        }
     }
 
     Keys.onReleased: {
@@ -74,8 +83,7 @@ Page {
     footer: ToolBar {
         RowLayout {
             ToolButton {
-                text: qsTr("Scan barcode")
-                visible: searchVisible
+                text: qsTr("Scan barcode")                
                 enabled: !searchActive && searchString==''
                 onClicked: {
                     rootStack.push(cameraScanner);
@@ -103,13 +111,17 @@ Page {
                 searchString=barcode;
             }
             onDecodeDone: {
-                if (api.validateBarcode(searchString)) {
-                    searchBarcodeRequested(searchString);
-                    rootStack.pop();
-                } else {
-                    messagePopup.show(qsTr("Barcode"), qsTr("Barcode format is not recognized. Please try again."));
-                }
+                searchBarcode(searchString)
             }
+        }
+    }
+
+    Connections {
+        target: api
+
+        onSearchCompleted: {
+            console.debug("SEARCH DONE")
+            setSearchActive(false);
         }
     }
 
@@ -138,7 +150,7 @@ Page {
 
         Label {
             anchors.centerIn: parent
-            visible: searchResults.count==0 && searchString.length!=0 && !searchActive && !isInitialView
+            visible: searchResults.model.count===0
             text: qsTr("Cart is empty")
             wrapMode: Text.Wrap
             font.pixelSize: 32
@@ -189,8 +201,11 @@ Page {
             Layout.fillWidth: true
             Layout.fillHeight: false
             BarcodeField {
+                enabled: !api.busy
                 onAccepted: {
-
+                    console.debug("BARCODESEARCH: "+text)
+                    searchString=text
+                    searchBarcode(searchString)
                 }
             }
         }

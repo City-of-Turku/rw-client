@@ -441,7 +441,11 @@ ApplicationWindow {
     Component {
         id: orderView
         PageOrder {
-
+            onSearchBarcodeRequested: {
+                var r=api.searchBarcode(barcode);
+                if (r)
+                    setSearchActive(r);
+            }
         }
     }
 
