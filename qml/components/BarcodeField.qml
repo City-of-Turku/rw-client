@@ -5,7 +5,8 @@ import QtQuick.Layouts 1.1
 TextField {
     id: barcodeText
     placeholderText: qsTr("Type or scan barcode")
-    Layout.fillWidth: true    
+    Layout.fillWidth: true
+    selectByMouse: true
     leftPadding: 4
     rightPadding: 4
     inputMethodHints: Qt.ImhUppercaseOnly // | Qt.ImhPreferNumbers
@@ -14,5 +15,8 @@ TextField {
     background: Rectangle {
         color: "transparent"
         border.color: barcodeText.acceptableInput ? "green" : "red"
+    }
+    onPressAndHold: {
+        clear()
     }
 }
