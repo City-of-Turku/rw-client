@@ -45,7 +45,7 @@ Rectangle {
                 anchors.margins: 4
                 source: (showImage && thumbnail!=='') ? api.getImageUrl(thumbnail) : ''
                 opacity: status==Image.Ready ? 1 : 0
-                Behavior on opacity { OpacityAnimator { duration: 300; } }                
+                Behavior on opacity { OpacityAnimator { duration: 300; } }
             }
             PurposeBadge {
                 id: purposeBadge
@@ -79,7 +79,7 @@ Rectangle {
         Rectangle {
             id: bgrect
             color: "white"
-            opacity: 0.8
+            opacity: 0.7
             anchors.bottom: r.bottom
             width: r.width
             height: ic.height+16
@@ -102,7 +102,16 @@ Rectangle {
                 font.pixelSize: 18
                 //wrapMode: Text.Wrap
                 //maximumLineCount: 2
-                elide: Text.ElideRight                
+                elide: Text.ElideRight
+            }
+            Text {
+                text: price.toFixed(2)+ " €"
+                visible: price>0
+                font.pixelSize: 14
+                color: "#181818"
+                maximumLineCount: 1
+                fontSizeMode: Text.HorizontalFit
+                minimumPixelSize: 12
             }
             Text {
                 text: barcode
@@ -111,7 +120,7 @@ Rectangle {
                 maximumLineCount: 1
                 fontSizeMode: Text.HorizontalFit
                 minimumPixelSize: 12
-            }            
+            }
             Text {
                 visible: stock>1 && !compact
                 font.pixelSize: 12

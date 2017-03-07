@@ -232,6 +232,11 @@ Page {
                     Layout.fillHeight: true
                     ColumnLayout {
                         DetailItem {
+                            label: qsTr("Price")
+                            visible: product.price>0
+                            value: product.price.toFixed(2)+" €"
+                        }
+                        DetailItem {
                             label: qsTr("Stock")
                             visible: product.stock!=1
                             value: product.stock
@@ -254,7 +259,7 @@ Page {
                         }
                         DetailItem {
                             label: qsTr("EAN")
-                            visible: product.hasAttribute("ean")
+                            visible: product.hasAttribute("ean") && product.getAttribute("ean")!==''
                             value: product.getAttribute("ean")
                         }
                         DetailItem {
