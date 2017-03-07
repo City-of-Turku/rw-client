@@ -11,7 +11,7 @@ TextField {
     rightPadding: 4
     inputMethodHints: Qt.ImhUppercaseOnly // | Qt.ImhPreferNumbers
     //inputMask: ">AAA999999999"
-    validator: RegExpValidator { regExp: /[A-Z]{3}[0-9]{9}/ }
+    validator: RegExpValidator { regExp: /[A-Z]{3}[0-9]{6,9}/ }
     background: Rectangle {
         color: "transparent"
         border.color: barcodeText.acceptableInput ? "green" : "red"
