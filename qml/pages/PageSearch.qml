@@ -51,6 +51,11 @@ Page {
         searchActive=false;
     }
 
+    function searchBarcodeNotFound() {
+        messagePopup.show(qsTr("Not found"), qsTr("No product matched given barcode"));
+        searchActive=false;
+    }
+
     // Wrapper to select the appropriate search method
     function doSearch() {
 
@@ -92,7 +97,7 @@ Page {
                 // XXX: Icon!
                 text: qsTr("Scan barcode")
                 visible: searchVisible
-                enabled: !searchActive && searchString==''
+                enabled: !searchActive // && searchString==''
                 onClicked: {
                     rootStack.push(cameraScanner);
                 }

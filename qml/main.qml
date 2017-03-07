@@ -434,6 +434,9 @@ ApplicationWindow {
                 onSearchCompleted: {
                     setSearchActive(false);
                 }
+                onProductNotFound: {
+                    searchBarcodeNotFound();
+                }
             }
         }
     }
@@ -446,6 +449,18 @@ ApplicationWindow {
                 if (r)
                     setSearchActive(r);
             }
+            Connections {
+                target: api
+                onProductNotFound: {
+                    setSearchActive(false);
+                    searchBarcodeNotFound();
+                }
+                onSearchCompleted: {
+                    setSearchActive(false);
+                    searchComplete();
+                }
+            }
+
         }
     }
 

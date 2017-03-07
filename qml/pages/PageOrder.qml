@@ -23,6 +23,7 @@ Page {
 
     property string searchString;
 
+
     property bool searchActive: false;
     property alias model: searchResults.model
 
@@ -36,12 +37,22 @@ Page {
             Qt.inputMethod.hide();
     }
 
-    function searchBarcode(barcode) {
+    function searchBarcode(barcode) {        
         if (api.validateBarcode(barcode)) {
+            searchString=barcode
             searchBarcodeRequested(barcode);
         } else {
+            searchString=''
             messagePopup.show(qsTr("Barcode"), qsTr("Barcode format is not recognized. Please try again."));
         }
+    }
+
+    function searchBarcodeNotFound() {
+        messagePopup.show(qsTr("Not found"), qsTr("No product matched given barcode"));
+    }
+
+    function searchComplete() {
+        model.appendProduct(searchString);
     }
 
     Keys.onReleased: {
