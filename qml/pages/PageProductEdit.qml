@@ -795,6 +795,10 @@ Page {
                                 decimals: 2
                                 notation: DoubleValidator.StandardNotation
                             }
+                            onAccepted: {
+                                var price=Number.fromLocaleString(productPrice.text);
+                                console.debug("Price is: "+price)
+                            }
                         }
                         ComboBox {
                             id: productTax
@@ -1054,8 +1058,8 @@ Page {
             p.setStock(1);
         }
 
-        if (categoryHasPrice) {
-            p.setPrice(parseFloat(productPrice.text))
+        if (categoryHasPrice && productPrice.acceptableInput) {
+            p.setPrice(Number.fromLocaleString(productPrice.text))
         } else {
             p.setPrice(0.0);
         }
