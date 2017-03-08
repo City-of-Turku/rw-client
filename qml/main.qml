@@ -459,8 +459,11 @@ ApplicationWindow {
                     setSearchActive(false);
                     searchComplete();
                 }
+                onOrderCreated: {
+                    orderCreated();
+                    messagePopup.show(qsTr("Order"), qsTr("Order created"));
+                }
             }
-
         }
     }
 

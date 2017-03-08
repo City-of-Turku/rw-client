@@ -55,6 +55,11 @@ Page {
         model.appendProduct(searchString);
     }
 
+    function orderCreated() {
+        model.clear();
+        rootStack.pop()
+    }
+
     Keys.onReleased: {
         if (event.key === Qt.Key_Back) {
             console.log("*** Back button")
