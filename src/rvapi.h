@@ -164,7 +164,9 @@ signals:
     void requestFailure(int error, const QString msg);
     void requestSuccessful();
 
-    void searchCompleted(bool hasMore);
+    void searchCompleted(bool hasMore, bool success);
+
+    void orderCreated();
 
     void uploading(quint8 progress);
     void downloading(quint8 progress);
@@ -209,7 +211,6 @@ public slots:
 
 protected:
     void queueRequest(QNetworkReply *req, const QString op);
-    void parseCategoryMap(const QString key, CategoryModel &model, QVariantMap &tmp);
 
 protected slots:
     void onIgnoreSSLErrors(QNetworkReply *reply, QList<QSslError> error);
@@ -344,6 +345,8 @@ private:
     QStringList m_attributes;
 
     QString getRequestOp(QNetworkReply *rep);
+    QNetworkReply *getOpRequest(const QString &op);
+
     void setAuthentication(bool auth);
     bool parseLocationData(QVariantMap &data);
     bool parseCategoryData(QVariantMap &data);
@@ -352,7 +355,9 @@ private:
     bool parseLogin(QVariantMap &data);
     bool parseLogout();
     bool parseFileDownload(const QByteArray &data);
-    QNetworkReply *getOpRequest(const QString &op);
+    void parseCategoryMap(const QString key, CategoryModel &model, QVariantMap &tmp);
+    bool parseOrderCreated(QVariantMap &data);
+
 };
 
 #endif // RVAPI_H

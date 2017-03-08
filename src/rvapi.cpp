@@ -423,6 +423,13 @@ void RvAPI::parseCategoryMap(const QString key, CategoryModel &model, QVariantMa
     }
 }
 
+bool RvAPI::parseOrderCreated(QVariantMap &data)
+{
+    emit orderCreated();
+
+    return true;
+}
+
 bool RvAPI::parseCategoryData(QVariantMap &data)
 {
     m_categorymodel.clear();
@@ -626,11 +633,20 @@ bool RvAPI::parseOKResponse(const QString op, const QByteArray &response, const 
         return parseLogout();
     }
 
-    if (op==op_products || op==op_products_search || op==op_product_barcode) {
+    if (op==op_products) {
         bool r=parseProductsData(data);
-        emit searchCompleted(m_hasMore);
+        emit searchCompleted(m_hasMore, r);
         return r;
     }
+
+    if (op==op_products_search || op==op_product_barcode) {
+        bool r=parseProductsData(data);
+        emit searchCompleted(m_hasMore, r);
+        return r;
+    }
+
+    if (op==op_orders && method==QNetworkAccessManager::PostOperation)
+        return parseOrderCreated(data);
 
     if (op==op_product)
         return parseProductData(data, method);
@@ -865,7 +881,7 @@ bool RvAPI::products(uint page, uint amount, const QString category, const QStri
     }
 
     url.setQuery(query);
-    request.setUrl(url);
+    request.setUrl(url);    
 
     queueRequest(get(request), op_products);
 
@@ -915,7 +931,7 @@ bool RvAPI::searchBarcode(const QString barcode, bool checkOnly)
         ProductItem *item=m_product_store.value(barcode);
         m_itemsmodel.clear();
         m_itemsmodel.appendProduct(item);
-        emit searchCompleted(false);
+        emit searchCompleted(false, true);
         return true;
     }
 
