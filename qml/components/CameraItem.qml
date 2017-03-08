@@ -32,6 +32,8 @@ Item {
     // Emit after oneshot decoding
     signal decodeDone()
 
+    signal scanFatalFailure(string error)
+
     Camera {
         id: camera
         deviceId: "/dev/video1" // XXX
@@ -100,6 +102,13 @@ Item {
                 camera.stop();
                 decodeDone();
             }
+        }
+
+        onUnknownFrameFormat: {
+            console.debug("Unknown video frame format: "+format)
+            console.debug(width + " x "+height)
+            scanFatalFailure("Fatal: Unknown video frame format: "+format)
+            camera.stop();
         }
     }
 
