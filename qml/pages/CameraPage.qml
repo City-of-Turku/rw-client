@@ -87,6 +87,9 @@ Page {
         onDecodeDone: {
             cameraPage.decodeDone();
         }
+        onScanFatalFailure: {
+            messagePopup.show("Fatal scanner error", error)
+        }
     }
 
     Image {
@@ -95,6 +98,10 @@ Page {
         visible: camera.flash
         anchors.top: camera.top
         anchors.right: camera.right
+    }
+
+    MessagePopup {
+        id: messagePopup
     }
 
     function startCamera() {
