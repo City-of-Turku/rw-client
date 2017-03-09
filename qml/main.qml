@@ -461,7 +461,7 @@ ApplicationWindow {
                 }
                 onOrderCreated: {
                     orderCreated();
-                    messagePopup.show(qsTr("Order"), qsTr("Order created"));
+                    messagePopup.show(qsTr("Order"), qsTr("Order created successfully"));
                 }
             }
         }
