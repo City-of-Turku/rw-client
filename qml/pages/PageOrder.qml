@@ -52,7 +52,14 @@ Page {
     }
 
     function searchComplete() {
-        model.appendProduct(searchString);
+        var p=api.getProduct(searchString);
+        if (!p)
+            return;
+
+        if (p.stock===0)
+            messagePopup.show(qsTr("No stock"), qsTr("Product is out of stock"));
+        else
+            model.appendProduct(searchString);
     }
 
     function orderCreated() {
