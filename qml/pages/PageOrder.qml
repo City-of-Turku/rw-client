@@ -53,6 +53,8 @@ Page {
 
     function searchComplete() {
         model.appendProduct(searchString);
+        barcodeField.clear();
+        searchResults.forceActiveFocus();
     }
 
     function orderCreated() {
@@ -217,6 +219,7 @@ Page {
             Layout.fillWidth: true
             Layout.fillHeight: false
             BarcodeField {
+                id: barcodeField
                 enabled: !api.busy
                 onAccepted: {
                     console.debug("BARCODESEARCH: "+text)
