@@ -28,6 +28,8 @@ public:
     Q_INVOKABLE void clear();
     Q_INVOKABLE ProductItem *get(int index);
 
+    Q_INVOKABLE bool remove(int index);
+
     bool canFetchMore(const QModelIndex &parent=QModelIndex()) const;
 
     enum Roles {BarcodeRole = Qt::UserRole, TitleRole, DescriptionRole, ThumbnailRole, PurposeRole, StockRole, PriceRole, TaxRole};

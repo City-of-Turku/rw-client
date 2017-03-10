@@ -191,6 +191,14 @@ void RvAPI::clearProductStore()
     m_product_store.clear();
 }
 
+ProductItem *RvAPI::getProduct(const QString &barcode) const
+{
+    if (!m_product_store.contains(barcode))
+        return nullptr;
+
+    return m_product_store.value(barcode);
+}
+
 QVariantMap RvAPI::parseJsonResponse(const QByteArray &data)
 {
     QJsonDocument json=QJsonDocument::fromJson(data);

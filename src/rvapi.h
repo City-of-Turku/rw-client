@@ -129,6 +129,7 @@ public:
 
     Q_INVOKABLE bool isOrderEmpty();
     Q_INVOKABLE bool createOrder(bool done);
+    Q_INVOKABLE ProductItem *getProduct(const QString &barcode) const;
 signals:
 
     void urlChanged(QUrl url);

@@ -86,6 +86,8 @@ Page {
 
         onDecodeDone: {
             cameraPage.decodeDone();
+            if (oneShot)
+                rootStack.pop();
         }
         onScanFatalFailure: {
             messagePopup.show("Fatal scanner error", error)

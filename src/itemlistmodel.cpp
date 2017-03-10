@@ -163,6 +163,19 @@ ProductItem *ItemListModel::get(int index)
     return item;
 }
 
+bool ItemListModel::remove(int index)
+{
+    if (index>m_data.size() || index<0)
+        return false;
+
+    beginResetModel();
+    m_data.removeAt(index);
+    endResetModel();
+    emit countChanged(m_data.size());
+
+    return true;
+}
+
 bool ItemListModel::canFetchMore(const QModelIndex &parent) const
 {
     Q_UNUSED(parent)

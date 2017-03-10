@@ -4,11 +4,12 @@
  * Displays a list of products to order with barcode input
  *
  */
-import QtQuick 2.7
+import QtQuick 2.8
 import QtQml 2.2
-import QtQuick.Controls 2.0
+import QtQuick.Controls 2.1
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
+import QtQuick.Controls.Material 2.1
 
 import net.ekotuki 1.0
 
@@ -23,9 +24,8 @@ Page {
 
     property string searchString;
 
-
     property bool searchActive: false;
-    property alias model: searchResults.model
+    property alias model: orderCart.model
 
     signal searchBarcodeRequested(string barcode);
     signal searchCancel();
@@ -37,7 +37,7 @@ Page {
             Qt.inputMethod.hide();
     }
 
-    function searchBarcode(barcode) {        
+    function searchBarcode(barcode) {
         if (api.validateBarcode(barcode)) {
             searchString=barcode
             searchBarcodeRequested(barcode);
@@ -52,14 +52,22 @@ Page {
     }
 
     function searchComplete() {
-        model.appendProduct(searchString);
-        barcodeField.clear();
-        searchResults.forceActiveFocus();
+        var p=api.getProduct(searchString);
+        if (!p)
+            return;
+
+        if (p.stock===0)
+            messagePopup.show(qsTr("No stock"), qsTr("Product is out of stock"));
+        else {
+            model.appendProduct(searchString);
+            barcodeField.clear();
+            searchResults.forceActiveFocus();
+        }
     }
 
     function orderCreated() {
         model.clear();
-        rootStack.pop()
+        rootStack.pop();
     }
 
     Keys.onReleased: {
@@ -70,7 +78,8 @@ Page {
         }
     }
 
-    Component.onCompleted: {        
+
+    Component.onCompleted: {
         orderPage.forceActiveFocus();
         model=root.api.getCartModel();
 
@@ -83,7 +92,7 @@ Page {
         title: qsTr("Confirm order")
         text: qsTr("Commit product order ?")
 
-        onAccepted: {            
+        onAccepted: {
             confirmDialog.close();
             var r=api.createOrder(true);
             if (!r) {
@@ -92,26 +101,47 @@ Page {
 
             }
         }
+    }
 
-        onRejected: {
+    MessageDialog {
+        id: confirmClearDialog
+        standardButtons: StandardButton.Ok | StandardButton.Cancel
+        title: qsTr("Clear order")
+        text: qsTr("Clear product order ?")
 
+        onAccepted: {
+            confirmDialog.close();
+            orderPage.model.clear();
         }
     }
 
     footer: ToolBar {
         RowLayout {
             ToolButton {
-                text: qsTr("Scan barcode")                
+                text: qsTr("Scan")
                 enabled: !searchActive && searchString==''
                 onClicked: {
                     rootStack.push(cameraScanner);
                 }
             }
+
             ToolButton {
                 text: qsTr("Send order")
-                enabled: searchResults.count>0
+                enabled: orderCart.count>0
                 onClicked: {
                     confirmDialog.open();
+                }
+            }
+
+            ToolSeparator {
+
+            }
+
+            ToolButton {
+                text: qsTr("Clear")
+                enabled: orderCart.count>0
+                onClicked: {
+                    confirmClearDialog.open();
                 }
             }
         }
@@ -145,7 +175,7 @@ Page {
 
     MessagePopup {
         id: messagePopup
-    }    
+    }
 
     Component {
         id: imageDisplayPageComponent
@@ -168,14 +198,14 @@ Page {
 
         Label {
             anchors.centerIn: parent
-            visible: searchResults.model.count===0
+            visible: orderCart.model.count===0
             text: qsTr("Cart is empty")
             wrapMode: Text.Wrap
             font.pixelSize: 32
         }
 
         ListView {
-            id: searchResults
+            id: orderCart
             enabled: !searchActive
             clip: true
             Layout.fillWidth: true
@@ -194,22 +224,43 @@ Page {
                     }
 
                     onClickedImage: {
-                        openProductAtIndex(index)
+                        //openProductAtIndex(index)
                     }
 
                     onPressandhold: {
-                        openProductImageAtIndex(index)
+                        productMenu.open();
+                    }
+
+                    Menu {
+                        id: productMenu
+                        title: qsTr("Product")
+                        modal: true
+                        dim: true
+                        x: parent.width/3
+                        MenuItem {
+                            text: qsTr("Details")
+                            onClicked: {
+                                openProductAtIndex(index)
+                            }
+                        }
+
+                        MenuItem {
+                            text: qsTr("Remove")
+                            onClicked: {
+                                orderCart.model.remove(index);
+                            }
+                        }
                     }
 
                     function openProductAtIndex(index) {
-                        var p=searchPage.model.get(index);
-                        searchResults.currentIndex=index;
+                        var p=orderCart.model.get(index);
+                        orderCart.currentIndex=index;
                         rootStack.push(productView, { "product": p })
                     }
 
                     function openProductImageAtIndex(index) {
-                        var p=searchPage.model.get(index);
-                        searchResults.currentIndex=index;
+                        var p=orderCart.model.get(index);
+                        orderCart.currentIndex=index;
                         rootStack.push(imageDisplayPageComponent, { image: p.thumbnail })
                     }
                 }
