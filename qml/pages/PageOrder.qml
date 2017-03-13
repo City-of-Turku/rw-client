@@ -66,7 +66,7 @@ Page {
     }
 
     function orderCreated() {
-        model.clear();
+        api.clearProductStore();
         rootStack.pop();
     }
 
