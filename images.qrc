@@ -47,5 +47,13 @@
         <file>images/icon_gallery.png</file>
         <file>images/icon_gallery@4x.png</file>
         <file>images/icon_flash.png</file>
+        <file>images/icon_video.png</file>
+        <file>images/icon_capture.png</file>
+        <file>images/icon_ok.png</file>
+        <file>images/icon_focus.png</file>
+        <file>images/icon_ok@2x.png</file>
+        <file>images/icon_video@2x.png</file>
+        <file>images/icon_capture@2x.png</file>
+        <file>images/icon_focus@2x.png</file>
     </qresource>
 </RCC>
