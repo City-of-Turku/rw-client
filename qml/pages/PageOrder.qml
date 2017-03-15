@@ -52,17 +52,18 @@ Page {
     }
 
     function searchComplete() {
+        setSearchActive(false)
         var p=api.getProduct(searchString);
         if (!p)
             return;
 
-        if (p.stock===0)
+        if (p.stock===0) {
             messagePopup.show(qsTr("No stock"), qsTr("Product is out of stock"));
-        else {
-            model.appendProduct(searchString);
-            barcodeField.clear();
-            searchResults.forceActiveFocus();
+        } else {
+            model.appendProduct(searchString);                        
         }
+        barcodeField.clear();
+        orderCart.forceActiveFocus();
     }
 
     function orderCreated() {
@@ -127,7 +128,7 @@ Page {
 
             ToolButton {
                 text: qsTr("Send order")
-                enabled: orderCart.count>0
+                enabled: orderCart.count>0 && !api.busy
                 onClicked: {
                     confirmDialog.open();
                 }
@@ -139,7 +140,7 @@ Page {
 
             ToolButton {
                 text: qsTr("Clear")
-                enabled: orderCart.count>0
+                enabled: orderCart.count>0 && !api.busy
                 onClicked: {
                     confirmClearDialog.open();
                 }
