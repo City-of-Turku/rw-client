@@ -41,27 +41,37 @@ Page {
     footer: ToolBar {
         RowLayout {
             anchors.fill: parent
+
+            ToolButton {
+                text: "Flash"
+                Layout.alignment: Qt.AlignLeft
+                onClicked: camera.flash=!camera.flash
+                contentItem: ItemIcon {
+                    source: "qrc:/images/icon_flash.png"
+                }
+            }
+
             ToolButton {
                 Layout.alignment: Qt.AlignCenter
                 text: "Capture"
                 visible: imageCapture
                 enabled: camera.captureEnabled
                 contentItem: ItemIcon {
-                    source: "qrc:/images/icon_camera.png"
+                    source: "qrc:/images/icon_capture.png"
                 }
                 onClicked: {
                     camera.captureImage();
                 }
             }
-            ToolButton {
-                text: "Flash"
-                onClicked: camera.flash=!camera.flash
-            }
 
             ToolButton {
                 text: "Focus"
+                Layout.alignment: Qt.AlignRight
                 onClicked: {
                     camera.focusCamera();
+                }
+                contentItem: ItemIcon {
+                    source: "qrc:/images/icon_focus.png"
                 }
             }
         }
