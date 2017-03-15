@@ -27,10 +27,32 @@ Page {
     property bool hasProduct: product ? true : false;
     // The minimum amount of data that needs to be entered toggles this
 
-    property bool validBaseEntry: barcodeText.acceptableInput && categoryID!='' && productTitle.acceptableInput && validPurpose
-    property bool validEntry: validBaseEntry && productWarehouse.currentIndex>=0 && validPurpose && hasImages;
-
+    property bool validBaseEntry: barcodeText.acceptableInput && validCategory && productTitle.acceptableInput && validPurpose
+    property bool validEntry: validBaseEntry && validWarehouse && validPurpose && validPrice && hasImages;
+    property bool validWarehouse: locationID>0
     property bool validPurpose: (categoryHasPurpose && purposeSelection.currentIndex>0) || !categoryHasPurpose
+    property bool validPrice: (categoryHasPrice && productPrice.price>0.0 && productPrice.acceptableInput) || !categoryHasPrice
+    property bool validAttributes: validPrice && validCategory
+    property bool validCategory: categoryID!='' // && ((subCategorySelection.model && categorySubID!='') || !subCategorySelection.model)
+
+    // What does the current category need
+    // Required input
+    property bool categoryHasPurpose: categoryFlags & CategoryModel.HasPurpose
+    property bool categoryHasPrice: categoryFlags & CategoryModel.HasPrice
+    property bool categoryHasStock: categoryFlags & CategoryModel.HasStock
+
+    // Optional input
+    property bool categoryHasColor: categoryFlags & CategoryModel.HasColor
+    property bool categoryHasSize: categoryFlags & CategoryModel.HasSize
+    property bool categoryHasWeight: categoryFlags & CategoryModel.HasWeight
+    property bool categoryHasISBN: categoryFlags & CategoryModel.HasISBN
+    property bool categoryHasEAN: categoryFlags & CategoryModel.HasEAN
+    property bool categoryHasMakeAndModel: categoryFlags & CategoryModel.HasMakeAndModel
+    property bool categoryHasAuthor: categoryFlags & CategoryModel.HasAuthor
+
+    property bool hasTax: true
+    property bool hasLocation: true
+    property int defaultWarehouse;
 
     property int maxImages: 5;
 
@@ -54,23 +76,6 @@ Page {
     property int locationID;
     property string locationDetail: ""
 
-    // Does the current category allow
-    property bool categoryHasColor: categoryFlags & CategoryModel.HasColor ? true : false
-    property bool categoryHasSize: categoryFlags & CategoryModel.HasSize
-    property bool categoryHasWeight: categoryFlags & CategoryModel.HasWeight
-    property bool categoryHasISBN: categoryFlags & CategoryModel.HasISBN
-    property bool categoryHasEAN: categoryFlags & CategoryModel.HasEAN
-    property bool categoryHasMakeAndModel: categoryFlags & CategoryModel.HasMakeAndModel
-    property bool categoryHasAuthor: categoryFlags & CategoryModel.HasAuthor
-    property bool categoryHasStock: categoryFlags & CategoryModel.HasStock
-    property bool categoryHasPrice: categoryFlags & CategoryModel.HasPrice
-    property bool categoryHasPurpose: categoryFlags & CategoryModel.HasPurpose
-
-    property bool hasTax: true
-
-    property bool hasLocation: true
-
-    property int defaultWarehouse;
 
     // Are we adding/editing multiple entries of the same product ? If so
     // we need to enable a bit more complex interface for barcodes.
@@ -330,7 +335,7 @@ Page {
                 // Location
                 TabButton {
                     background: Rectangle {
-                        color: locationID>0 ? "green" : "red"
+                        color: validWarehouse ? "green" : "red"
                         border.color: "#000"
                         border.width: 1
                         ItemIcon {
@@ -342,7 +347,7 @@ Page {
                 // Attributes
                 TabButton {
                     background: Rectangle {
-                        color: categoryID!='' ? "green" : "#d9e006"
+                        color: validAttributes ? "green" : "#d9e006"
                         border.color: "#000"
                         border.width: 1
                         ItemIcon {
@@ -789,6 +794,20 @@ Page {
                             text: hasProduct ? product.price : ''
                             inputMethodHints: Qt.ImhPreferNumbers | Qt.ImhFormattedNumbersOnly
                             placeholderText: qsTr("Price")
+                            background: Rectangle {
+                                color: "transparent"
+                                border.color: parent.acceptableInput ? "green" : "red"
+                            }
+                            leftPadding: 4
+                            rightPadding: 4
+                            verticalAlignment: TextInput.AlignVCenter
+                            Layout.minimumWidth: 120
+                            Layout.maximumWidth: 200
+
+                            property double price;
+
+                            signal invalidPrice();
+
                             validator: DoubleValidator {
                                 bottom: 0.0
                                 top: 99999.0
@@ -796,8 +815,34 @@ Page {
                                 notation: DoubleValidator.StandardNotation
                             }
                             onAccepted: {
-                                var price=Number.fromLocaleString(productPrice.text);
+                                parsePrice();
+                            }
+                            onEditingFinished: {
+
+                            }
+                            onFocusChanged: {
+                                console.debug("Focus: "+focus)
+                                if (!focus)
+                                    parsePrice();
+                            }
+                            onInvalidPrice: {
+                                messagePopup.show(qsTr("Product price"), qsTr("Invalid price entry"));
+                                price=0.0;
+                            }
+
+                            function parsePrice() {
+                                var price;
+                                try {
+                                    price=Number.fromLocaleString(productPrice.text);
+                                    if (isNaN(price)) {
+                                        invalidPrice();
+                                    }
+                                } catch(err) {
+                                    price=0.0;
+                                    invalidPrice();
+                                }
                                 console.debug("Price is: "+price)
+                                productPrice.price=price;
                             }
                         }
                         ComboBox {
@@ -850,7 +895,7 @@ Page {
 
                     Switch {
                         id: sizeSwitch
-                        text: "Size (WxHxD)"
+                        text: qsTr("Size (WxHxD)")
                         visible: categoryHasSize
                         enabled: categoryHasSize
                     }
@@ -1058,8 +1103,8 @@ Page {
             p.setStock(1);
         }
 
-        if (categoryHasPrice && productPrice.acceptableInput) {
-            p.setPrice(Number.fromLocaleString(productPrice.text))
+        if (categoryHasPrice && validPrice) {
+            p.setPrice(productPrice.price)
         } else {
             p.setPrice(0.0);
         }

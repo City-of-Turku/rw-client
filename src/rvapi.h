@@ -130,6 +130,9 @@ public:
     Q_INVOKABLE bool isOrderEmpty();
     Q_INVOKABLE bool createOrder(bool done);
     Q_INVOKABLE ProductItem *getProduct(const QString &barcode) const;
+
+    Q_INVOKABLE void clearProductStore();
+
 signals:
 
     void urlChanged(QUrl url);
@@ -309,9 +312,7 @@ private:
     int m_loadedAmount;
     int m_loadedPage;
 
-    QMap<QString, ProductItem *>m_product_store;
-
-    void clearProductStore();
+    QMap<QString, ProductItem *>m_product_store;    
 
     ItemListModel m_itemsmodel;
     ItemListModel m_cartmodel;

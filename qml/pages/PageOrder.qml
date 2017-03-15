@@ -25,6 +25,9 @@ Page {
     property string searchString;
 
     property bool searchActive: false;
+
+    property bool showTotalPrice: false;
+
     property alias model: orderCart.model
 
     signal searchBarcodeRequested(string barcode);
@@ -67,7 +70,7 @@ Page {
     }
 
     function orderCreated() {
-        model.clear();
+        api.clearProductStore();
         rootStack.pop();
     }
 
@@ -267,6 +270,20 @@ Page {
                 }
             }
         }
+
+        RowLayout {
+            visible: showTotalPrice && orderCart.count>0
+            Layout.fillWidth: true
+            Layout.fillHeight: false
+            Label {
+                text: qsTr("Total:")
+                Layout.fillWidth: true
+            }
+            Label {
+                id: totalPrice
+            }
+        }
+
         RowLayout {
             Layout.fillWidth: true
             Layout.fillHeight: false
