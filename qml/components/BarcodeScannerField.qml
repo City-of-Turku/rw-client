@@ -17,8 +17,8 @@ RowLayout {
 
     property alias text: barcodeText.text
     property alias placeholderText: barcodeText.placeholderText
-
     property alias validator: barcodeText.validator
+    property alias acceptableInput: barcodeText.acceptableInput
 
     BarcodeField {
         id: barcodeText
@@ -39,7 +39,7 @@ RowLayout {
 
     Button {
         text: qsTr("Scan")
-        enabled: !barcodeText.acceptableInput && !scannerEnabled
+        enabled: !barcodeText.acceptableInput && scannerEnabled
         contentItem: ItemIcon {
             source: "qrc:/images/icon_camera.png"
         }
