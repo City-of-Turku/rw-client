@@ -228,24 +228,6 @@ Page {
     }
 
     Component {
-        id: cameraScanner
-        CameraPage {
-            id: scanCamera
-            title: qsTr("Scan barcode")
-            oneShot: true
-            Component.onCompleted: {
-                scanCamera.startCamera();
-            }
-            onBarcodeFound: {
-                barcodeText.text=barcode;
-            }
-            onDecodeDone: {
-                rootStack.pop();
-            }
-        }
-    }
-
-    Component {
         id: pictureCamera
         CameraPage {
             id: pCamera
@@ -389,46 +371,10 @@ Page {
                         Layout.fillWidth: true
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignTop
-                        RowLayout {
-                            id: barcodeSingleControl
-                            Layout.fillWidth: true
-                            Layout.fillHeight: false
-                            Layout.alignment: Qt.AlignTop
-                            Layout.margins: 8
-                            spacing: 8
-                            BarcodeField {
-                                id: barcodeText
-                                enabled: !hasProduct
-                                onAccepted: {
-                                    console.debug("BarcodeAccepted")
-                                    validateBarcode(text);
-                                }
-                                onAcceptableInputChanged: {
-                                    console.debug("BarcodeAcceptableInput: "+acceptableInput)
-                                    if (acceptableInput)
-                                        validateBarcode(text);
-                                }
-                                onFocusChanged: {
-                                    console.debug("BarcodeFocus: "+focus)
-                                }
-                            }
 
-                            BusyIndicator {
-                                id: barcodeBusy
-                                height: barcodeText.height
-                                width: height
-                                visible: enabled
-                                enabled: false
-                            }
-
-                            Button {
-                                text: qsTr("Scan")
-                                enabled: !barcodeText.acceptableInput && !hasProduct
-                                onClicked: {
-                                    rootStack.push(cameraScanner);
-                                }
-                            }
-
+                        BarcodeScannerField {
+                            id: barcodeText
+                            scannerEnabled: !hasProduct
                         }
                         Text {
                             Layout.fillWidth: true
@@ -964,20 +910,22 @@ Page {
                         Layout.fillWidth: true
                         Layout.fillHeight: false
                         RowLayout {
-                            BarcodeField {
+                            BarcodeScannerField {
                                 id: productEAN
                                 visible: categoryHasEAN
+                                scannerEnabled: categoryHasEAN
                                 placeholderText: qsTr("Type or scan EAN")
                                 validator: RegExpValidator {
                                     regExp: /[0-9]{10,13}/
                                 }
                             }
                         }
-                        RowLayout {
-                            BarcodeField {
+                        RowLayout {                            
+                            BarcodeScannerField {
                                 id: productISBN
                                 visible: categoryHasISBN
                                 placeholderText: qsTr("Type or scan ISBN")
+                                scannerEnabled: categoryHasISBN
                                 validator: RegExpValidator {
                                     regExp: /[0-9]{10,13}/
                                 }
@@ -985,8 +933,6 @@ Page {
                         }
                     }
                 }
-
-
             }
         }
     }
