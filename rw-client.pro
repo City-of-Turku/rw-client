@@ -5,9 +5,9 @@ QT += positioning
 
 CONFIG += c++11
 
-# Change this to your !
-include(profiles/sample-profile.pri)
-# include(profiles/turku-profile.pri)
+# Create your own build profile first, copy profile.pri.sample to profile.pri
+# and adjust for your system. Don't change this line.
+include(profile.pri)
 
 HEADERS += \
     src/rvapi.h \
@@ -109,7 +109,8 @@ DISTFILES += \
     android/gradlew.bat \
     qml/components/BarcodeScannerField.qml \
     qml/components/LocationListView.qml \
-    qml/components/LocationPopup.qml
+    qml/components/LocationPopup.qml \
+    qml/components/ToolbarBasic.qml
 
 ANDROID_PACKAGE_SOURCE_DIR = $$PWD/android
 

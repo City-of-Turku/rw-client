@@ -28,7 +28,7 @@ ApplicationWindow {
     property bool settingsKeepImages: true
     property bool settingsAskMultiple: true
 
-    property ServerApi api: api    
+    property ServerApi api: api
     property alias colorModel: colorModel
     property alias purposeModel: purposeModel
 
@@ -69,7 +69,7 @@ ApplicationWindow {
         savedLocation=settings.getSettingsInt("location", 0);
 
         if (userData.username!=='' && userData.password!=='')
-            loginTimer.start();        
+            loginTimer.start();
     }
 
     onSettingsDevelopmentModeChanged: settings.setSettings("developmentMode", settingsDevelopmentMode)
@@ -101,7 +101,9 @@ ApplicationWindow {
     }
 
 
-    header: ToolBar {
+    header: rootStack.depth<2 ? mainToolbar : (rootStack.currentItem.header ? null : mainToolbar)
+
+    ToolBar {
         id: mainToolbar
         enabled: !api.busy
         RowLayout {
@@ -335,7 +337,7 @@ ApplicationWindow {
             console.debug("*** view is "+currentItem)
             mainActionList.currentIndex=-1
             currentItem.forceActiveFocus();
-        }                
+        }
 
         function setView(vid) {
             switch (vid) {
@@ -383,7 +385,7 @@ ApplicationWindow {
                 showProduct(sku);
             }
         }
-    }    
+    }
 
     Component {
         id: feedbackView
@@ -513,13 +515,13 @@ ApplicationWindow {
             }
             Connections {
                 target: api
-                onProductSaved: {                    
+                onProductSaved: {
                     if (editPage.confirmProductSave(true, null, "")) {
                         tempProduct.removeImages();
                     }
                     tempProduct.destroy();
                 }
-                onProductFail: {                    
+                onProductFail: {
                     editPage.confirmProductSave(false, null, msg);
                     tempProduct.destroy();
                 }
@@ -531,7 +533,7 @@ ApplicationWindow {
                 if (locationID==root.savedLocation)
                     return;
 
-                console.debug("Saving location "+locationID);                
+                console.debug("Saving location "+locationID);
                 settings.setSettings("location", locationID);
                 root.savedLocation=locationID;
             }
@@ -540,7 +542,7 @@ ApplicationWindow {
                 console.debug("Setting location information "+locationID)
                 //locationID=settings.getSettingsInt("location", 0);
                 api.getLocationsModel().clearFilter();
-                locationsModel=api.getLocationsModel();                
+                locationsModel=api.getLocationsModel();
                 console.debug("..done")
             }
         }
@@ -657,7 +659,7 @@ ApplicationWindow {
 
         onUpdateDownloaded: {
             Qt.openUrlExternally("file://"+file);
-        }        
+        }
 
         onProductSaved: {
             console.debug("*** ProductSaved")

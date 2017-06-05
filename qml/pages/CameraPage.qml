@@ -43,7 +43,7 @@ Page {
             anchors.fill: parent
 
             ToolButton {
-                text: "Flash"
+                text: "Toggle Flash"
                 Layout.alignment: Qt.AlignLeft
                 onClicked: camera.flash=!camera.flash
                 contentItem: ItemIcon {
@@ -53,7 +53,7 @@ Page {
 
             ToolButton {
                 Layout.alignment: Qt.AlignCenter
-                text: "Capture"
+                text: "Capture image"
                 visible: imageCapture
                 enabled: camera.captureEnabled
                 contentItem: ItemIcon {
@@ -61,6 +61,18 @@ Page {
                 }
                 onClicked: {
                     camera.captureImage();
+                }
+            }
+
+            ToolButton {
+                text: "Switch camera"
+                Layout.alignment: Qt.AlignRight
+                enabled: camera.multipleCameras
+                onClicked: {
+                    camera.selectCamera();
+                }
+                contentItem: ItemIcon {
+                    source: "qrc:/images/icon_camera.png"
                 }
             }
 
@@ -74,6 +86,7 @@ Page {
                     source: "qrc:/images/icon_focus.png"
                 }
             }
+
         }
     }
 

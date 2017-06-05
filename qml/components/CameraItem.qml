@@ -311,4 +311,9 @@ Item {
         camera.stop();
     }
 
+    function selectCamera() {
+        if (cameraSelectionEnabled && multipleCameras)
+            cameraPopup.open();
+    }
+
 }

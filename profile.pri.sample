@@ -1,0 +1,2 @@
+# Point this to build profile
+include(profiles/sample-profile.pri)
