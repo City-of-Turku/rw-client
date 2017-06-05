@@ -137,6 +137,13 @@ Page {
         }
     }
 
+    header: ToolbarBasic {
+        enableBackPop: false
+        onBackButton: {
+            confirmBackDialog.open();
+        }
+    }
+
     MessageDialog {
         id: confirmBackDialog
         standardButtons: StandardButton.Ok | StandardButton.Cancel
