@@ -106,6 +106,9 @@ Page {
                 // XXX: Icons!
                 visible: searchResults.model.count>1
                 text: searchResults.rowItems==1 ? qsTr("Grid") : qsTr("List")
+                contentItem: ItemIcon {
+                    source: searchResults.rowItems==1 ? "qrc:/images/icon_grid.png" : "qrc:/images/icon_list.png"
+                }
                 onClicked: {
                     if (searchResults.rowItems==1)
                         searchResults.rowItems=2;
