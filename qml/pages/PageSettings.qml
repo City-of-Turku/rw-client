@@ -49,10 +49,29 @@ Page {
             GroupBox {
                 title: qsTr("Language settings")
                 Layout.fillWidth: true
-                Text {
-                    width: parent.width
-                    text: "Device language is used. To change the used language adjust your locale settings on your device."                    
-                    wrapMode: Text.Wrap
+                ColumnLayout {
+                    anchors.fill: parent
+                    CheckBox {
+                        id: checkDeviceLanguage
+                        text: qsTr("Use device language")
+                        checked: true
+                        enabled: false
+                    }
+                    Text {
+                        //width: parent.width
+                        text: "Device language is used. To change the used language adjust your locale settings on your device."
+                        wrapMode: Text.Wrap
+                        visible: checkDeviceLanguage.checked
+                    }
+                    ComboBox {
+                        id: comboLanguageSelection
+                        visible: !checkDeviceLanguage.checked
+                        textRole: "value"
+                        model: ListModel {
+                            ListElement { key: "en_US"; value: "English"; }
+                            ListElement { key: "fi_FI"; value: "Suomi"; }
+                        }
+                    }
                 }
             }
 
