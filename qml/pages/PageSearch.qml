@@ -251,7 +251,7 @@ Page {
             }
 
             onMovementEnded: {
-                if (atYEnd && api.hasMore) {
+                if (atYEnd && api.hasMore && !api.busy) {
                     console.debug("*** AT END requesting more")
                     requestLoadMore(searchString, categorySearchID);
                     searchResults.positionViewAtEnd();
@@ -349,15 +349,24 @@ Page {
                         currentIndex: -1
                         Layout.fillWidth: true
                         textRole: "category"
+
+                        property string currentID: ''
+
                         onActivated: {
-                            console.debug("New category selected: "+index)
                             var cdata=model.get(index);
                             categorySearchID=cdata.cid;
+
+                            if (currentID==categorySearchID)
+                                return;
+
+                            currentID=categorySearchID
                             searchRequested(searchString, categorySearchID);
                         }
+                        onCurrentIndexChanged: console.debug("Category currentIndex: "+currentIndex)
                         onModelChanged: console.debug("Categories available: "+model.count)
                         Component.onCompleted: {
                             model=root.api.getCategoryModel();
+                            currentIndex=0;
                         }
                     }
                 }
