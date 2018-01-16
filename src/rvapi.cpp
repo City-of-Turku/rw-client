@@ -15,6 +15,8 @@
 #include <QCoreApplication>
 #include <QStandardPaths>
 
+#include <QNetworkProxy>
+
 //#define LOGIN_DEBUG 1
 //#define DATA_DEBUG 1
 //#define JSON_DEBUG 1
@@ -189,6 +191,21 @@ void RvAPI::clearProductStore()
     m_cartmodel.clear();
     qDeleteAll(m_product_store);
     m_product_store.clear();
+}
+
+void RvAPI::setProxy(QString server, uint port)
+{
+    if (server.isEmpty()) {
+        m_NetManager->setProxy(QNetworkProxy::NoProxy);
+    } else {
+        QNetworkProxy proxy;
+        proxy.setType(QNetworkProxy::HttpProxy);
+        proxy.setHostName(server);
+        proxy.setPort(port);
+        //proxy.setUser();
+        //proxy.setPassword();
+        m_NetManager->setProxy(proxy);
+    }
 }
 
 ProductItem *RvAPI::getProduct(const QString &barcode) const
@@ -889,7 +906,7 @@ bool RvAPI::products(uint page, uint amount, const QString category, const QStri
     }
 
     url.setQuery(query);
-    request.setUrl(url);    
+    request.setUrl(url);
 
     queueRequest(get(request), op_products);
 

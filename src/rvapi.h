@@ -133,6 +133,8 @@ public:
 
     Q_INVOKABLE void clearProductStore();
 
+    Q_INVOKABLE void setProxy(QString server, uint port);
+
 signals:
 
     void urlChanged(QUrl url);
