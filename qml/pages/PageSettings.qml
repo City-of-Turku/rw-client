@@ -59,6 +59,7 @@ Page {
                     }
                     Text {
                         //width: parent.width
+                        Layout.fillWidth: true
                         text: "Device language is used. To change the used language adjust your locale settings on your device."
                         wrapMode: Text.Wrap
                         visible: checkDeviceLanguage.checked
@@ -71,6 +72,36 @@ Page {
                             ListElement { key: "en_US"; value: "English"; }
                             ListElement { key: "fi_FI"; value: "Suomi"; }
                         }
+                    }
+                }
+            }
+
+            GroupBox {
+                title: "Proxy"
+                Layout.fillWidth: true
+                ColumnLayout {
+                    anchors.fill: parent
+                    CheckBox {
+                        id: checkUseProxy
+                        text: qsTr("Use proxy")
+                        checked: false
+                        // enabled: false
+                    }
+                    TextField {
+                        id: proxyServerIP
+                        enabled: checkUseProxy.checked
+                        placeholderText: qsTr("Proxy server")
+                        Layout.fillWidth: true
+                        validator: RegExpValidator { regExp: /.{4,}/ }
+                    }
+                    TextField {
+                        id: proxyServerPort
+                        enabled: checkUseProxy.checked
+                        placeholderText: qsTr("Proxy port")
+                        inputMethodHints: Qt.ImhDigitsOnly
+                        maximumLength: 5
+                        validator: IntValidator{bottom: 80; top: 65535;}
+                        Layout.fillWidth: true
                     }
                 }
             }
