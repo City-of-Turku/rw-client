@@ -1154,7 +1154,23 @@ bool RvAPI::createOrder(bool done)
     return true;
 }
 
+bool RvAPI::orders()
+{
+    if (!m_authenticated)
+        return false;
 
+    if (isRequestActive(op_orders))
+        return false;
+
+    QUrl url=createRequestUrl(op_orders);
+    QNetworkRequest request;
+    setAuthenticationHeaders(&request);
+
+    request.setUrl(url);
+    queueRequest(get(request), op_orders);
+
+    return true;
+}
 
 /**
  * @brief RvAPI::getImageUrl

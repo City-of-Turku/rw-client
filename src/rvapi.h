@@ -129,6 +129,8 @@ public:
 
     Q_INVOKABLE bool isOrderEmpty();
     Q_INVOKABLE bool createOrder(bool done);
+    Q_INVOKABLE bool orders();
+
     Q_INVOKABLE ProductItem *getProduct(const QString &barcode) const;
 
     Q_INVOKABLE void clearProductStore();
