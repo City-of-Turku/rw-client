@@ -1,11 +1,11 @@
-import QtQuick 2.6
-import QtQuick.Controls 2.0
+import QtQuick 2.8
+import QtQuick.Controls 2.2
 import QtQuick.Controls.Material 2.0
 import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.2
-import QtQuick.Window 2.2
+import QtQuick.Window 2.3
 import QtQuick.XmlListModel 2.0
-import QtPositioning 5.2
+import QtPositioning 5.8
 import net.ekotuki 1.0
 
 import "pages"
@@ -314,6 +314,7 @@ ApplicationWindow {
         ListElement { title: qsTr("Add product"); viewId: 3; roles: 2; image: "qrc:/images/icon_add.png" }
 
         ListElement { title: qsTr("Order"); viewId: 8; roles: 3; image: "" }
+        ListElement { title: qsTr("Orders"); viewId: 9; roles: 3; image: "" }
 
         //ListElement { title: qsTr("Help"); viewId: 6; roles: 0; image: "qrc:/images/icon_help.png" }
         ListElement { title: qsTr("About"); viewId: 7; roles: 0; image: "qrc:/images/icon_about.png" }
@@ -334,9 +335,10 @@ ApplicationWindow {
         initialItem: mainView
         focus: true;
         onCurrentItemChanged: {
-            console.debug("*** view is "+currentItem)
+            console.debug("*** view is "+currentItem)            
             mainActionList.currentIndex=-1
-            currentItem.forceActiveFocus();
+            if (currentItem)
+                currentItem.forceActiveFocus();
         }
 
         function setView(vid) {
@@ -357,6 +359,8 @@ ApplicationWindow {
                 return rootStack.push(aboutView)
             case 8: // Order
                 return rootStack.push(orderView)
+            case 9: // Orders
+                return rootStack.push(ordersView)
             default:
                 console.debug("Unknown view requested!")
             }
@@ -466,6 +470,13 @@ ApplicationWindow {
                     messagePopup.show(qsTr("Order"), qsTr("Order created successfully"));
                 }
             }
+        }
+    }
+
+    Component {
+        id: ordersView
+        PageOrders {
+
         }
     }
 

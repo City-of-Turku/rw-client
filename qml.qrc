@@ -37,5 +37,7 @@
         <file>qml/components/LocationPopup.qml</file>
         <file>qml/pages/PageOrder.qml</file>
         <file>qml/components/ToolbarBasic.qml</file>
+        <file>qml/pages/PageOrders.qml</file>
+        <file>qml/delegates/OrderItemDelegate.qml</file>
     </qresource>
 </RCC>

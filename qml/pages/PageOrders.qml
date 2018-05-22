@@ -39,10 +39,22 @@ Page {
         }
     }
 
-
     Component.onCompleted: {
-        orderPage.forceActiveFocus();
-        model=root.api.getOrdersModel();
+        ordersPage.forceActiveFocus();
+        //model=root.api.getOrdersModel();
+        root.api.orders();
+    }
+
+    footer: ToolBar {
+        RowLayout {
+            ToolButton {
+                text: qsTr("Refresh")
+                enabled: !api.busy
+                onClicked: {
+                    root.api.orders();
+                }
+            }
+        }
     }
 
     Connections {
@@ -60,7 +72,7 @@ Page {
 
         Label {
             anchors.centerIn: parent
-            visible: orderCart.model.count===0
+            visible: orders.model.count===0
             text: qsTr("No orders")
             wrapMode: Text.Wrap
             font.pixelSize: 32
@@ -79,13 +91,11 @@ Page {
                 OrderItemDelegate {
                     width: parent.width
                     height: childrenRect.height
-                    showImage: false
-                    compact: true
 
-                    function openProductAtIndex(index) {
-                        var p=orderCart.model.get(index);
-                        orderCart.currentIndex=index;
-                        rootStack.push(productView, { "product": p })
+                    function openOrderAtIndex(index) {
+                        var o=orders.model.get(index);
+                        orders.currentIndex=index;
+                        rootStack.push(orderView, { "order": o })
                     }
                 }
             }
