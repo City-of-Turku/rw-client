@@ -795,6 +795,32 @@ void RvAPI::queueRequest(QNetworkReply *req, const QString op)
 }
 
 /**
+ * @brief RvAPI::createSimpleAuthenticatedRequest
+ * @param op
+ * @return false if not authenticated or operation is already in progress
+ *
+ * Create a basic operation request and queue it.
+ *
+ */
+bool RvAPI::createSimpleAuthenticatedRequest(const QString op)
+{
+    if (!m_authenticated)
+        return false;
+
+    if (isRequestActive(op))
+        return false;
+
+    QUrl url=createRequestUrl(op);
+    QNetworkRequest request;
+    setAuthenticationHeaders(&request);
+
+    request.setUrl(url);
+    queueRequest(get(request), op);
+
+    return true;
+}
+
+/**
  * @brief RvAPI::login
  * @return bool
  *
@@ -1156,20 +1182,7 @@ bool RvAPI::createOrder(bool done)
 
 bool RvAPI::orders()
 {
-    if (!m_authenticated)
-        return false;
-
-    if (isRequestActive(op_orders))
-        return false;
-
-    QUrl url=createRequestUrl(op_orders);
-    QNetworkRequest request;
-    setAuthenticationHeaders(&request);
-
-    request.setUrl(url);
-    queueRequest(get(request), op_orders);
-
-    return true;
+    return createSimpleAuthenticatedRequest(op_orders);
 }
 
 /**
@@ -1190,38 +1203,12 @@ QUrl RvAPI::getImageUrl(const QString image)
 
 bool RvAPI::requestLocations()
 {
-    if (!m_authenticated)
-        return false;
-
-    if (isRequestActive(op_locations))
-        return false;
-
-    QUrl url=createRequestUrl(op_locations);
-    QNetworkRequest request;
-    setAuthenticationHeaders(&request);
-
-    request.setUrl(url);
-    queueRequest(get(request), op_locations);
-
-    return true;
+    return createSimpleAuthenticatedRequest(op_locations);
 }
 
 bool RvAPI::requestCategories()
 {
-    if (!m_authenticated)
-        return false;
-
-    if (isRequestActive(op_categories))
-        return false;
-
-    QUrl url=createRequestUrl(op_categories);
-    QNetworkRequest request;
-    setAuthenticationHeaders(&request);
-
-    request.setUrl(url);
-    queueRequest(get(request), op_categories);
-
-    return true;
+    return createSimpleAuthenticatedRequest(op_categories);
 }
 
 bool RvAPI::validateBarcode(const QString barcode) const

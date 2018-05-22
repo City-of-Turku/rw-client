@@ -228,6 +228,7 @@ public slots:
 protected:
     void queueRequest(QNetworkReply *req, const QString op);
 
+    bool createSimpleAuthenticatedRequest(const QString op);
 protected slots:
     void onIgnoreSSLErrors(QNetworkReply *reply, QList<QSslError> error);
     void connectReply(QNetworkReply *reply);
