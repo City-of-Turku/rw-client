@@ -225,7 +225,7 @@ QVariantMap RvAPI::parseJsonResponse(const QByteArray &data)
     qDebug() << "json object " << json.isObject();
 #endif
 
-    if (json.isEmpty() || json.isNull()) {
+    if (json.isEmpty() || json.isNull() || !json.isObject()) {
         qWarning("API gave invalid JSON!");
         QVariantMap dummy;
         return dummy;
