@@ -63,6 +63,14 @@ public:
 
     Q_ENUM(RequestStatus)
 
+    enum UserRoles {
+        UserBrowse,
+        UserManage,
+        UserOrder
+    };
+
+    Q_ENUM(UserRoles)
+
     QUrl url() const
     {
         return m_url;
