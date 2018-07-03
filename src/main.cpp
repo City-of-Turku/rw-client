@@ -13,8 +13,6 @@
 #include <QQuickStyle>
 #include <QTranslator>
 
-#include <QtWebView/QtWebView>
-
 #include "src/barcodevideofilter.h"
 
 #include "rvapi.h"
@@ -71,9 +69,8 @@ QNetworkAccessManager *MyNetworkAccessManagerFactory::create(QObject *parent)
 int main(int argc, char *argv[])
 {
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
-
     QGuiApplication app(argc, argv);
-    QtWebView::initialize();
+
     const QString appversion(VERSION);
     const int appvcode=VERSION_CODE;
 
