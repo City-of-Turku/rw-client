@@ -160,7 +160,7 @@ signals:
     void requestActive(QString op);
 
     void loginSuccesfull();
-    void loginFailure(const QString msg);
+    void loginFailure(const QString msg, uint code);
 
     void authenticationFailure();
 

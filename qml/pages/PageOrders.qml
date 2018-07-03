@@ -70,8 +70,7 @@ Page {
         anchors.fill: parent
         anchors.margins: 4
 
-        Label {
-            anchors.centerIn: parent
+        Label {            
             visible: orders.model.count===0
             text: qsTr("No orders")
             wrapMode: Text.Wrap

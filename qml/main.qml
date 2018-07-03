@@ -58,7 +58,7 @@ ApplicationWindow {
         isLogged=false;
         settings.setSettingsStr("password", "");
         rootStack.clear();
-        rootStack.push(mainView);
+        rootStack.push(messagesView);
     }
 
     Component.onCompleted: {
@@ -99,7 +99,6 @@ ApplicationWindow {
             myPosition=geo.position;
         }
     }
-
 
     header: rootStack.depth<2 ? mainToolbar : (rootStack.currentItem.header ? null : mainToolbar)
 
@@ -150,16 +149,16 @@ ApplicationWindow {
             }
 
             ToolButton {
-                enabled: rootStack.depth<2 && rootStack.currentItem.objectName!="search"
+                enabled: !api.busy && rootStack.currentItem && rootStack.currentItem.objectName=="search"
                 contentItem: Image {
                     fillMode: Image.Pad
                     horizontalAlignment: Image.AlignHCenter
                     verticalAlignment: Image.AlignVCenter
                     source: "qrc:/images/icon_search.png"
                 }
-                visible: isLogged && enabled
+                visible: isLogged && rootStack.currentItem && rootStack.currentItem.objectName=="search"
                 onClicked: {
-                    rootStack.setView(2)
+                    rootStack.currentItem.toggleSearch()                    
                 }
             }
 
@@ -178,7 +177,7 @@ ApplicationWindow {
                     transformOrigin: Menu.TopRight
                     modal: true
                     MenuItem {
-                        enabled: rootStack.currentItem.objectName!='login'
+                        enabled: rootStack.currentItem && rootStack.currentItem.objectName!='login'
                         text: !isLogged ? qsTr("Login") : qsTr("Logout")
                         onTriggered: {
                             if (!isLogged)
@@ -189,7 +188,7 @@ ApplicationWindow {
                     }
                     MenuItem {
                         text: qsTr("Settings")
-                        enabled: rootStack.currentItem.objectName!='settings'
+                        enabled: rootStack.currentItem && rootStack.currentItem.objectName!='settings'
                         onTriggered: {
                             rootStack.push(pageSettings)
                         }
@@ -309,12 +308,13 @@ ApplicationWindow {
     // Main views when logged in
     ListModel {
         id: actionModel1
-        ListElement { title: qsTr("Browse products"); viewId: 4; roles: 1; image: "qrc:/images/icon_browse.png"}
-        ListElement { title: qsTr("Search products"); viewId: 2; roles: 1; image: "qrc:/images/icon_search.png"}
+        ListElement { title: qsTr("Products"); viewId: 4; roles: 1; image: "qrc:/images/icon_browse.png"}
         ListElement { title: qsTr("Add product"); viewId: 3; roles: 2; image: "qrc:/images/icon_add.png" }
 
         ListElement { title: qsTr("Order"); viewId: 8; roles: 3; image: "" }
         ListElement { title: qsTr("Orders"); viewId: 9; roles: 3; image: "" }
+
+        ListElement { title: qsTr("Messages"); viewId: 10; roles: 0; image: "" }
 
         //ListElement { title: qsTr("Help"); viewId: 6; roles: 0; image: "qrc:/images/icon_help.png" }
         ListElement { title: qsTr("About"); viewId: 7; roles: 0; image: "qrc:/images/icon_about.png" }
@@ -325,6 +325,7 @@ ApplicationWindow {
         id: actionModel2
         ListElement { title: qsTr("Login"); viewId: 1; roles: 0; image: "qrc:/images/icon_login.png" }
         //ListElement { title: qsTr("Help"); viewId: 6; roles: 0; image: "qrc:/images/icon_help.png" }
+        ListElement { title: qsTr("Messages"); viewId: 10; roles: 0; image: "" }
         ListElement { title: qsTr("About"); viewId: 7; roles: 0; image: "qrc:/images/icon_about.png" }
     }
 
@@ -346,11 +347,13 @@ ApplicationWindow {
             case 1: // Login
                 return rootStack.push(pageLogin)
             case 2: // Search
-                return rootStack.push(searchView)
+            case 4: // Browse
+                if (rootStack.currentItem && rootStack.currentItem.objectName=="search")
+                    return false;
+                else
+                    return rootStack.replace(null, searchView)
             case 3: // Add
                 return rootStack.push(addView)
-            case 4: // Browse
-                return rootStack.push(browseView)
             case 5: // ????
                 return rootStack.push(feedbackView)
             case 6: // Help
@@ -361,6 +364,8 @@ ApplicationWindow {
                 return rootStack.push(orderView)
             case 9: // Orders
                 return rootStack.push(ordersView)
+            case 10:
+                return rootStack.push(messagesView)
             default:
                 console.debug("Unknown view requested!")
             }
@@ -380,14 +385,14 @@ ApplicationWindow {
     Component {
         id: mainView
         PageMain {
-            // enabled: root.isLogged
-            newsModel: newsFeedModel
-            latestModel: latestProductsModel
 
-            onProductClicked: {
-                console.debug("*** Latest products clicked, triggering search page for: "+sku)
-                showProduct(sku);
-            }
+        }
+    }
+
+    Component {
+        id: messagesView
+        PageMessages {
+            newsModel: newsFeedModel
         }
     }
 
@@ -432,7 +437,11 @@ ApplicationWindow {
                 if (!root.api.products(0, 0, category, str))
                     console.debug("Failed to load more")
                 else
-                    setSearchActive(r);
+                    setSearchActive(false);
+            }
+
+            Component.onCompleted: {
+                root.api.products(1);
             }
 
             Connections {
@@ -477,19 +486,6 @@ ApplicationWindow {
         id: ordersView
         PageOrders {
 
-        }
-    }
-
-    Component {
-        id: browseView
-        PageBrowse {
-            onRequestLoadMore: {
-                if (!api.products(0, 0, category))
-                    console.debug("Failed to load more")
-            }
-            onSearchRequested: {
-                root.api.products(1, 0, category);
-            }
         }
     }
 
@@ -658,6 +654,8 @@ ApplicationWindow {
             if (rootStack.contains(pageLogin)) {
                 rootStack.pop();
             }
+            rootStack.clear();
+            rootStack.push(searchView)
             requestLocations();
             requestCategories();
         }
@@ -692,7 +690,11 @@ ApplicationWindow {
             if (rootStack.currentItem.objectName=="login") {
                 rootStack.currentItem.reportLoginFailed();
             }
-            messagePopup.show(qsTr("Authentication Failure"), qsTr("Login failed, check username and password")+"\n\n"+msg)
+            if (code==500) {
+                messagePopup.show(qsTr("Authentication Failure"), qsTr("Application authentication failed")+"\n\n"+msg)
+            } else {
+                messagePopup.show(qsTr("Authentication Failure"), qsTr("Login failed, check username and password")+"\n\n"+msg)
+            }
         }
 
         onRequestFailure: {

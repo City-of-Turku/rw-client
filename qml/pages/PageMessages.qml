@@ -5,12 +5,14 @@ import QtQuick.Layouts 1.3
 import "../delegates"
 
 Page {
-    id: pageMain
+    id: pageMessages
+    objectName: "messages"
     property alias columnLayout1: columnLayout1
+    property alias newsModel: listLatestNews.model
 
     signal productClicked(string sku);
 
-    title: appName
+    title: qsTr("Messages")
 
     Rectangle {
         color: "#e8e8e8"
@@ -36,6 +38,17 @@ Page {
             //Layout.fillHeight: true
             Layout.fillWidth: true
             Layout.margins: 16
+        }
+
+        ListView {
+            id: listLatestNews
+            clip: true
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            delegate: NewsItemDelegate {
+
+            }
+            ScrollIndicator.vertical: ScrollIndicator { }
         }
     }
 

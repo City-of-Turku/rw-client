@@ -4,7 +4,7 @@ import QtQuick.Layouts 1.1
 
 PageSearch {
     id: pageBrowse
-    title: qsTr("Browse")
+    title: qsTr("Products")
     objectName: "browse"
     searchVisible: false;
 

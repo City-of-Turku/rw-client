@@ -374,7 +374,7 @@ void RvAPI::parseErrorResponse(int code, const QString op, const QByteArray &res
     if (op==op_auth_login || code==403) {
         setAuthentication(false);
         const QString error=data.value("error").toString();
-        emit loginFailure(error);
+        emit loginFailure(error, code);
         return;
     }
 
@@ -539,9 +539,10 @@ bool RvAPI::parseProductsData(QVariantMap &data)
 {    
     uint page=qRound(data["page"].toDouble());
     uint amount=qRound(data["amount"].toDouble());
+    uint requested=qRound(data["ramount"].toDouble());
     QVariantMap products=data["products"].toMap();
 
-    qDebug() << "parseProductsData " << page << " : " << amount;
+    qDebug() << "parseProductsData " << page << " : " << amount << "/" << requested;
 
     if (page==1) {
         //clearProductStore();
@@ -549,8 +550,7 @@ bool RvAPI::parseProductsData(QVariantMap &data)
     }
 
     m_loadedAmount=amount;
-    m_loadedPage=page;
-    uint requested=ITEMS_MAX; // XXX
+    m_loadedPage=page;    
 
     QMapIterator<QString, QVariant> i(products);
     while (i.hasNext()) {
@@ -565,6 +565,7 @@ bool RvAPI::parseProductsData(QVariantMap &data)
     qDebug() << "Loaded items: " << m_itemsmodel.rowCount();
 
     // If we get less than what we ask for then we assume that we are at the end of data.
+    //XXX
     setHasMore((amount<requested) ? false : true);
 
     return true;
@@ -582,10 +583,14 @@ bool RvAPI::parseLogin(QVariantMap &data)
 {
     m_authtoken=data.value("apitoken").toString();
 
+#ifdef LOGIN_DEBUG
+    qDebug() << "AuthData: " << data;
+#endif
+
     // Check that token is valid
     if (m_authtoken.isEmpty()) {
         setAuthentication(false);
-        emit loginFailure("Invalid response");
+        emit loginFailure("Invalid response", 500);
         return true;
     }
 
@@ -785,7 +790,7 @@ void RvAPI::setAuthenticationHeaders(QNetworkRequest *request)
     else
         qWarning("API Key is not set! This won't work at all.");
     if (!m_authtoken.isEmpty())
-        request->setRawHeader(QByteArray("X-Auth-Token"), m_authtoken.toUtf8());
+        request->setRawHeader(QByteArray("X-Auth-Token"), m_authtoken.toUtf8());    
 }
 
 void RvAPI::queueRequest(QNetworkReply *req, const QString op)
@@ -901,15 +906,15 @@ bool RvAPI::products(uint page, uint amount, const QString category, const QStri
     qDebug() << m_loadedPage;
 
     if (page==0 && m_loadedPage>0 && m_hasMore) {// Load next page
-        page=m_loadedPage+1;
-        qDebug() << "Loading next page " << page;
+        page=m_loadedPage+1;        
     } else if (page==0) {
         qWarning() << "Initial page not loaded yet";
         return false;
     } else {
-        m_loadedPage=page;
-        qDebug() << "Loading page " << page;
+        m_loadedPage=page;       
     }
+
+    qDebug() << "Loading page " << page << amount;
 
     QUrl url=createRequestUrl(op_products);
     QUrlQuery query;

@@ -4,10 +4,10 @@
  * Displays a list of products, can be used for both searching and browsing
  *
  */
-import QtQuick 2.7
+import QtQuick 2.8
 import QtQml 2.2
-import QtQuick.Controls 2.0
-import QtQuick.Layouts 1.1
+import QtQuick.Controls 2.2
+import QtQuick.Layouts 1.3
 
 import net.ekotuki 1.0
 
@@ -16,7 +16,7 @@ import "../components"
 
 Page {
     id: searchPage
-    title: qsTr("Search")
+    title: qsTr("Products")
 
     objectName: "search"
 
@@ -61,11 +61,38 @@ Page {
 
     }
 
+    function toggleSearch() {
+        searchDrawer.open()
+    }
+
     Keys.onReleased: {
-        if (event.key === Qt.Key_Back) {
-            console.log("*** Back button")
-            event.accepted = true;
+        switch (event.key) {
+        case Qt.Key_Back:
+            event.accepted=true;
             rootStack.pop()
+            break;
+        case Qt.Key_Home:
+            searchResults.positionViewAtBeginning()
+            event.accepted=true;
+            break;
+        case Qt.Key_End:
+            searchResults.positionViewAtEnd()
+            searchResults.maybeTriggerLoadMore();
+            event.accepted=true;
+            break;
+        case Qt.Key_Space:
+            //searchResults.moveCurrentIndexDown()
+            searchResults.flick(0,searchResults.height/2)
+            event.accepted=true;
+            break;
+        case Qt.Key_PageDown:
+            //searchResults.moveCurrentIndexDown()
+            event.accepted=true;
+            break;
+        case Qt.Key_PageUp:
+            //searchResults.moveCurrentIndexUp()
+            event.accepted=true;
+            break;
         }
     }
 
@@ -93,15 +120,6 @@ Page {
 
     footer: ToolBar {
         RowLayout {
-            ToolButton {
-                // XXX: Icon!
-                text: qsTr("Scan barcode")
-                visible: searchVisible
-                enabled: !searchActive // && searchString==''
-                onClicked: {
-                    rootStack.push(cameraScanner);
-                }
-            }
             ToolButton {
                 // XXX: Icons!
                 visible: searchResults.model.count>1
@@ -152,7 +170,6 @@ Page {
 
         // Browse mode
         Label {
-            anchors.centerIn: parent
             visible: searchResults.count==0 && !searchVisible && !isInitialView
             text: qsTr("No products available in selected category")
             wrapMode: Text.Wrap
@@ -160,7 +177,6 @@ Page {
         }
 
         Label {
-            anchors.centerIn: parent
             visible: searchResults.count==0 && searchString.length!=0 && !searchActive && !isInitialView
             text: qsTr("No products found")
             wrapMode: Text.Wrap
@@ -180,7 +196,6 @@ Page {
             clip: true
             Layout.fillWidth: true
             Layout.fillHeight: true
-            header: listHeaderSearch;
             footer: listFooter;
             highlightFollowsCurrentItem: true
             //spacing: 4
@@ -199,7 +214,7 @@ Page {
                 ProductItemDelegate {
                     width: searchResults.cellWidth
                     height: searchResults.cellHeight
-                    onClicked: {                        
+                    onClicked: {
                         openProductAtIndex(index)
                     }
 
@@ -215,7 +230,7 @@ Page {
 
                     Menu {
                         id: productMenu
-                        title: "Product"
+                        title: qsTr("Product")
                         modal: true
                         dim: true
                         x: parent.width/3
@@ -253,12 +268,31 @@ Page {
                 }
             }
 
-            onMovementEnded: {
-                if (atYEnd && api.hasMore && !api.busy) {
-                    console.debug("*** AT END requesting more")
-                    requestLoadMore(searchString, categorySearchID);
-                    searchResults.positionViewAtEnd();
+            function maybeTriggerLoadMore() {
+                var rt=false;
+                var h=(contentHeight-height)
+                if (h>0 && scrollingDown) {
+                    var r=contentY/h
+                    if (r>0.8)
+                        rt=true;
                 }
+
+                if ((rt || atYEnd) && api.hasMore && !api.busy) {
+                    console.debug("*** Near end, requesting more")
+                    requestLoadMore(searchString, categorySearchID);
+                    //searchResults.positionViewAtEnd();
+                }
+            }
+
+            property bool scrollingDown: false
+
+            onVerticalVelocityChanged: {
+                if (verticalVelocity!=0)
+                    scrollingDown=verticalVelocity>0;
+            }
+
+            onMovementEnded: {
+                maybeTriggerLoadMore();
             }
 
             ScrollIndicator.vertical: ScrollIndicator { }
@@ -266,14 +300,6 @@ Page {
             Component {
                 id: listFooter
                 RowLayout {
-                    Text {
-                        Layout.fillWidth: true
-                        visible: api.busy
-                        text: qsTr("Loading...")
-                        font.italic: true
-                        horizontalAlignment: Text.AlignHCenter
-                        font.pixelSize: 16
-                    }
                     Text {
                         id: name
                         Layout.fillWidth: true
@@ -285,92 +311,154 @@ Page {
                     }
                 }
             }
+        }
+    }
 
-            Component {
-                id: listHeaderSearch
-                ColumnLayout {
-                    width: parent.width
-                    y: searchResults.model.count===0 || state=="pulled" ? 0 :-searchResults.contentY - height
-                    //Behavior on y { NumberAnimation { duration: 200; easing.type: Easing.InOutCirc } }
+    Drawer {
+        id: searchDrawer
+        //parent: mainContainer
+        edge: Qt.TopEdge
+        interactive: visible
+        height: searchDrawerContainer.height //parent.height/2
+        width: parent.width
+        ColumnLayout {
+            id: searchDrawerContainer
+            //anchors.fill: parent
+            //width: parent.width
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.margins: 4
+            RowLayout {
+                TextField {
+                    id: searchText
+                    placeholderText: qsTr("Type search string here")
+                    maximumLength: 64
+                    Layout.fillWidth: true
+                    focus: true
+                    enabled: !searchActive
 
-                    state: "base"
-                    states: [
-                        State {
-                            name: "base"; when: searchResults.contentY >= -height
-                        },
-                        State {
-                            name: "pulled"; when: searchResults.contentY < -height
-                        }
-                    ]
+                    property bool validInput: length>0;
 
-                    onStateChanged: console.debug("GVS:"+state)
-
-                    RowLayout {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: false
-                        visible: searchVisible
-                        TextField {
-                            id: searchText
-                            placeholderText: qsTr("Type search string here")
-                            maximumLength: 64
-                            Layout.fillWidth: true
-                            focus: true
-                            enabled: !searchActive
-
-                            property bool validInput: length>0;
-
-                            onAccepted: {
-                                searchString=searchText.text.trim()
-
-                                if (!validInput)
-                                    return;
-
-                                if (searchString.length==0)
-                                    return;
-
-                                if (api.validateBarcode(searchString))
-                                    searchBarcodeRequested(searchString);
-                                else
-                                    searchRequested(searchString, categorySearchID);
-                            }
-                            onLengthChanged: {
-                                if (length==0)
-                                    isInitialView=true;
-                            }
-
-                            Component.onCompleted: {
-                                searchText.text=searchString
-                            }
-
-                            //validator: RegExpValidator {
-                            //    regExp: /.{4,}/
-                            //}
-                        }                        
+                    onAccepted: {
+                        searchDrawerContainer.activateSearch();
                     }
-                    ComboBox {
-                        id: categorySelection
-                        currentIndex: -1
-                        Layout.fillWidth: true
-                        textRole: "category"
+                    onLengthChanged: {
+                        if (length==0)
+                            isInitialView=true;
+                    }
 
-                        property string currentID: ''
+                    Component.onCompleted: {
+                        searchText.text=searchString
+                    }
+                }
+                Button {
+                    text: "Clear"
+                    onClicked: {
+                        searchDrawerContainer.resetSearch();
+                    }
+                }
+            }
 
-                        onActivated: {
-                            var cdata=model.get(index);
-                            categorySearchID=cdata.cid;
+            function activateSearch() {
+                if (!searchText.validInput)
+                    return false;
 
-                            if (currentID==categorySearchID)
-                                return;
+                searchString=searchText.text.trim()
 
-                            currentID=categorySearchID
-                            searchRequested(searchString, categorySearchID);
-                        }
-                        onCurrentIndexChanged: console.debug("Category currentIndex: "+currentIndex)
-                        onModelChanged: console.debug("Categories available: "+model.count)
-                        Component.onCompleted: {
-                            model=root.api.getCategoryModel();
-                            currentIndex=0;
-                        }
+                if (searchString.length==0)
+                    return false;
+
+                if (api.validateBarcode(searchString))
+                    searchBarcodeRequested(searchString);
+                else
+                    searchRequested(searchString, categorySearchID);
+            }
+
+            function resetSearch() {
+                searchText.text=''
+                categorySelection.currentIndex=0;
+            }
+
+            ComboBox {
+                id: categorySelection
+                currentIndex: -1
+                Layout.fillWidth: true
+                textRole: "category"
+
+                property string currentID: ''
+
+                onActivated: {
+                    var cdata=model.get(index);
+                    categorySearchID=cdata.cid;
+
+                    if (currentID==categorySearchID)
+                        return;
+
+                    currentID=categorySearchID                    
+                }
+                onCurrentIndexChanged: console.debug("Category currentIndex: "+currentIndex)
+                onModelChanged: console.debug("Categories available: "+model.count)
+                Component.onCompleted: {
+                    model=root.api.getCategoryModel();
+                    currentIndex=0;
+                }
+            }
+
+            ColumnLayout {
+                //enabled: false
+                Layout.fillWidth: true
+                ButtonGroup {
+                    id: sortButtonGroup
+                }
+
+                Label {
+                    text: "Sort order"
+                }
+
+                RadioButton {
+                    id: sortButtonLatest
+                    checked: true
+                    text: "Latest first"
+                    ButtonGroup.group: sortButtonGroup                    
+                }
+                RadioButton {
+                    id: sortButtonOldest
+                    text: "Oldest first"
+                    ButtonGroup.group: sortButtonGroup
+                }
+            }
+
+            RowLayout {
+                RoundButton {
+                    // XXX: Icon!
+                    text: qsTr("Barcode")
+                    Layout.fillWidth: true
+                    onClicked: {
+                        searchDrawer.close()
+                        rootStack.push(cameraScanner);
+                    }
+                }
+                RoundButton {
+                    text: "Clear"
+                    Layout.fillWidth: true
+                    onClicked: {
+                        searchDrawerContainer.resetSearch();
+                        searchRequested('', '');
+                        searchDrawer.close()
+                    }
+                }
+
+                RoundIconButton {
+                    source: "qrc:/images/icon_search.png"
+                    onClicked: {
+                        searchDrawerContainer.activateSearch();
+                        searchDrawer.close()
+                    }
+                }
+                RoundIconButton {
+                    source: "qrc:/images/icon_cancel.png"
+                    onClicked: {
+                        searchDrawer.close()
                     }
                 }
             }
@@ -389,12 +477,27 @@ Page {
         anchors.bottom: parent.bottom
         anchors.rightMargin: 16
         anchors.bottomMargin: 16
-        Button {
+        RoundIconButton {
+            id: buttonUp
             text: qsTr("Up")
+            source: "qrc:/images/icon_up.png"
+            property bool maybeVisible: searchResults.model && searchResults.model.count>10 && !searchResults.atYBeginning
+            visible: maybeVisible
+            opacity: maybeVisible ? 1 : 0;
             onClicked: {
                 searchResults.positionViewAtBeginning();
             }
-            visible: searchResults.model && searchResults.model.count>10 && !searchResults.atYBeginning ? true : false
+        }
+        RoundIconButton {
+            id: buttonDown
+            text: qsTr("Down")
+            source: "qrc:/images/icon_down.png"
+            property bool maybeVisible: searchResults.model && searchResults.model.count>10 && !searchResults.atYEnd
+            visible: maybeVisible
+            opacity: maybeVisible ? 1 : 0;
+            onClicked: {
+                searchResults.positionViewAtEnd();
+            }
         }
     }
 
@@ -404,6 +507,6 @@ Page {
         running: api.busy
         visible: running
         width: 64
-        height: 64        
+        height: 64
     }
 }

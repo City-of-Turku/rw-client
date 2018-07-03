@@ -200,14 +200,6 @@ Page {
         anchors.fill: parent
         anchors.margins: 4
 
-        Label {
-            anchors.centerIn: parent
-            visible: orderCart.model.count===0
-            text: qsTr("Cart is empty")
-            wrapMode: Text.Wrap
-            font.pixelSize: 32
-        }
-
         ListView {
             id: orderCart
             enabled: !searchActive
@@ -269,6 +261,14 @@ Page {
                     }
                 }
             }
+        }
+
+        Label {
+            anchors.centerIn: parent
+            visible: orderCart.model.count===0
+            text: qsTr("Cart is empty")
+            wrapMode: Text.Wrap
+            font.pixelSize: 32
         }
 
         RowLayout {

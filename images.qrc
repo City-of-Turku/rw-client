@@ -59,5 +59,8 @@
         <file>images/icon_grid@4x.png</file>
         <file>images/icon_grid.png</file>
         <file>images/icon_list.png</file>
+        <file>images/icon_cancel.png</file>
+        <file>images/icon_up.png</file>
+        <file>images/icon_down.png</file>
     </qresource>
 </RCC>

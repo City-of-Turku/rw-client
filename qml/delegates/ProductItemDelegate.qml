@@ -23,6 +23,11 @@ Rectangle {
         //spacing: 4
         width: parent.width
         height: showImage ? imageItem.height : bgrect.height
+
+        function myHeight() {
+            return showImage ? imageItem.height : bgrect.height
+        }
+
         Rectangle {
             id: imageItem
             visible: showImage
