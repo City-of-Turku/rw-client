@@ -39,6 +39,11 @@ Page {
     property string categorySearchID: '';
     property string searchString: ''
 
+    property double pageRatio: width/height
+    //onPageRatioChanged: console.debug(pageRatio)
+
+    property int itemsPerRow: pageRatio>1.0 ? 4 : 2;
+
     // searchRequested handler should call this
     function setSearchActive(a) {
         searchActive=a;
@@ -207,7 +212,7 @@ Page {
             //highlightRangeMode: GridView.StrictlyEnforceRange
             snapMode: GridView.SnapToRow
 
-            property int rowItems: 2
+            property int rowItems: itemsPerRow
             property int cellSize: searchResults.width/rowItems
 
             delegate: Component {
