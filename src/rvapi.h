@@ -143,7 +143,7 @@ public:
 
     Q_INVOKABLE void clearProductStore();
 
-    Q_INVOKABLE void setProxy(QString server, uint port);
+    Q_INVOKABLE void setProxy(QString server, quint16 port);
 
 signals:
 

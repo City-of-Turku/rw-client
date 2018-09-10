@@ -193,7 +193,7 @@ void RvAPI::clearProductStore()
     m_product_store.clear();
 }
 
-void RvAPI::setProxy(QString server, uint port)
+void RvAPI::setProxy(QString server, quint16 port)
 {
     if (server.isEmpty()) {
         m_NetManager->setProxy(QNetworkProxy::NoProxy);
@@ -227,6 +227,7 @@ QVariantMap RvAPI::parseJsonResponse(const QByteArray &data)
 
     if (json.isEmpty() || json.isNull() || !json.isObject()) {
         qWarning("API gave invalid JSON!");
+        qDebug() << data;
         QVariantMap dummy;
         return dummy;
     }
