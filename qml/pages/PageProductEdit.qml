@@ -8,7 +8,7 @@
  * Re-think handling of Product, perhaps instead use a empty product and bind the properties, with a isValid flag ?
  */
 import QtQuick 2.6
-import QtQuick.Controls 2.0
+import QtQuick.Controls 2.3
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.1
 import net.ekotuki 1.0
@@ -298,65 +298,53 @@ Page {
             TabBar {
                 id: bar
                 Layout.fillWidth: true
+
                 // Basedata
-                TabButton {
+                TabButton {                                        
                     background: Rectangle {
                         color: validBaseEntry ? "green" : "red"
                         border.width: 1
-                        ItemIcon {
-                            anchors.centerIn: parent
-                            source: "qrc:/images/icon_home.png"
-                        }
-                    }
+
+                    }                    
+                    icon.source: "qrc:/images/icon_home.png"
                 }
                 // Images
-                TabButton {
+                TabButton {                    
                     background: Rectangle {
                         color: hasImages ? "green" : "red"
                         border.color: "#000"
-                        border.width: 1
-                        ItemIcon {
-                            anchors.centerIn: parent
-                            source: "qrc:/images/icon_camera.png"
-                        }
+                        border.width: 1                       
                     }
+                    icon.source: "qrc:/images/icon_camera.png"
                 }
                 // Location
-                TabButton {
+                TabButton {                    
                     background: Rectangle {
                         color: validWarehouse ? "green" : "red"
                         border.color: "#000"
-                        border.width: 1
-                        ItemIcon {
-                            anchors.centerIn: parent
-                            source: "qrc:/images/icon_location.png"
-                        }
+                        border.width: 1                       
                     }
+                    icon.source: "qrc:/images/icon_location.png"
                 }
                 // Attributes
                 TabButton {
                     background: Rectangle {
                         color: validAttributes ? "green" : "#d9e006"
                         border.color: "#000"
-                        border.width: 1
-                        ItemIcon {
-                            anchors.centerIn: parent
-                            source: "qrc:/images/icon_tag.png"
-                        }
+                        border.width: 1                       
                     }
+                    icon.source: "qrc:/images/icon_tag.png"
                 }
                 // Extras
                 TabButton {
                     background: Rectangle {
                         color: productDescription.text!='' ? "green" : "#d9e006"
                         border.color: "#000"
-                        border.width: 1
-                        ItemIcon {
-                            anchors.centerIn: parent
-                            source: "qrc:/images/icon_plus.png"
-                        }
-                    }
+                        border.width: 1                       
+                    }                    
+                    icon.source: "qrc:/images/icon_plus.png"
                 }
+
             }
 
             SwipeView {
@@ -560,13 +548,40 @@ Page {
                 ColumnLayout {
                     id: images
 
-                    Text {
+                    property bool isActive: SwipeView.isCurrentItem;
+                    property bool isFirstVisit: true;
+
+                    onIsActiveChanged: {
+                        if (isActive && canAddImages && imageModel.count===0 && isFirstVisit) {
+                            isFirstVisit=false;
+                            rootStack.push(pictureCamera)
+                        }
+                    }
+
+                    Item {
                         visible: imageModel.count==0
+                        Layout.fillHeight: true
                         Layout.fillWidth: true
-                        text: qsTr("No images have been assigned")
-                        font.pointSize: 18
-                        wrapMode: Text.Wrap
-                        horizontalAlignment: Text.AlignHCenter
+
+                        Column {
+                            anchors.centerIn: parent
+                            Text {
+                                text: qsTr("No images have been assigned")
+                                font.pointSize: 18
+                                wrapMode: Text.Wrap
+                                horizontalAlignment: Text.AlignHCenter
+
+                            }
+
+                            Button {
+                                enabled: canAddImages
+                                visible: imageModel.count==0
+                                text: qsTr("Add images")
+                                onClicked: {
+                                    rootStack.push(pictureCamera)
+                                }
+                            }
+                        }
                     }
 
                     ListView {
