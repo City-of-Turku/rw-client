@@ -27,7 +27,7 @@ ListView {
     Component {
         id: locationDelegate
         Rectangle {
-            color: ListView.isCurrentItem ? "#f0fff0" : "transparent"
+            color: ListView.isCurrentItem ? "green" : "transparent"
             width: parent.width
             height: c.height
             MouseArea {
