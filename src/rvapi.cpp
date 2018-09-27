@@ -23,7 +23,7 @@
 //#define SECURE_DEBUG 1
 //#define DUMMY_CATEGORIES 1
 
-#define ITEMS_MAX (10)
+#define ITEMS_MAX (12)
 
 RvAPI::RvAPI(QObject *parent) :
     QObject(parent),
@@ -40,7 +40,6 @@ RvAPI::RvAPI(QObject *parent) :
     m_locations(this),
     m_tax_model(this)
 {
-    CategoryModel *cm;
 
     connect(m_NetManager,SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)),this,SLOT(onIgnoreSSLErrors(QNetworkReply*,QList<QSslError>)));
 
@@ -57,6 +56,7 @@ RvAPI::RvAPI(QObject *parent) :
     m_categorymodel.addCategory("huonekalu", "Huonekalu", CategoryModel::HasSize | CategoryModel::HasWeight | CategoryModel::HasColor);
     m_categorymodel.addCategory("sekalaista", "Sekalaista", 0);
 
+    CategoryModel *cm;
     cm=new CategoryModel("huonekalu", this);
     cm->addCategory("tuoli", "Tuoli", CategoryModel::HasSize | CategoryModel::HasWeight| CategoryModel::HasColor);
     cm->addCategory("hylly", "Hylly", CategoryModel::HasSize | CategoryModel::HasWeight| CategoryModel::HasColor);
