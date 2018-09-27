@@ -6,7 +6,8 @@ import QtQuick.Layouts 1.3
 ToolBar {
     id: baseToolbar
 
-    signal backButton()
+    signal backButton();
+    signal actionButton();
     signal menuButton();
 
     property string title: ''
@@ -14,20 +15,19 @@ ToolBar {
     // Automatic page pop on back button. Set to false to get signal instead
     property bool enableBackPop: true
 
+    property alias enableActionButton: actionBtn.enabled
+    property alias visibleActionButton: actionBtn.visible
+    property alias actionIcon: actionBtn.icon.source
+
     RowLayout {
+        id: toolbarContainer
         anchors.fill: parent
 
         ToolButton {
             id: backButton
             enabled: !api.busy
-            Layout.alignment: Qt.AlignLeft
-            contentItem: Image {
-                fillMode: Image.Pad
-                horizontalAlignment: Image.AlignHCenter
-                verticalAlignment: Image.AlignVCenter
-                source: "qrc:/images/icon_back.png"
-                opacity: parent.enabled ? 1.0 : 0.8
-            }
+            Layout.alignment: Qt.AlignLeft            
+            icon.source: "qrc:/images/icon_back.png"
             visible: rootStack.depth>1
             onClicked: {
                 if (enableBackPop)
@@ -35,6 +35,7 @@ ToolBar {
                 else
                     baseToolbar.backButton();
             }
+
         }
 
         Label {
@@ -51,17 +52,18 @@ ToolBar {
         }
 
         ToolButton {
+            id: actionBtn
             visible: false
             enabled: false
-            contentItem: Image {
-                fillMode: Image.Pad
-                horizontalAlignment: Image.AlignHCenter
-                verticalAlignment: Image.AlignVCenter
-                source: "qrc:/images/icon_menu_2.png"
-            }
-            onClicked: {
-                menuButton();
-            }
+            onClicked: actionButton();
+        }
+
+        ToolButton {
+            id: menuBtn
+            visible: false
+            enabled: false            
+            icon.source: "qrc:/images/icon_menu_2.png"
+            onClicked: menuButton();
         }
     }
 }

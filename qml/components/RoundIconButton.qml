@@ -1,17 +1,12 @@
-import QtQuick 2.8
-import QtQml 2.2
-import QtQuick.Controls 2.2
+import QtQuick 2.9
+import QtQuick.Controls 2.3
+
+// XXX Do we need this anymore?
 
 RoundButton {
     id: button
-    property alias source: image.source
-    contentItem: Image {
-        id: image
-        fillMode: Image.Pad
-        horizontalAlignment: Image.AlignHCenter
-        verticalAlignment: Image.AlignVCenter
-    }
+    property alias source: button.icon.source
     Behavior on opacity {
         NumberAnimation { duration: 250 }
-    }
+    }    
 }

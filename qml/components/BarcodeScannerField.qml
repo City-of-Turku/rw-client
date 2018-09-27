@@ -1,6 +1,6 @@
-import QtQuick 2.6
-import QtQuick.Controls 2.0
-import QtQuick.Layouts 1.1
+import QtQuick 2.9
+import QtQuick.Controls 2.3
+import QtQuick.Layouts 1.3
 
 import "../pages"
 
@@ -37,12 +37,10 @@ RowLayout {
         }
     }
 
-    Button {
+    RoundButton {
         text: qsTr("Scan")
         enabled: !barcodeText.acceptableInput && scannerEnabled
-        contentItem: ItemIcon {
-            source: "qrc:/images/icon_camera.png"
-        }
+        icon.source: "qrc:/images/icon_camera.png"
         onClicked: {
             rootStack.push(cameraScanner);
         }
