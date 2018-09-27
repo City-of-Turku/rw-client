@@ -52,7 +52,7 @@ class RvAPI : public QObject
     Q_PROPERTY(uint downloadProgress READ downloadProgress NOTIFY downloadProgressChanged)
 
 public:
-    explicit RvAPI(QObject *parent = 0);
+    explicit RvAPI(QObject *parent = nullptr);
     virtual ~RvAPI();
 
     enum RequestStatus {
