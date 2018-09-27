@@ -12,6 +12,7 @@ Rectangle {
     signal clicked(variant index)
     signal clickedImage(variant index)
     signal pressandhold(variant index)
+    signal released(variant index)
 
     property int imageSize: width-8 // 4px margins
     property bool compact: false
@@ -78,6 +79,9 @@ Rectangle {
                     console.debug("ImagePAH: "+index)
                     wrapper.pressandhold(index)
                 }
+                onReleased: {
+                    wrapper.released(index);
+                }
             }
         }
 
@@ -112,7 +116,7 @@ Rectangle {
             Text {
                 text: price.toFixed(2)+ " €"
                 visible: price>0
-                font.pixelSize: 14
+                font.pixelSize: 12
                 color: "#181818"
                 maximumLineCount: 1
                 fontSizeMode: Text.HorizontalFit
@@ -120,7 +124,7 @@ Rectangle {
             }
             Text {
                 text: barcode
-                font.pixelSize: 14
+                font.pixelSize: 12
                 color: "#181818"
                 maximumLineCount: 1
                 fontSizeMode: Text.HorizontalFit
@@ -138,14 +142,9 @@ Rectangle {
 
         MouseArea {
             anchors.fill: ic
-            onClicked: {
-                console.debug("CL"+index);
-                wrapper.clicked(index)
-            }
-            onPressAndHold: {
-                console.debug("PAH: "+index)
-                wrapper.pressandhold(index)
-            }
+            onClicked: wrapper.clicked(index)
+            onPressAndHold: wrapper.pressandhold(index)
+            onReleased: wrapper.released(index)
         }
     }
 }
