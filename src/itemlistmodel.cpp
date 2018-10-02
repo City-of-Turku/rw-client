@@ -62,14 +62,7 @@ bool ItemListModel::updateProduct(ProductItem *item)
 
 bool ItemListModel::removeProduct(ProductItem *item)
 {
-    if (!m_data.contains(item->barcode()))
-            return false;
-
-    beginResetModel();
-
-
-    endResetModel();
-    return false;
+    return removeProduct(item->barcode());
 }
 
 bool ItemListModel::removeProduct(const QString barcode)
@@ -77,7 +70,12 @@ bool ItemListModel::removeProduct(const QString barcode)
     if (!m_data.contains(barcode))
             return false;
 
-    return true;
+    return remove(m_data.indexOf(barcode));
+}
+
+bool ItemListModel::contains(const QString barcode)
+{
+    return m_data.contains(barcode);
 }
 
 uint ItemListModel::count()
@@ -152,8 +150,6 @@ void ItemListModel::clear()
 
 ProductItem *ItemListModel::get(int index)
 {
-    qDebug() << "GET " << index;
-
     if (index>m_data.size())
         return nullptr;
 

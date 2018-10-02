@@ -23,6 +23,8 @@ public:
     Q_INVOKABLE bool removeProduct(ProductItem *item);
     Q_INVOKABLE bool removeProduct(const QString barcode);
 
+    Q_INVOKABLE bool contains(const QString barcode);
+
     Q_INVOKABLE uint count();
 
     Q_INVOKABLE void clear();
@@ -50,6 +52,7 @@ public:
         roles[TaxRole]="tax";
         return roles;
     }
+
 
 signals:
     void countChanged(int);
