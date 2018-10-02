@@ -13,8 +13,8 @@ class CategoryModel : public QAbstractListModel
     Q_FLAGS(FeatureFlags)
     Q_ENUMS(Roles)
 public:
-    explicit CategoryModel(QObject *parent=0);
-    explicit CategoryModel(QString cparent, QObject *parent=0);
+    explicit CategoryModel(QObject *parent=nullptr);
+    explicit CategoryModel(QString cparent, QObject *parent=nullptr);
 
     enum Roles {CategoryID = Qt::UserRole, TitleRole, FlagsRole };
 
