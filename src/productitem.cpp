@@ -19,7 +19,7 @@ ProductItem::ProductItem(const QString &barcode, const QString &title, const QSt
     , m_id(0)
     , m_uid(0)
     , m_barcode(barcode)
-    , m_title(title)
+    , m_title(title)        
     , m_description(description)
     , m_stock(1)
     , m_tax(0)
@@ -40,11 +40,11 @@ ProductItem* ProductItem::fromVariantMap(QVariantMap &data, QObject *parent)
     p->setCategory(data["category"].toString());
     p->setSubCategory(data["subcategory"].toString());
 
-    p->m_id=data["id"].toString().toInt();
+    p->m_id=data["id"].toString().toUInt();
     if (p->m_id==0)
         qWarning("Failed to get product ID");
 
-    p->m_uid=data["uid"].toString().toDouble();
+    p->m_uid=data["uid"].toString().toUInt();
 
     if (data.contains("stock"))
         p->m_stock=data["stock"].toString().toDouble();
@@ -57,7 +57,7 @@ ProductItem* ProductItem::fromVariantMap(QVariantMap &data, QObject *parent)
         p->m_price=0.0;
 
     if (data.contains("tax"))
-        p->m_tax=data["tax"].toString().toInt();
+        p->m_tax=data["tax"].toString().toUInt();
     else
         p->m_tax=0;
 
@@ -119,7 +119,6 @@ uint ProductItem::getStock() const
     return m_stock;
 }
 
-
 const QString ProductItem::getBarcode() const
 {
     return m_barcode;
@@ -159,6 +158,16 @@ void ProductItem::setAttribute(const QString key, const QVariant value)
 {
     m_attributes.insert(key, value);
     emit attributesChanged(key, value);
+}
+
+bool ProductItem::clearAttribute(const QString key)
+{
+    bool r=m_attributes.remove(key)==0 ? false : true;
+
+    if (r)
+        emit attributesChanged(key, QVariant());
+
+    return r;
 }
 
 void ProductItem::setStock(uint stock)
@@ -272,4 +281,13 @@ void ProductItem::setPrice(double price)
 
     m_price = price;
     emit priceChanged(price);
+}
+
+void ProductItem::setKeepImages(bool keepImages)
+{
+    if (m_keepImages == keepImages)
+        return;
+
+    m_keepImages = keepImages;
+    emit keepImagesChanged(keepImages);
 }

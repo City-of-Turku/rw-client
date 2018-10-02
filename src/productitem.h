@@ -29,11 +29,11 @@ class ProductItem : public QObject
     Q_PROPERTY(bool keepImages READ keepImages WRITE setKeepImages NOTIFY keepImagesChanged)
 
 public:
-    explicit ProductItem(QObject *parent = 0);
-    explicit ProductItem(const QString &barcode,const QString &title,const QString &description, QObject *parent = 0);
+    explicit ProductItem(QObject *parent = nullptr);
+    explicit ProductItem(const QString &barcode,const QString &title,const QString &description, QObject *parent = nullptr);
     virtual ~ProductItem();
 
-    static ProductItem* fromVariantMap(QVariantMap &data, QObject *parent = 0);
+    static ProductItem* fromVariantMap(QVariantMap &data, QObject *parent = nullptr);
 
     enum ImageSource { UnknownSource=0, CameraSource, GallerySource, RemoteSource };
 
@@ -43,6 +43,26 @@ public:
     Q_INVOKABLE const QString getDescription() const;
     Q_INVOKABLE uint getOwner() const;
     Q_INVOKABLE uint getStock() const;
+
+    Q_INVOKABLE void addImage(const QVariant image, const ImageSource source);
+    Q_INVOKABLE void removeImages();
+
+    Q_INVOKABLE bool hasAttribute(const QString key) const;
+    Q_INVOKABLE bool hasAttributes() const;
+    Q_INVOKABLE QVariant getAttribute(const QString key) const;
+    Q_INVOKABLE void setAttribute(const QString key, const QVariant value);
+    Q_INVOKABLE bool clearAttribute(const QString key);
+
+    Q_INVOKABLE void setStock(uint stock);
+    Q_INVOKABLE void setTitle(QString title);
+    Q_INVOKABLE void setBarcode(QString barcode);
+    Q_INVOKABLE void setDescription(QString description);
+    Q_INVOKABLE void setImages(QVariantList images);
+    Q_INVOKABLE void setCategory(const QString category);
+    Q_INVOKABLE void setSubCategory(const QString category);
+    Q_INVOKABLE void setTax(uint tax);
+    Q_INVOKABLE void setPrice(double price);
+    Q_INVOKABLE void setKeepImages(bool keepImages);
 
     Q_INVOKABLE QString title() const
     {
@@ -75,15 +95,6 @@ public:
     {
         return m_subcategory;
     }
-
-    Q_INVOKABLE void addImage(const QVariant image, const ImageSource source);
-    Q_INVOKABLE void removeImages();
-
-    Q_INVOKABLE bool hasAttribute(const QString key) const;
-    Q_INVOKABLE bool hasAttributes() const;
-    Q_INVOKABLE QVariant getAttribute(const QString key) const;
-    Q_INVOKABLE void setAttribute(const QString key, const QVariant value);
-    Q_INVOKABLE void setStock(uint stock);
 
     Q_INVOKABLE uint getTax() const
     {
@@ -132,30 +143,6 @@ signals:
 
 public slots:
 
-    void setTitle(QString title);
-
-    void setBarcode(QString barcode);
-
-    void setDescription(QString description);    
-
-    void setImages(QVariantList images);
-
-    void setCategory(const QString category);
-
-    void setSubCategory(const QString category);
-
-    Q_INVOKABLE void setTax(uint tax);
-
-    Q_INVOKABLE void setPrice(double price);
-
-    void setKeepImages(bool keepImages)
-    {
-        if (m_keepImages == keepImages)
-            return;
-
-        m_keepImages = keepImages;
-        emit keepImagesChanged(keepImages);
-    }
 
 private:
     Q_DISABLE_COPY(ProductItem)
@@ -163,8 +150,6 @@ private:
     // Internal identifier
     uint m_id;
     uint m_uid;
-
-    uint m_stock;
 
     // Barcode of item
     QString m_barcode;
@@ -185,6 +170,8 @@ private:
 
     QVariantMap m_attributes;
     QString m_thumbnail;
+
+    uint m_stock;
 
     uint m_tax;
     double m_price;
