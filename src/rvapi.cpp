@@ -36,7 +36,7 @@ RvAPI::RvAPI(QObject *parent) :
     m_loadedPage(0),
     m_itemsmodel(&m_product_store, this),
     m_cartmodel(&m_product_store, this),
-    m_categorymodel(0, this),
+    m_categorymodel(nullptr, this),
     m_locations(this),
     m_tax_model(this)
 {
@@ -193,7 +193,7 @@ void RvAPI::clearProductStore()
     m_product_store.clear();
 }
 
-void RvAPI::setProxy(QString server, quint16 port)
+void RvAPI::setProxy(const QString server, quint16 port, const QString user, const QString password)
 {
     if (server.isEmpty()) {
         m_NetManager->setProxy(QNetworkProxy::NoProxy);
@@ -202,8 +202,8 @@ void RvAPI::setProxy(QString server, quint16 port)
         proxy.setType(QNetworkProxy::HttpProxy);
         proxy.setHostName(server);
         proxy.setPort(port);
-        //proxy.setUser();
-        //proxy.setPassword();
+        proxy.setUser(user);
+        proxy.setPassword(password);
         m_NetManager->setProxy(proxy);
     }
 }

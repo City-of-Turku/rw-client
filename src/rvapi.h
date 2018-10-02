@@ -28,6 +28,7 @@
 #include "itemlistmodel.h"
 #include "categorymodel.h"
 #include "locationmodel.h"
+#include "ordersmodel.h"
 
 class RvAPI : public QObject
 {
@@ -143,7 +144,7 @@ public:
 
     Q_INVOKABLE void clearProductStore();
 
-    Q_INVOKABLE void setProxy(QString server, quint16 port);
+    Q_INVOKABLE void setProxy(const QString server, quint16 port, const QString user, const QString password);
 
 signals:
 
@@ -330,7 +331,8 @@ private:
     ItemListModel m_itemsmodel;
     ItemListModel m_cartmodel;
     CategoryModel m_categorymodel;
-    LocationListModel m_locations;
+    LocationListModel m_locations;    
+    OrdersModel m_ordersmodel;
 
     QStringList m_taxes;
     QStringListModel m_tax_model;
