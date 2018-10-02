@@ -12,7 +12,7 @@ class LocationListModel : public QAbstractListModel
     Q_OBJECT
     Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
 public:
-    explicit LocationListModel(QObject *parent=0);
+    explicit LocationListModel(QObject *parent=nullptr);
     virtual ~LocationListModel();
 
     Q_INVOKABLE void setPosition(double latitude, double longitude);
