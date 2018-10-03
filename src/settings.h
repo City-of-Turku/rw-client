@@ -8,7 +8,7 @@ class Settings : public QObject
 {
     Q_OBJECT
 public:
-    explicit Settings(QObject *parent = 0);
+    explicit Settings(QObject *parent = nullptr);
 
     Q_INVOKABLE int getSettingsInt(const QString &key, const int defaultValue, const int minval, const int maxval);
     Q_INVOKABLE int getSettingsInt(const QString &key, const int defaultValue);
