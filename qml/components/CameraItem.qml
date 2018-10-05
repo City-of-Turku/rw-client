@@ -1,5 +1,5 @@
-import QtQuick 2.6
-import QtQuick.Controls 2.0
+import QtQuick 2.9
+import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.3
 import QtMultimedia 5.5
 import net.ekotuki 1.0
@@ -161,6 +161,27 @@ Item {
                 visible: running
                 running: camera.lockStatus==Camera.Searching
             }
+
+            Slider {
+                id: zoomDigitalSlider
+                anchors.right: parent.right
+                anchors.rightMargin: 32
+                anchors.topMargin: parent.height/12
+                anchors.bottomMargin: parent.height/12
+                anchors.top: parent.top
+                anchors.bottom: parent.bottom
+                visible: camera.maximumDigitalZoom>1
+                from: 1
+                value: 1
+                to: camera.maximumDigitalZoom
+                onValueChanged: camera.digitalZoom=value;
+                orientation: Qt.Vertical
+                ToolTip {
+                    parent: zoomDigitalSlider.handle
+                    visible: zoomDigitalSlider.pressed || zoomDigitalSlider.value>1.0
+                    text: zoomDigitalSlider.value.toFixed(1)
+                }
+            }
         }
 
         Text {
@@ -314,6 +335,18 @@ Item {
     function selectCamera() {
         if (cameraSelectionEnabled && multipleCameras)
             cameraPopup.open();
+    }
+
+    function zoomIn() {
+        zoomDigitalSlider.increase();
+    }
+
+    function zoomOut() {
+        zoomDigitalSlider.decrease();
+    }
+
+    function zoomReset() {
+        zoomDigitalSlider.value=1.0;
     }
 
 }
