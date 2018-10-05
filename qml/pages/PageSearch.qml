@@ -353,13 +353,10 @@ Page {
         padding: 0
         closePolicy: Popup.CloseOnPressOutside | Popup.CloseOnEscape
         modal: true
-        bottomMargin: 16
-        topMargin: 16
+        bottomMargin: 32
+        topMargin: 32
         leftMargin: 32
         rightMargin: 32
-
-        x: Math.round((parent.width - width) / 2)
-        y: Math.round((parent.height - height) / 2)
 
         property alias source: popupImage.source
 
@@ -370,14 +367,38 @@ Page {
             NumberAnimation { property: "opacity"; duration: 200; easing.type: Easing.OutQuad; from: 1.0; to: 0.0 }
         }
 
+        //Behavior on x { NumberAnimation {} }
+        //Behavior on y { NumberAnimation {} }
+        Behavior on width { NumberAnimation {} }
+        Behavior on height { NumberAnimation {} }
+
         Image {
             id: popupImage
             fillMode: Image.PreserveAspectFit
             anchors.fill: parent
             asynchronous: true
+            cache: true
+            smooth: true
+            sourceSize.width: searchPage.width-64
+            sourceSize.height: searchPage.height-64
+
+            onStatusChanged: {
+                if (popupImage.status==Image.Ready) {
+                    // imagePopup.width=popupImage.paintedWidth
+                    imagePopup.height=popupImage.paintedHeight
+                    imagePopup.y=searchPage.height/2 // -imagePopup.height/2
+                }
+            }
+
             MouseArea {
                 anchors.fill: parent
                 onReleased: imagePopup.close()
+            }
+            ProgressBar {
+                width: popupImage.width/2
+                anchors.centerIn: parent
+                visible: popupImage.status==Image.Loading
+                value: popupImage.progress
             }
         }
 
@@ -386,6 +407,7 @@ Page {
         }
 
         onClosed: {
+            imagePopup.height=undefined;
 
         }
     }
