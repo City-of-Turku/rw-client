@@ -1,5 +1,5 @@
-import QtQuick 2.6
-import QtQuick.Controls 2.0
+import QtQuick 2.9
+import QtQuick.Controls 2.4
 import QtQuick.Controls.Material 2.0
 
 Popup {
@@ -28,11 +28,18 @@ Popup {
             wrapMode: Label.Wrap
             font.pixelSize: 14            
         }
-    }
+        Label {
+            id: msgCode
+            width: messagePopup.availableWidth
+            wrapMode: Label.Wrap
+            font.pixelSize: 14
+        }
+    }    
 
-    function show(title, message) {
+    function show(title, message, code) {
         titleText.text = title;
         msgText.text = message;
+        msgCode.text = code;
         messagePopup.open();
     }
 }
