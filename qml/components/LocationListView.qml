@@ -23,6 +23,7 @@ ListView {
     }
 
     signal locationPressAndHold(variant data);
+    signal locationClicked()
 
     Component {
         id: locationDelegate
@@ -39,6 +40,7 @@ ListView {
                     }
                     location=tmp.id;
                     productWarehouse.currentIndex=index;
+                    locationClicked();
                 }
                 onPressAndHold: {
                     locationPressAndHold(productWarehouse.model.get(index));
