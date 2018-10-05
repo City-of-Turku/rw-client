@@ -25,6 +25,10 @@ Page {
         }
     }
 
+    header: ToolbarBasic {
+
+    }
+
     footer: ToolBar {
         visible: toolsEnabled
         RowLayout {
