@@ -1,33 +1,83 @@
-import QtQuick 2.6
-import QtQuick.Controls 2.0
+import QtQuick 2.9
+import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.3
-import QtLocation 5.6
+import QtLocation 5.9
 
 Popup {
     id: locationPopup
     modal: true
-    contentHeight: pc.height
-    x: parent.width/2-width/2
-    y: parent.height/2-height/2
-    width: parent.width/2
-    //height: parent.height/4
+    contentHeight: warehouse.height
+    x: Math.round((parent.width - width) / 2)
+    y: Math.round((parent.height - height) / 2)
+    width: parent.width-64
+    height: parent.height-32
     closePolicy: Popup.OnPressOutside | Popup.OnEscape
+    bottomMargin: 16
+    topMargin: 16
+    leftMargin: 32
+    rightMargin: 32
 
-    function setDetails(location) {
+    property alias model: productWarehouse.model
+    property alias currentIndex: productWarehouse.currentIndex
 
-    }
+    property int locationID;
+    property string locationDetail;
 
-    Column {
-        id: lpc
-        spacing: 16
-        Label {
-            id: name
-            font.bold: true
+    ColumnLayout {
+        id: warehouse
+        anchors.fill: parent
+
+        RowLayout {
+            Layout.alignment: Qt.AlignTop
+            TextField {
+                id: productWarehouseSearch
+                Layout.fillWidth: true
+                placeholderText: qsTr("Search for locations")
+                onAccepted: {
+                    productWarehouse.currentIndex=-1
+                    productWarehouse.model.search(text);
+                }
+            }
+
+            RoundButton {
+                text: qsTr("Clear")
+                //enabled: productWarehouseSearch.text!=''
+                onClicked: {
+                    productWarehouseSearch.text='';
+                    productWarehouse.model.clearFilter();
+                }
+            }
         }
-        Map {
-            id: map
-            width: parent.width
-            height: locationPopup.height/2
+
+        LocationListView {
+            id: productWarehouse
+            // headerPositioning: ListView.PullBackHeader
+            Layout.fillHeight: true
+            header: Text {
+                Layout.alignment: Qt.AlignTop
+                text: qsTr("Locations found: ")+productWarehouse.model.count
+                Layout.fillWidth: true
+            }
+            onLocationChanged: {
+                console.debug("productWarehouse "+location)
+                locationID=location;
+            }
+            onLocationPressAndHold: {
+
+            }
+            onLocationClicked: {
+                locationPopup.close();
+            }
+        }
+
+        TextField {
+            id: productWarehouseLocation
+            enabled: productWarehouse.currentIndex>=0
+            Layout.fillWidth: true
+            placeholderText: qsTr("Enter storage location")
+            onTextChanged: {
+                locationDetail=text;
+            }
         }
     }
 }
