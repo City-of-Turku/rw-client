@@ -73,9 +73,6 @@ Page {
             id: headerRow
             Layout.minimumWidth: parent.width
             spacing: 8
-            onWidthChanged: {
-                console.debug("HR:" + width)
-            }
 
             PurposeBadge {
                 Layout.alignment: Qt.AlignTop | Qt.AlignLeft
@@ -159,10 +156,6 @@ Page {
                         snapMode: ListView.SnapOneItem
                         highlightRangeMode: ListView.StrictlyEnforceRange
                         ScrollIndicator.horizontal: ScrollIndicator { }
-                        onCurrentIndexChanged: {
-                            console.debug("CURIMG: "+currentIndex)
-                        }
-                        onHeightChanged: console.debug(height)
 
                         PageIndicator {
                             count: productImagesList.model.count
