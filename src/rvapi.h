@@ -161,7 +161,7 @@ signals:
     void requestActive(QString op);
 
     void loginSuccesfull();
-    void loginFailure(const QString msg, uint code);
+    void loginFailure(const QString msg, int code);
 
     void authenticationFailure();
 
@@ -178,7 +178,7 @@ signals:
 
     void productNotFound(QString barcode);
 
-    void requestFailure(int error, const QString msg);
+    void requestFailure(int error, int code, const QString msg);
     void requestSuccessful();
 
     void searchCompleted(bool hasMore, bool success);
@@ -228,8 +228,8 @@ public slots:
 
 protected:
     void queueRequest(QNetworkReply *req, const QString op);
-
     bool createSimpleAuthenticatedRequest(const QString op);
+
 protected slots:
     void onIgnoreSSLErrors(QNetworkReply *reply, QList<QSslError> error);
     void connectReply(QNetworkReply *reply);
@@ -243,21 +243,13 @@ private slots:
 
 private:
     enum RequestOps {
-        Login,
-        Logout,
-
-        Search,
-        Barcode,
-
-        GetProduct,
-        AddProduct,
-        UpdateProduct,
-        DeleteProduct,
-
+        UnknownOperation,
+        AuthLogin, AuthLogout,
+        ProductSearch, ProductSearchBarcode, Product, Products,
+        Order, Orders,
         Categories,
-
         Locations,
-
+        DownloadAPK,
     };
 
     enum SortOptions {
@@ -278,6 +270,7 @@ private:
     const QString op_product=QStringLiteral("product");
     const QString op_products=QStringLiteral("products");
 
+    const QString op_order=QStringLiteral("order");
     const QString op_orders=QStringLiteral("orders");
 
     // Search endpoints
@@ -290,7 +283,10 @@ private:
     const QString op_download=QStringLiteral("download/apk");
 
     // OP id to base string
-    QMap<RequestOps, QString *>m_opmap;
+    //QMap<RequestOps, const QString *>m_opmap;
+    QMap<QString, RequestOps>m_opmap;
+
+    RequestOps getOperationIdentifier(const QString op);
 
     // Active requests
     QMap<RequestOps, QString>m_ops;
@@ -326,7 +322,7 @@ private:
     int m_loadedAmount;
     int m_loadedPage;
 
-    QMap<QString, ProductItem *>m_product_store;    
+    ProductMap m_product_store;
 
     ItemListModel m_itemsmodel;
     ItemListModel m_cartmodel;
@@ -341,19 +337,20 @@ private:
 
     bool addFilePart(QHttpMultiPart *mp, QString prefix, QString fileName);
     QNetworkReply *post(QNetworkRequest &request, QHttpMultiPart *mp);
+    QNetworkReply *put(QNetworkRequest &request, QHttpMultiPart *mp);
     QNetworkReply *get(QNetworkRequest &request);
     QNetworkReply *head(QNetworkRequest &request);
 
     QVariantMap parseJsonResponse(const QByteArray &data);
     void parseResponse(QNetworkReply *reply);
     bool parseOKResponse(const QString op, const QByteArray &response, const QNetworkAccessManager::Operation method);
-    void parseErrorResponse(int code, const QString op, const QByteArray &response);
+    void parseErrorResponse(int code, QNetworkReply::NetworkError e, const QString op, const QByteArray &response);
 
     bool isRequestActive(const QString &op) const;
 
     void setBusy(bool busy);
 
-    const QUrl createRequestUrl(QString endpoint);
+    const QUrl createRequestUrl(const QString &endpoint, const QString &detail=nullptr);
     void setAuthenticationHeaders(QNetworkRequest *request);
     void addParameter(QHttpMultiPart *mp, const QString key, const QVariant value);
 
@@ -361,8 +358,7 @@ private:
 
     QStringList m_attributes;
 
-    QString getRequestOp(QNetworkReply *rep);
-    QNetworkReply *getOpRequest(const QString &op);
+    QString getRequestOp(QNetworkReply *rep);    
 
     void setAuthentication(bool auth);
     bool parseLocationData(QVariantMap &data);
@@ -374,7 +370,7 @@ private:
     bool parseFileDownload(const QByteArray &data);
     void parseCategoryMap(const QString key, CategoryModel &model, QVariantMap &tmp);
     bool parseOrderCreated(QVariantMap &data);
-
+    void addCommonProductParameters(QHttpMultiPart *mp, ProductItem *product);
 };
 
 #endif // RVAPI_H

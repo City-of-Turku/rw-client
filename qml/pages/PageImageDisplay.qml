@@ -1,6 +1,8 @@
-import QtQuick 2.6
-import QtQuick.Controls 2.0
-import QtQuick.Layouts 1.1
+import QtQuick 2.9
+import QtQuick.Controls 2.4
+import QtQuick.Layouts 1.3
+
+import "../components"
 
 Page {
     id: imageDisplayPage
@@ -17,45 +19,31 @@ Page {
         }
     }
 
+    header: ToolbarBasic {
+        enableBackPop: true
+    }
+
     footer: ToolBar {
         RowLayout {
             ToolButton {
                 text: "Zoom out"
-                enabled: i.scale>minScale
-                contentItem: Image {
-                    fillMode: Image.Pad
-                    horizontalAlignment: Image.AlignHCenter
-                    verticalAlignment: Image.AlignVCenter
-                    source: "qrc:/images/icon_zoom_out.png"
-                }
+                enabled: i.scale>minScale                
+                icon.source: "qrc:/images/icon_zoom_out.png"
                 onClicked: {
                     i.scale-=0.1;
                 }
             }
             ToolButton {
                 text: "1:1"
-                enabled: i.scale!=1.0
-                /*
-                contentItem: Image {
-                    fillMode: Image.Pad
-                    horizontalAlignment: Image.AlignHCenter
-                    verticalAlignment: Image.AlignVCenter
-                    source: "qrc:/images/icon_zoom_out.png"
-                }
-                */
+                enabled: i.scale!=1.0                
                 onClicked: {
                     i.scale=1.0;
                 }
             }
             ToolButton {
                 text: "Zoom in"
-                enabled: i.scale<maxScale
-                contentItem: Image {
-                    fillMode: Image.Pad
-                    horizontalAlignment: Image.AlignHCenter
-                    verticalAlignment: Image.AlignVCenter
-                    source: "qrc:/images/icon_zoom_in.png"
-                }
+                enabled: i.scale<maxScale                
+                icon.source: "qrc:/images/icon_zoom_in.png"
                 onClicked: {
                     i.scale+=0.1;
                 }                

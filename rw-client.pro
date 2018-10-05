@@ -17,7 +17,8 @@ HEADERS += \
     src/locationmodel.h \
     src/categorymodel.h src/settings.h \
     3rdparty/qexifimageheader/qexifimageheader.h \
-    src/apputility.h
+    src/apputility.h \
+    src/ordersmodel.h
 
 SOURCES += src/main.cpp \
     src/rvapi.cpp \
@@ -26,7 +27,8 @@ SOURCES += src/main.cpp \
     src/locationmodel.cpp \
     src/categorymodel.cpp src/settings.cpp \
     3rdparty/qexifimageheader/qexifimageheader.cpp \
-    src/apputility.cpp
+    src/apputility.cpp \
+    src/ordersmodel.cpp
 
 lupdate_only {
     SOURCES +=  qml/*.qml qml/components/*.qml qml/pages/*.qml qml/delegates/*.qml qml/models/*.qml
@@ -97,4 +99,6 @@ for(file, TSFILES) {
 }
 ts-all.commands = cd $$PWD && $$LUPDATE $$SOURCES $$APP_FILES -ts $$TSFILES
 QMAKE_EXTRA_TARGETS ''= ts-all
+
+DISTFILES +=
 

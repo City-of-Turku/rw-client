@@ -4,9 +4,9 @@
  * Displays a list of products, can be used for both searching and browsing
  *
  */
-import QtQuick 2.8
+import QtQuick 2.9
 import QtQml 2.2
-import QtQuick.Controls 2.2
+import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.3
 
 import net.ekotuki 1.0
@@ -73,8 +73,8 @@ Page {
     Keys.onReleased: {
         switch (event.key) {
         case Qt.Key_Back:
-            event.accepted=true;
-            rootStack.pop()
+            //event.accepted=true;
+            //rootStack.pop()
             break;
         case Qt.Key_Home:
             searchResults.positionViewAtBeginning()
@@ -87,15 +87,21 @@ Page {
             break;
         case Qt.Key_Space:
             //searchResults.moveCurrentIndexDown()
-            searchResults.flick(0,searchResults.height/2)
+            searchResults.flick(0, -searchResults.maximumFlickVelocity)
             event.accepted=true;
             break;
         case Qt.Key_PageDown:
             //searchResults.moveCurrentIndexDown()
+            searchResults.flick(0, -searchResults.maximumFlickVelocity/2)
             event.accepted=true;
             break;
         case Qt.Key_PageUp:
             //searchResults.moveCurrentIndexUp()
+            searchResults.flick(0, searchResults.maximumFlickVelocity/2)
+            event.accepted=true;
+            break;
+        case Qt.Key_S:
+            searchDrawer.open()
             event.accepted=true;
             break;
         }
@@ -127,17 +133,21 @@ Page {
         RowLayout {
             ToolButton {
                 // XXX: Icons!
+                id: tbViewType
                 visible: searchResults.model.count>1
                 text: searchResults.rowItems==1 ? qsTr("Grid") : qsTr("List")
-                contentItem: ItemIcon {
-                    source: searchResults.rowItems==1 ? "qrc:/images/icon_grid.png" : "qrc:/images/icon_list.png"
-                }
+                icon.source: searchResults.rowItems==1 ? "qrc:/images/icon_grid.png" : "qrc:/images/icon_list.png"
                 onClicked: {
                     if (searchResults.rowItems==1)
-                        searchResults.rowItems=2;
+                        searchResults.rowItems=itemsPerRow;
                     else
                         searchResults.rowItems=1;
                 }
+            }
+            ToolButton {
+                id: tbSortOrder
+                visible: searchResults.model.count>1
+
             }
         }
     }
@@ -208,6 +218,8 @@ Page {
             cellWidth: model.count>1 ? cellSize : searchResults.width
             cellHeight: model.count>1 ? cellSize : searchResults.width
 
+            interactive: true
+
             // XXX: Does not trigger atYEnd so can't use this
             //highlightRangeMode: GridView.StrictlyEnforceRange
             snapMode: GridView.SnapToRow
@@ -229,8 +241,13 @@ Page {
 
                     onPressandhold: {
                         //openProductImageAtIndex(index)
-                        searchResults.currentIndex=index;
-                        productMenu.open();
+                        //searchResults.currentIndex=index;
+                        //productMenu.open();
+                        popupProductImageAtIndex(index);
+                    }
+
+                    onReleased: {
+                        popupProductImageClose();
                     }
 
                     Menu {
@@ -270,6 +287,18 @@ Page {
                         searchResults.currentIndex=index;
                         rootStack.push(imageDisplayPageComponent, { image: p.thumbnail })
                     }
+
+                    function popupProductImageAtIndex(index) {
+                        var p=searchPage.model.get(index);
+                        imagePopup.open();
+                        imagePopup.source=p.thumbnail;
+                    }
+
+                    function popupProductImageClose() {
+                        imagePopup.close();
+                        imagePopup.source='';
+                    }
+
                 }
             }
 
@@ -319,6 +348,48 @@ Page {
         }
     }
 
+    Popup {
+        id: imagePopup
+        padding: 0
+        closePolicy: Popup.CloseOnPressOutside | Popup.CloseOnEscape
+        modal: true
+        bottomMargin: 16
+        topMargin: 16
+        leftMargin: 32
+        rightMargin: 32
+
+        x: Math.round((parent.width - width) / 2)
+        y: Math.round((parent.height - height) / 2)
+
+        property alias source: popupImage.source
+
+        enter: Transition {
+            NumberAnimation { property: "opacity"; duration: 200; easing.type: Easing.InQuad; from: 0.0; to: 1.0 }
+        }
+        exit: Transition {
+            NumberAnimation { property: "opacity"; duration: 200; easing.type: Easing.OutQuad; from: 1.0; to: 0.0 }
+        }
+
+        Image {
+            id: popupImage
+            fillMode: Image.PreserveAspectFit
+            anchors.fill: parent
+            asynchronous: true
+            MouseArea {
+                anchors.fill: parent
+                onReleased: imagePopup.close()
+            }
+        }
+
+        onOpened: {
+            console.debug("popped")
+        }
+
+        onClosed: {
+
+        }
+    }
+
     Drawer {
         id: searchDrawer
         //parent: mainContainer
@@ -356,7 +427,7 @@ Page {
                         searchText.text=searchString
                     }
                 }
-                Button {
+                RoundButton {
                     text: "Clear"
                     onClicked: {
                         searchDrawerContainer.resetSearch();
@@ -417,51 +488,52 @@ Page {
                 }
 
                 Label {
-                    text: "Sort order"
+                    text: qsTr("Sort order")
                 }
 
                 RadioButton {
                     id: sortButtonLatest
                     checked: true
-                    text: "Latest first"
+                    text: qsTr("Latest first")
                     ButtonGroup.group: sortButtonGroup                    
                 }
                 RadioButton {
                     id: sortButtonOldest
-                    text: "Oldest first"
+                    text: qsTr("Oldest first")
                     ButtonGroup.group: sortButtonGroup
                 }
             }
 
             RowLayout {
-                RoundButton {
-                    // XXX: Icon!
-                    text: qsTr("Barcode")
-                    Layout.fillWidth: true
+                RoundButton {                    
+                    text: qsTr("Scan")
+                    icon.source: "qrc:/images/icon_camera.png"
                     onClicked: {
                         searchDrawer.close()
                         rootStack.push(cameraScanner);
                     }
                 }
                 RoundButton {
-                    text: "Clear"
-                    Layout.fillWidth: true
+                    // XXX: Icon!
+                    text: qsTr("Clear")
                     onClicked: {
                         searchDrawerContainer.resetSearch();
                         searchRequested('', '');
                         searchDrawer.close()
                     }
                 }
-
-                RoundIconButton {
-                    source: "qrc:/images/icon_search.png"
+                RoundButton {
+                    text: qsTr("Search")
+                    icon.source: "qrc:/images/icon_search.png"
+                    Layout.alignment: Qt.AlignRight
                     onClicked: {
                         searchDrawerContainer.activateSearch();
-                        searchDrawer.close()
+                        //searchDrawer.close()
                     }
                 }
-                RoundIconButton {
-                    source: "qrc:/images/icon_cancel.png"
+                RoundButton {
+                    icon.source: "qrc:/images/icon_cancel.png"
+                    Layout.alignment: Qt.AlignRight
                     onClicked: {
                         searchDrawer.close()
                     }
@@ -482,10 +554,11 @@ Page {
         anchors.bottom: parent.bottom
         anchors.rightMargin: 16
         anchors.bottomMargin: 16
-        RoundIconButton {
+        height: 48        
+        RoundButton {
             id: buttonUp
             text: qsTr("Up")
-            source: "qrc:/images/icon_up.png"
+            icon.source: "qrc:/images/icon_up.png"
             property bool maybeVisible: searchResults.model && searchResults.model.count>10 && !searchResults.atYBeginning
             visible: maybeVisible
             opacity: maybeVisible ? 1 : 0;
@@ -493,18 +566,19 @@ Page {
                 searchResults.positionViewAtBeginning();
             }
         }
-        RoundIconButton {
+        RoundButton {
             id: buttonDown
             text: qsTr("Down")
-            source: "qrc:/images/icon_down.png"
-            property bool maybeVisible: searchResults.model && searchResults.model.count>10 && !searchResults.atYEnd
+            icon.source: "qrc:/images/icon_down.png"
+            property bool maybeVisible: searchResults.model && searchResults.model.count>10 && !searchResults.atYEnd            
             visible: maybeVisible
             opacity: maybeVisible ? 1 : 0;
             onClicked: {
                 searchResults.positionViewAtEnd();
+                searchResults.maybeTriggerLoadMore();
             }
         }
-    }
+    }        
 
     BusyIndicator {
         id: busyIndicator

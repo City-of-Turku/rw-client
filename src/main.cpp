@@ -30,7 +30,7 @@
 class MyNetworkAccessManager : public QNetworkAccessManager
 {
 public:
-    explicit MyNetworkAccessManager(QObject *parent = 0);
+    explicit MyNetworkAccessManager(QObject *parent = nullptr);
 protected:
     QNetworkReply* createRequest(QNetworkAccessManager::Operation op, const QNetworkRequest &req, QIODevice *device);
 };
@@ -72,6 +72,7 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
     const QString appversion(VERSION);
+    const QString apptitle(APP_TITLE);
     const int appvcode=VERSION_CODE;
 
     QCoreApplication::setOrganizationDomain(APP_DOMAIN);
@@ -116,6 +117,7 @@ int main(int argc, char *argv[])
     qRegisterMetaType<QStringListModel*>();
     qRegisterMetaType<CategoryModel*>();
     qRegisterMetaType<ItemListModel*>();
+    //qRegisterMetaType<OrdersListModel*>();
     qRegisterMetaType<LocationListModel*>();
     qRegisterMetaType<ProductItem*>("ProductItem");
     qRegisterMetaType<LocationItem*>("LocationItem");
@@ -128,6 +130,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("settings", &settings);
     engine.rootContext()->setContextProperty("appVersion", appversion);
     engine.rootContext()->setContextProperty("appName", QCoreApplication::applicationName());
+    engine.rootContext()->setContextProperty("appTitle", apptitle);
     engine.rootContext()->setContextProperty("appVersionCode", appvcode);
     engine.rootContext()->setContextProperty("userData", &user);
     engine.rootContext()->setContextProperty("appUtil", &apputil);

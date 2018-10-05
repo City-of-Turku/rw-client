@@ -10,11 +10,12 @@ class LocationItem : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(uint id READ getID)
+    Q_PROPERTY(QString name READ getName)
     Q_PROPERTY(QString zip READ getZip)
     Q_PROPERTY(QString city READ getCity)
     Q_PROPERTY(QString street READ getStreet)
 public:
-    explicit LocationItem(QObject *parent = 0) {
+    explicit LocationItem(QObject *parent = nullptr) {
         this->setParent(parent);
     }
 
@@ -33,6 +34,7 @@ public:
 
 private:
     uint getID() const { return id; }
+    const QString getName() const { return name; }
     const QString getZip() const { return zipcode; }
     const QString getStreet() const { return street; }
     const QString getCity() const { return city; }

@@ -1,7 +1,7 @@
 #include "itemlistmodel.h"
 #include <QDebug>
 
-ItemListModel::ItemListModel(QMap<QString, ProductItem *> *storage, QObject *parent) :
+ItemListModel::ItemListModel(ProductMap *storage, QObject *parent) :
     QAbstractListModel(parent),
     m_productstore(storage),
     m_hasMore(false)
@@ -15,7 +15,7 @@ ItemListModel::~ItemListModel()
     clear();
 }
 
-bool ItemListModel::prependProduct(ProductItem *item)
+bool ItemListModel::prepend(ProductItem *item)
 {
     beginInsertRows(QModelIndex(), 0, 0);    
     m_data.insert(0, item->barcode());
@@ -25,14 +25,14 @@ bool ItemListModel::prependProduct(ProductItem *item)
 }
 
 /**
- * @brief ItemListModel::addProduct
+ * @brief ItemListModel::append
  * @param item
  * @return
  *
  * Add item to model. Takes ownership of the item.
  *
  */
-bool ItemListModel::appendProduct(ProductItem *item)
+bool ItemListModel::append(ProductItem *item)
 {
     int p=m_data.size();    
     beginInsertRows(QModelIndex(), p, p);    
@@ -43,7 +43,7 @@ bool ItemListModel::appendProduct(ProductItem *item)
     return true;
 }
 
-bool ItemListModel::appendProduct(const QString barcode)
+bool ItemListModel::append(const QString barcode)
 {
     int p=m_data.size();
     beginInsertRows(QModelIndex(), p, p);
@@ -54,18 +54,18 @@ bool ItemListModel::appendProduct(const QString barcode)
     return true;
 }
 
-bool ItemListModel::updateProduct(ProductItem *item)
+bool ItemListModel::update(ProductItem *item)
 {
     Q_UNUSED(item)
     return false;
 }
 
-bool ItemListModel::removeProduct(ProductItem *item)
+bool ItemListModel::remove(ProductItem *item)
 {
-    return removeProduct(item->barcode());
+    return remove(item->barcode());
 }
 
-bool ItemListModel::removeProduct(const QString barcode)
+bool ItemListModel::remove(const QString barcode)
 {
     if (!m_data.contains(barcode))
             return false;
@@ -78,7 +78,7 @@ bool ItemListModel::contains(const QString barcode)
     return m_data.contains(barcode);
 }
 
-uint ItemListModel::count()
+int ItemListModel::count() const
 {
     return m_data.size();
 }
@@ -107,33 +107,24 @@ QVariant ItemListModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case ItemListModel::BarcodeRole:
-        return QVariant(item->getBarcode());
-        break;
+        return QVariant(item->getBarcode());        
     case ItemListModel::TitleRole:
-        return QVariant(item->getTitle());
-        break;
+        return QVariant(item->getTitle());       
     case ItemListModel::DescriptionRole:
         return QVariant(item->getDescription());
-        break;
     case ItemListModel::ThumbnailRole: {        
         if (!item->images().isEmpty())
             return item->images().first();
         return QVariant();
-    }
-        break;
+    }        
     case ItemListModel::PurposeRole:
         return QVariant(item->getAttribute("purpose"));
-        break;
-
     case ItemListModel::StockRole:
         return QVariant(item->getStock());
-        break;
     case ItemListModel::PriceRole:
         return QVariant(item->getPrice());
-        break;
     case ItemListModel::TaxRole:
         return QVariant(item->getTax());
-        break;
     }
 
     return QVariant();

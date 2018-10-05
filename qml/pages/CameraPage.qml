@@ -1,5 +1,5 @@
-import QtQuick 2.6
-import QtQuick.Controls 2.0
+import QtQuick 2.9
+import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.3
 import QtMultimedia 5.5
 import net.ekotuki 1.0
@@ -27,10 +27,28 @@ Page {
 
     Keys.onReleased: {
         console.debug("*** Key released! "+event.key)
-        if (event.key == Qt.Key_Back) {
-                console.log("*** Back button")
-                event.accepted = true
-                rootStack.pop();
+        switch (event.key) {
+        case Qt.Key_Back:
+            event.accepted = true
+            rootStack.pop();
+            break;
+        case Qt.Key_Camera:
+        case Qt.Key_Space:
+            event.accepted = true
+            camera.captureImage();            
+            break;
+        case Qt.Key_CameraFocus:
+            event.accepted = true
+            camera.focusCamera();
+            break;
+        case Qt.Key_PageDown:
+            event.accepted = true
+            camera.zoomIn()
+            break;
+        case Qt.Key_PageUp:
+            event.accepted = true
+            camera.zoomOut()
+            break;
         }
     }
 
@@ -38,55 +56,54 @@ Page {
         camera.forceActiveFocus();
     }
 
+    header: ToolbarBasic {
+        id: toolbar
+        enableBackPop: true
+        enableMenuButton: true
+        visibleMenuButton: true
+        onMenuButton: cameraMenu.open();
+    }
+
+    Menu {
+        id: cameraMenu
+        x: toolbar.width - width
+        transformOrigin: Menu.TopRight
+        modal: true
+        MenuItem {
+            text: "Switch camera"
+            enabled: camera.multipleCameras
+            onTriggered: camera.selectCamera();
+        }
+    }
+
     footer: ToolBar {
         RowLayout {
             anchors.fill: parent
 
-            ToolButton {
-                text: "Toggle Flash"
+            ToolButton {                
                 Layout.alignment: Qt.AlignLeft
-                onClicked: camera.flash=!camera.flash
-                contentItem: ItemIcon {
-                    source: "qrc:/images/icon_flash.png"
-                }
+                onClicked: camera.flash=!camera.flash                
+                icon.source: "qrc:/images/icon_flash.png"
             }
 
             ToolButton {
-                Layout.alignment: Qt.AlignCenter
-                text: "Capture image"
-                visible: imageCapture
+                Layout.alignment: Qt.AlignCenter                
+                visible: imageCapture && !scanOnly
                 enabled: camera.captureEnabled
-                contentItem: ItemIcon {
-                    source: "qrc:/images/icon_capture.png"
-                }
                 onClicked: {
                     camera.captureImage();
                 }
-            }
+                highlighted: true
+                icon.source: "qrc:/images/icon_capture.png"
+            }       
 
-            ToolButton {
-                text: "Switch camera"
-                Layout.alignment: Qt.AlignRight
-                enabled: camera.multipleCameras
-                onClicked: {
-                    camera.selectCamera();
-                }
-                contentItem: ItemIcon {
-                    source: "qrc:/images/icon_camera.png"
-                }
-            }
-
-            ToolButton {
-                text: "Focus"
+            ToolButton {                
                 Layout.alignment: Qt.AlignRight
                 onClicked: {
                     camera.focusCamera();
                 }
-                contentItem: ItemIcon {
-                    source: "qrc:/images/icon_focus.png"
-                }
+                icon.source: "qrc:/images/icon_focus.png"
             }
-
         }
     }
 
@@ -115,12 +132,16 @@ Page {
         }
     }
 
-    Image {
+    RoundButton {
         id: flashIcon
-        source: "qrc:/images/icon_flash.png"
+        icon.source: "qrc:/images/icon_flash.png"
         visible: camera.flash
+        opacity: 0.9
         anchors.top: camera.top
         anchors.right: camera.right
+        onClicked: {
+            camera.flash=false;
+        }
     }
 
     MessagePopup {

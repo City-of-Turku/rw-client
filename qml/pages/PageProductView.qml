@@ -1,7 +1,7 @@
-import QtQuick 2.6
+import QtQuick 2.9
 import QtQuick.Window 2.2
-import QtQuick.Controls 2.0
-import QtQuick.Layouts 1.2
+import QtQuick.Controls 2.4
+import QtQuick.Layouts 1.3
 import net.ekotuki 1.0
 
 import "../components"
@@ -183,7 +183,8 @@ Page {
                                 asynchronous: true
                                 sourceSize.width: 512
                                 anchors.fill: parent                                                              
-                                fillMode: Image.PreserveAspectCrop
+                                //fillMode: Image.PreserveAspectCrop
+                                fillMode: Image.PreserveAspectFit
                                 source: api.getImageUrl(productImage)
                                 opacity: status==Image.Ready ? 1 : 0;
                                 Behavior on opacity { OpacityAnimator { duration: 400; } }
@@ -192,7 +193,10 @@ Page {
                                     enabled: thumbnail.status==Image.Ready
                                     onClicked: {                                        
                                         rootStack.push(imageDisplayPageComponent, { image: thumbnail.source })                                        
-                                    }                                    
+                                    }
+                                    onPressAndHold: {
+
+                                    }
                                 }
                             }
                             ProgressBar {

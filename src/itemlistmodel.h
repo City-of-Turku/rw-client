@@ -6,26 +6,28 @@
 
 #include "productitem.h"
 
+typedef QMap<QString, ProductItem *> ProductMap;
+
 class ItemListModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
 public:
-    explicit ItemListModel(QMap<QString, ProductItem *> *storage, QObject *parent=0);
+    explicit ItemListModel(ProductMap *storage, QObject *parent=nullptr);
     virtual ~ItemListModel();
 
-    bool prependProduct(ProductItem *item);
+    bool prepend(ProductItem *item);
 
-    Q_INVOKABLE bool appendProduct(ProductItem *item);
-    Q_INVOKABLE bool appendProduct(const QString barcode);
+    Q_INVOKABLE bool append(ProductItem *item);
+    Q_INVOKABLE bool append(const QString barcode);
 
-    bool updateProduct(ProductItem *item);
-    Q_INVOKABLE bool removeProduct(ProductItem *item);
-    Q_INVOKABLE bool removeProduct(const QString barcode);
+    bool update(ProductItem *item);
+    Q_INVOKABLE bool remove(ProductItem *item);
+    Q_INVOKABLE bool remove(const QString barcode);
 
     Q_INVOKABLE bool contains(const QString barcode);
 
-    Q_INVOKABLE uint count();
+    Q_INVOKABLE int count() const;
 
     Q_INVOKABLE void clear();
     Q_INVOKABLE ProductItem *get(int index);
@@ -53,12 +55,12 @@ public:
         return roles;
     }
 
-
 signals:
     void countChanged(int);
 
 private:
-    QMap<QString, ProductItem *> *m_productstore;
+    ProductMap *m_productstore;
+    QVariantList a;
     QList<QString> m_data;
     bool m_hasMore;
 };

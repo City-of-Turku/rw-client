@@ -23,7 +23,8 @@
 //#define SECURE_DEBUG 1
 //#define DUMMY_CATEGORIES 1
 
-#define ITEMS_MAX (12)
+// Keep this at what proxy API enforces, currently set to 100
+#define ITEMS_MAX (100)
 
 RvAPI::RvAPI(QObject *parent) :
     QObject(parent),
@@ -76,6 +77,18 @@ RvAPI::RvAPI(QObject *parent) :
 
     m_taxes << "0%" << "24%" << "14%" << "10%";
     m_tax_model.setStringList(m_taxes);
+
+    // String operator to ID map
+    m_opmap.insert(op_auth_login, AuthLogin);
+    m_opmap.insert(op_auth_logout, AuthLogout);
+    m_opmap.insert(op_products_search, ProductSearch);
+    m_opmap.insert(op_product_barcode, ProductSearchBarcode);
+    m_opmap.insert(op_product, Product);
+    m_opmap.insert(op_products, Products);
+    m_opmap.insert(op_categories, Categories);
+    m_opmap.insert(op_locations, Locations);
+    m_opmap.insert(op_orders, Orders);
+    m_opmap.insert(op_download, DownloadAPK);
 }
 
 RvAPI::~RvAPI()
@@ -137,7 +150,10 @@ void RvAPI::requestError(QNetworkReply::NetworkError code)
         break;
     case QNetworkReply::ContentOperationNotPermittedError:
         break;
+    case QNetworkReply::HostNotFoundError:
+        break;
     default:
+        qWarning() << "Unhandled request error: " << code;
         break;
     }
 }
@@ -295,6 +311,23 @@ QNetworkReply *RvAPI::post(QNetworkRequest &request, QHttpMultiPart *mp)
 }
 
 /**
+ * @brief RvAPI::put
+ * @param request
+ * @param mp
+ * @return
+ */
+QNetworkReply *RvAPI::put(QNetworkRequest &request, QHttpMultiPart *mp)
+{
+    QNetworkReply *reply;
+
+    reply = m_NetManager->put(request, mp);
+    mp->setParent(reply);
+    connectReply(reply);
+
+    return reply;
+}
+
+/**
  * @brief RvAPI::get
  * @param request
  * @return
@@ -342,10 +375,9 @@ QString RvAPI::getRequestOp(QNetworkReply *rep)
     return m_requests.value(rep, "");
 }
 
-QNetworkReply *RvAPI::getOpRequest(const QString &op)
-{
-    Q_UNUSED(op)
-    return NULL;
+RvAPI::RequestOps RvAPI::getOperationIdentifier(const QString op)
+{    
+    return m_opmap.value(op, UnknownOperation);
 }
 
 void RvAPI::setBusy(bool busy)
@@ -361,51 +393,58 @@ void RvAPI::setBusy(bool busy)
  * @brief RvAPI::parseErrorResponse
  * @param code
  * @param response
+ *
+ * Handle error response cases. Takes care of both query response errors and network related errors.
+ *
+ * Operation specific signals are used where applicable:
+ * - Login && 403
+ * - Product not found
+ * - Product and Products loading failure
+ *
+ * Generic auth error in case of 401
+ *
  */
-void RvAPI::parseErrorResponse(int code, const QString op, const QByteArray &response)
+void RvAPI::parseErrorResponse(int code, QNetworkReply::NetworkError e, const QString op, const QByteArray &response)
 {
     QVariantMap v=parseJsonResponse(response);
-
     QVariantMap data=v.value("data").toMap();
     // QVariantMap meta=data.value("meta").toMap();
+
 #ifdef DATA_DEBUG
     qDebug() << "ErrorDATA:\n" << data;
-#endif
+#endif        
 
     if (op==op_auth_login || code==403) {
         setAuthentication(false);
         const QString error=data.value("error").toString();
-        emit loginFailure(error, code);
+        emit loginFailure(error, code==0 ? e+1000 : code);
         return;
     }
 
     if (op==op_product_barcode && code==404) {
-        // XXX: Signal product not found
-        QString msg=v.value("message").toString();
-        emit productNotFound(msg);
+        // XXX: Signal product not found        
+        emit productNotFound(v.value("message").toString());
         return;
     }
 
     if (op==op_product) {
-        QString msg=v.value("message").toString();
-        emit productFail(code, msg);
+        emit productFail(code, v.value("message").toString());
         return;
     }
 
     if (op==op_products) {
-        QString msg=v.value("message").toString();
-        emit productsFail(code, msg);
+        emit productsFail(code, v.value("message").toString());
         return;
     }
 
     // Catch all auth failure, op does not matter if we get an auth error at this point
     if (code==401) {
-        QString msg=v.value("message").toString();
-        emit requestFailure(code, msg);
+        emit requestFailure(code, e, v.value("message").toString());
         return;
     }
 
-    emit requestFailure(code, m_msg);
+    // Catch all other error cases here
+    emit requestFailure(code, e, m_msg);
 }
 
 void RvAPI::parseCategoryMap(const QString key, CategoryModel &model, QVariantMap &tmp)
@@ -483,14 +522,13 @@ bool RvAPI::parseLocationData(QVariantMap &data)
         QVariantMap tmp=i.value().toMap();
 
         LocationItem *l=new LocationItem(this);
-        l->id=i.key().toInt();
+        l->id=i.key().toUInt();
         l->zipcode=tmp.value("zip").toString();
         l->name=tmp.value("location").toString();
         l->street=tmp.value("street").toString();
         l->city=tmp.value("city").toString();
         if (tmp.contains("geo")) {
-            QVariantList loc=tmp.value("geo").toList();
-            qDebug() << "Got geocoordinates for location: " << loc;
+            QVariantList loc=tmp.value("geo").toList();            
             if (loc.size()==2) {
                 l->geo.setLongitude(loc.at(0).toDouble());
                 l->geo.setLatitude(loc.at(1).toDouble());
@@ -512,9 +550,21 @@ bool RvAPI::isOrderEmpty()
     return m_cartmodel.count()==0 ? true : false;
 }
 
+/**
+ * @brief RvAPI::parseProductData
+ * @param data
+ * @param method
+ * @return
+ */
 bool RvAPI::parseProductData(QVariantMap &data, const QNetworkAccessManager::Operation method)
 {
     switch (method) {
+    case QNetworkAccessManager::HeadOperation:
+        // emit productExists();
+        break;
+    case QNetworkAccessManager::GetOperation:
+        // emit productLoaded(true);
+        break;
     case QNetworkAccessManager::PostOperation:
         emit productSaved(true);
         break;
@@ -522,12 +572,12 @@ bool RvAPI::parseProductData(QVariantMap &data, const QNetworkAccessManager::Ope
         emit productSaved(false);
         break;
     case QNetworkAccessManager::DeleteOperation:
+
         emit productDeleted(data["barcode"].toString());
-        break;
+        return true;
     default:
-        qFatal("Unknown method!");
-        return false;
-        break;
+        qCritical("Unhandled product method!");
+        return false;        
     }
 
     ProductItem *p=ProductItem::fromVariantMap(data, this);
@@ -537,17 +587,15 @@ bool RvAPI::parseProductData(QVariantMap &data, const QNetworkAccessManager::Ope
 }
 
 bool RvAPI::parseProductsData(QVariantMap &data)
-{    
+{
     uint page=qRound(data["page"].toDouble());
     uint amount=qRound(data["amount"].toDouble());
     uint requested=qRound(data["ramount"].toDouble());
-    QVariantMap products=data["products"].toMap();
+    QVariantMap products=data["products"].toMap();   
 
-    qDebug() << "parseProductsData " << page << " : " << amount << "/" << requested;
-
-    if (page==1) {
-        //clearProductStore();
-        m_itemsmodel.clear();
+    if (page==1) {        
+        //m_itemsmodel.clear();
+        clearProductStore();
     }
 
     m_loadedAmount=amount;
@@ -560,7 +608,7 @@ bool RvAPI::parseProductsData(QVariantMap &data)
         QVariantMap tmp=i.value().toMap();
         ProductItem *p=ProductItem::fromVariantMap(tmp, this);
         m_product_store.insert(p->barcode(), p);
-        m_itemsmodel.appendProduct(p);
+        m_itemsmodel.append(p);
     }
 
     qDebug() << "Loaded items: " << m_itemsmodel.rowCount();
@@ -652,56 +700,53 @@ bool RvAPI::parseOKResponse(const QString op, const QByteArray &response, const 
     if (v.isEmpty())
         return false;
 
+    RequestOps ro=getOperationIdentifier(op);
     QVariantMap data=v.value("data").toMap();
 #ifdef DATA_DEBUG
-    qDebug() << method << ":" << op << "\nResponse:\n****\n" << data;
+    qDebug() << method << ":" << op << ro;
 #endif
 
-    // Login
-    if (op==op_auth_login) {
+
+    switch (ro) {
+    case RvAPI::AuthLogin:
         return parseLogin(data);
-    } else if (op==op_auth_logout) {
+    case RvAPI::AuthLogout:
         return parseLogout();
-    }
-
-    if (op==op_products) {
+    case RvAPI::ProductSearch:
+    case RvAPI::ProductSearchBarcode: {
         bool r=parseProductsData(data);
         emit searchCompleted(m_hasMore, r);
         return r;
     }
-
-    if (op==op_products_search || op==op_product_barcode) {
-        bool r=parseProductsData(data);
-        emit searchCompleted(m_hasMore, r);
-        return r;
-    }
-
-    if (op==op_orders && method==QNetworkAccessManager::PostOperation)
-        return parseOrderCreated(data);
-
-    if (op==op_product)
+    case RvAPI::Product:
         return parseProductData(data, method);
-
-    if (op==op_categories)
+    case RvAPI::Products: {
+        bool r=parseProductsData(data);
+        emit searchCompleted(m_hasMore, r);
+        return r;
+    }
+    case RvAPI::Categories:
         return parseCategoryData(data);
-
-    if (op==op_locations)
+    case RvAPI::Locations:
         return parseLocationData(data);
-
-    if (op==op_download)
+    case RvAPI::Orders:
+        if (method==QNetworkAccessManager::PostOperation)
+            return parseOrderCreated(data);
+        else
+            return false;
+    case RvAPI::DownloadAPK:
         return parseFileDownload(response);
+    default:
+        qCritical() << "Unknown operation returned" << op << ro;
+        break;
+    }
 
-    emit requestSuccessful();
-    return true;
+    return false;
 }
 
 void RvAPI::parseResponse(QNetworkReply *reply)
 {       
     QNetworkReply::NetworkError e = reply->error();
-
-    if (e!=QNetworkReply::NoError)
-        qWarning() << "Request error: " << e;
-
     const QByteArray data = reply->readAll();
     int hc=reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
@@ -714,51 +759,40 @@ void RvAPI::parseResponse(QNetworkReply *reply)
     if (!m_requests.contains(reply)) {
         qWarning("Request missing from queue, this should not happen");
         // XXX: Not much we can do if we don't know what happened, anyway this should not happen.
-        emit requestFailure(500, "Internal error, unknown request");
+        emit requestFailure(500, 0, "Unknown request queued");
         return;
     }
 
     const QString op=m_requests.value(reply, "");
     m_requests.remove(reply);
 
-    qDebug() << "OP: " << op;
+    qDebug() << "parseResponse: " << e << hc << op;
 
     switch (hc) {
     case 200:
     case 201:
         if (reply->header(QNetworkRequest::ContentTypeHeader)=="application/octet-stream" && op==op_download) {
             if (parseFileDownload(data)==false)
-                emit requestFailure(500, "Unexpected error");
+                emit requestFailure(500, 0, "Failed to parse downloaded file");
         } else {
             if (parseOKResponse(op, data, reply->operation())==false) {
-                emit requestFailure(500, "Unexpected error");
+                emit requestFailure(500, 0, "Error in response");
             }
         }
         break;
+    case 400: // HTTP error codes
     case 401:
-    case 403:
-        qWarning("Authentication error");
-        parseErrorResponse(hc, op, data);
-        break;
-    case 400:
-        qWarning("Invalid request failure");
-        parseErrorResponse(hc, op, data);
-        break;
+    case 403:        
     case 404:
-        qWarning("Not found failure");
-        parseErrorResponse(hc, op, data);
-        break;
     case 500:
-        qWarning("Server failure");
-        parseErrorResponse(hc, op, data);
+        parseErrorResponse(hc, e, op, data);
         break;
-    case 0:
-        qWarning("Generic network failure");
-        emit requestFailure(hc, "Network error "+reply->errorString());
-        break;
+    case 0: // Network error
+        parseErrorResponse(hc, e, op, data);
+        break;        
     default: {
         qWarning() << "Unexpected and unhandled response code: " << hc;
-        emit requestFailure(hc, "Unexpected error");
+        emit requestFailure(hc, e, reply->errorString());
         break;
     }
     }
@@ -772,10 +806,13 @@ void RvAPI::parseResponse(QNetworkReply *reply)
  * @brief RvAPI::createRequestUrl
  * @return base URL with endpoint appended to path
  */
-const QUrl RvAPI::createRequestUrl(QString endpoint)
+const QUrl RvAPI::createRequestUrl(const QString &endpoint, const QString &detail)
 {
     QUrl u=QUrl(m_url);
     QString t=u.path().append(endpoint);
+    if (detail!=nullptr) {
+        t.append("/").append(detail);
+    }
 
     u.setPath(t);
 
@@ -987,7 +1024,7 @@ bool RvAPI::searchBarcode(const QString barcode, bool checkOnly)
 
         ProductItem *item=m_product_store.value(barcode);
         m_itemsmodel.clear();
-        m_itemsmodel.appendProduct(item);
+        m_itemsmodel.append(item);
         emit searchCompleted(false, true);
         return true;
     }
@@ -1009,6 +1046,42 @@ bool RvAPI::searchBarcode(const QString barcode, bool checkOnly)
     queueRequest(req, op_product_barcode);
 
     return true;
+}
+
+/**
+ * @brief RvAPI::addCommonProductParameters
+ * @param mp
+ * @param product
+ *
+ * Add the product parameters to the QHttpMultiPart request that are shared with POST (Add product) & PUT (Update product) functions.
+ *
+ */
+void RvAPI::addCommonProductParameters(QHttpMultiPart *mp, ProductItem *product)
+{
+    addParameter(mp, QStringLiteral("title"), product->getTitle());
+    addParameter(mp, QStringLiteral("category"), product->category());
+    addParameter(mp, QStringLiteral("subcategory"), product->subCategory());
+    addParameter(mp, QStringLiteral("description"), product->getDescription());
+    uint s=product->getStock();
+    if (s!=1) {
+        QString num;
+        addParameter(mp, QStringLiteral("stock"), num.setNum(s));
+    }
+    double p=product->getPrice();
+    if (p>0.0) {
+        QString num;
+        addParameter(mp, QStringLiteral("price"), num.setNum(p,'f',2));
+        addParameter(mp, QStringLiteral("tax"), product->getTax());
+    }
+    // Add attributes
+    // XXX: We don't check for category required attributes here, should we bother ?
+    for (int i = 0; i < m_attributes.size(); i++) {
+        QString a=m_attributes.at(i);
+
+        if (product->hasAttribute(a)) {
+            addParameter(mp, a, product->getAttribute(a).toString());
+        }
+    }
 }
 
 /**
@@ -1035,33 +1108,8 @@ bool RvAPI::add(ProductItem *product)
 
     // XXX Handle multibarcode add
     QString bc=product->getBarcode();
-
     addParameter(mp, QStringLiteral("barcode"), bc);
-    addParameter(mp, QStringLiteral("title"), product->getTitle());
-    addParameter(mp, QStringLiteral("category"), product->category());
-    addParameter(mp, QStringLiteral("subcategory"), product->subCategory());
-    addParameter(mp, QStringLiteral("description"), product->getDescription());
-    uint s=product->getStock();
-    if (s!=1) {
-        QString num;
-        addParameter(mp, QStringLiteral("stock"), num.setNum(s));
-    }
-    double p=product->getPrice();
-    if (p>0.0) {
-        QString num;
-        addParameter(mp, QStringLiteral("price"), num.setNum(p,'f',2));
-        addParameter(mp, QStringLiteral("tax"), product->getTax());
-    }
-
-    // Add attributes
-    // XXX: We don't check for category required attributes here, should we bother ?
-    for (int i = 0; i < m_attributes.size(); i++) {
-        QString a=m_attributes.at(i);
-
-        if (product->hasAttribute(a)) {
-            addParameter(mp, a, product->getAttribute(a).toString());
-        }
-    }
+    addCommonProductParameters(mp, product);
 
     // Add images
     QVariantList imf=product->images();
@@ -1099,31 +1147,31 @@ bool RvAPI::add(ProductItem *product)
  * @param product
  * @return
  *
- * Update information of given ProductItem. The product must have a valid identifier.
+ * Update information of given ProductItem. The product must have a valid barcode to identify it.
+ * XXX: Untested at this time
  *
  */
 bool RvAPI::update(ProductItem *product)
 {
-    Q_UNUSED(product)
-    qWarning("Product update is not yet implemented!");
-    return false;
-
     if (!m_authenticated)
         return false;
 
     if (isRequestActive(op_product))
         return false;
 
-    QUrl url=createRequestUrl(op_product);
+    QUrl url=createRequestUrl(op_product, product->getBarcode());
     QNetworkRequest request;
     setAuthenticationHeaders(&request);
 
     QHttpMultiPart *mp = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
-    // XXX: Needs to be implemented
+    addCommonProductParameters(mp, product);
+
+    // XXX: Needs to be implemented fully
+    // XXX: How to handle images add/remove ?
 
     request.setUrl(url);
-    queueRequest(post(request, mp), op_product);
+    queueRequest(put(request, mp), op_product);
 
     return true;
 }

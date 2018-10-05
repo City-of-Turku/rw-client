@@ -1,6 +1,6 @@
-import QtQuick 2.6
-import QtQuick.Controls 2.0
-import QtQuick.Layouts 1.1
+import QtQuick 2.9
+import QtQuick.Controls 2.4
+import QtQuick.Layouts 1.3
 
 import "../components"
 
@@ -35,8 +35,7 @@ Page {
         loginActive=false;
     }
 
-    function reportLoginFailed(msg) {
-        // messagePopup.show(qsTr("Authentication Failure"), qsTr("Login failed, check username and password")+"\n\n"+msg)
+    function reportLoginFailed(msg) {        
         loginStopped();
     }
 

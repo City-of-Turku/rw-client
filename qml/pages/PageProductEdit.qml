@@ -7,10 +7,10 @@
  * XXX!!!
  * Re-think handling of Product, perhaps instead use a empty product and bind the properties, with a isValid flag ?
  */
-import QtQuick 2.6
-import QtQuick.Controls 2.3
+import QtQuick 2.9
+import QtQuick.Controls 2.4
 import QtQuick.Dialogs 1.2
-import QtQuick.Layouts 1.1
+import QtQuick.Layouts 1.3
 import net.ekotuki 1.0
 
 import "../components"
@@ -35,16 +35,20 @@ Page {
     property bool validAttributes: validPrice && validCategory
     property bool validCategory: categoryID!='' // && ((subCategorySelection.model && categorySubID!='') || !subCategorySelection.model)
 
-    // What does the current category need
-    // Required input
-    property bool categoryHasPurpose: categoryFlags & CategoryModel.HasPurpose
+    // What attributes does the current category need ?
+    // Base properties: basic details
     property bool categoryHasPrice: categoryFlags & CategoryModel.HasPrice
     property bool categoryHasStock: categoryFlags & CategoryModel.HasStock
 
-    // Optional input
+    // Base properties: Our special details
+    property bool categoryHasPurpose: categoryFlags & CategoryModel.HasPurpose
+
+    // Physical properties
     property bool categoryHasColor: categoryFlags & CategoryModel.HasColor
     property bool categoryHasSize: categoryFlags & CategoryModel.HasSize
     property bool categoryHasWeight: categoryFlags & CategoryModel.HasWeight
+
+    // Category specific properties
     property bool categoryHasISBN: categoryFlags & CategoryModel.HasISBN
     property bool categoryHasEAN: categoryFlags & CategoryModel.HasEAN
     property bool categoryHasMakeAndModel: categoryFlags & CategoryModel.HasMakeAndModel
@@ -52,9 +56,12 @@ Page {
 
     property bool hasTax: true
     property bool hasLocation: true
+
     property int defaultWarehouse;
 
-    property int maxImages: 5;
+    // Techincally a product can have as many images as there is space but we limit it to someting sane.
+    // XXX property int minImages:
+    property int maxImages: 6;
 
     property bool canAddImages: imageModel.count<maxImages;
     property bool hasImages: imageModel.count>0;
@@ -66,7 +73,7 @@ Page {
 
     property bool keepImages: true;
 
-    property alias locationsModel: productWarehouse.model
+    property alias locationsModel: locationPopup.model
 
     property int categoryFlags: 0
     property string categoryID: ""
@@ -74,8 +81,7 @@ Page {
     property int purposeID: 0
     property string colorID: ""
     property int locationID;
-    property string locationDetail: ""
-
+    property string locationDetail: ""   
 
     // Are we adding/editing multiple entries of the same product ? If so
     // we need to enable a bit more complex interface for barcodes.
@@ -106,14 +112,21 @@ Page {
         return false;
     }
 
-    onLocationsModelChanged: {        
+    onLocationIDChanged: {
+        var l=locationPopup.model.getId(locationID)
+        console.debug(l)
+        locationName.text=l.name;
+        locationAddress.text=l.zip + " " + l.street
+    }
+
+    onLocationsModelChanged: {
         console.debug("Pre-selecting location: "+defaultWarehouse)
 
         if (defaultWarehouse!=0) {
             var i=locationsModel.findLocationByID(defaultWarehouse);
             console.debug(i)
             if (i>-1) {
-                productWarehouse.currentIndex=i;
+                locationPopup.currentIndex=i;
                 locationID=defaultWarehouse;
             }
         }
@@ -129,11 +142,39 @@ Page {
         savingPopup.close();
     }
 
+    function startCamera() {
+        rootStack.push(pictureCamera)
+    }
+
     Keys.onReleased: {
-        if (event.key === Qt.Key_Back) {
+        switch (event.key) {
+        case Qt.Key_F1:
+            event.accepted = true;
+            editorSwipeView.currentIndex=0;
+            break;
+        case Qt.Key_F2:
+            event.accepted = true;
+            editorSwipeView.currentIndex=1;
+            break;
+        case Qt.Key_F3:
+            event.accepted = true;
+            editorSwipeView.currentIndex=2;
+            break;
+        case Qt.Key_F4:
+            event.accepted = true;
+            editorSwipeView.currentIndex=3;
+            break;
+        case Qt.Key_Escape:
+        case Qt.Key_Back:
             console.log("*** Back button")
             event.accepted = true;
             confirmBackDialog.open();
+            break;
+        case Qt.Key_Camera:
+            event.accepted = true;
+            if (canAddImages)
+                startCamera();
+            break;
         }
     }
 
@@ -141,6 +182,13 @@ Page {
         enableBackPop: false
         onBackButton: {
             confirmBackDialog.open();
+        }
+        enableActionButton: validEntry && !isSaving
+        visibleActionButton: true
+        actionIcon: "qrc:/images/icon_down_box.png"
+        onActionButton: {
+            bar.currentIndex=0
+            confirmDialog.open();
         }
     }
 
@@ -192,46 +240,6 @@ Page {
 
     onCategorySubIDChanged: {
         console.debug(categorySubID)
-    }
-
-    footer: ToolBar {
-        RowLayout {
-            ToolButton {
-                text: "Save"
-                enabled: validEntry && !isSaving
-                contentItem: ItemIcon {
-                    source: "qrc:/images/icon_down_box.png"
-                }
-                onClicked: {
-                    bar.currentIndex=0
-                    confirmDialog.open();
-                }
-            }
-            ToolButton {
-                text: "Capture"
-                contentItem: ItemIcon {
-                    source: "qrc:/images/icon_camera.png"
-                }
-
-                enabled: canAddImages // && validEntry
-                onClicked: {
-                    bar.currentIndex=1 // image view
-                    rootStack.push(pictureCamera)
-                }
-            }
-            ToolButton {
-                text: "Add image"
-                contentItem: ItemIcon {
-                    source: "qrc:/images/icon_gallery.png"
-                }
-                enabled: canAddImages && hasFileView
-                visible: canAddImages && hasFileView
-                onClicked: {
-                    bar.currentIndex=1 // image view
-                    igs.startSelector();
-                }
-            }
-        }
     }
 
     Component {
@@ -298,50 +306,47 @@ Page {
             TabBar {
                 id: bar
                 Layout.fillWidth: true
+                currentIndex: editorSwipeView.currentIndex
 
                 // Basedata
-                TabButton {                                        
+                TabButton {
                     background: Rectangle {
                         color: validBaseEntry ? "green" : "red"
                         border.width: 1
-
-                    }                    
+                    }
                     icon.source: "qrc:/images/icon_home.png"
                 }
                 // Images
-                TabButton {                    
+                TabButton {
                     background: Rectangle {
                         color: hasImages ? "green" : "red"
                         border.color: "#000"
-                        border.width: 1                       
+                        border.width: 1
                     }
                     icon.source: "qrc:/images/icon_camera.png"
-                }
-                // Location
-                TabButton {                    
-                    background: Rectangle {
-                        color: validWarehouse ? "green" : "red"
-                        border.color: "#000"
-                        border.width: 1                       
+                    onClicked: {
+                        console.debug("Camera clicked: "+editorSwipeView.currentIndex)
+                        //if (bar.currentIndex==1)
+                        //    rootStack.push(pictureCamera)
                     }
-                    icon.source: "qrc:/images/icon_location.png"
-                }
+
+                }                
                 // Attributes
                 TabButton {
                     background: Rectangle {
                         color: validAttributes ? "green" : "#d9e006"
                         border.color: "#000"
-                        border.width: 1                       
+                        border.width: 1
                     }
                     icon.source: "qrc:/images/icon_tag.png"
                 }
                 // Extras
                 TabButton {
                     background: Rectangle {
-                        color: productDescription.text!='' ? "green" : "#d9e006"
+                        color: "green"
                         border.color: "#000"
-                        border.width: 1                       
-                    }                    
+                        border.width: 1
+                    }
                     icon.source: "qrc:/images/icon_plus.png"
                 }
 
@@ -355,32 +360,41 @@ Page {
                 Layout.alignment: Qt.AlignTop
                 currentIndex: bar.currentIndex
                 onCurrentIndexChanged: {
-                    bar.currentIndex=currentIndex
+                    console.debug("CurrentViewIndex: "+currentIndex)
+                    // bar.currentIndex=currentIndex
                 }
 
-                // Base information view
-                ColumnLayout {
-                    id: basicData
 
+                ScrollView {
+                    id: basicDataSV
+                    clip: true
+                    contentHeight: basicData.height
+
+                    // Base information view
                     ColumnLayout {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: false
-                        Layout.alignment: Qt.AlignTop
+                        id: basicData
+                        width: basicDataSV.width
 
-                        BarcodeScannerField {
-                            id: barcodeText
-                            scannerEnabled: !hasProduct
-                        }
-                        Text {
+                        ColumnLayout {
                             Layout.fillWidth: true
-                            visible: !barcodeText.acceptableInput
-                            horizontalAlignment: Qt.AlignHCenter
-                            font.pixelSize: 14
-                            text: qsTr("Valid barcode format: AAA123456789")
-                        }
-                    }
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignTop
 
-                    // XXX
+                            BarcodeScannerField {
+                                id: barcodeText
+                                scannerEnabled: !hasProduct
+                            }
+                            Text {
+                                Layout.fillWidth: true
+                                visible: !barcodeText.acceptableInput
+                                horizontalAlignment: Qt.AlignHCenter
+                                font.pixelSize: 14
+                                text: qsTr("Valid barcode format: AAA123456789")
+                            }
+                        }
+
+                        // XXX
+                        /*
                     RowLayout {
                         Layout.fillWidth: true
                         id: barcodeMultiControl
@@ -405,141 +419,189 @@ Page {
                             }
                         }
                     }
+                    */
 
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        Layout.fillHeight: false
-                        Layout.alignment: Qt.AlignTop
-                        Layout.margins: 8
-
-                        // This is the "main" category
-                        ComboBoxLabel {
-                            id: categorySelection
-                            currentIndex: 0
-                            invalidIndex: 0
-                            placeHolder: qsTr("Category")
+                        ColumnLayout {
                             Layout.fillWidth: true
+                            Layout.fillHeight: false
+                            Layout.alignment: Qt.AlignTop
+                            Layout.margins: 8
 
-                            enabled: barcodeText.acceptableInput
-                            textRole: "category"
-                            Component.onCompleted: {
-                                model=root.api.getCategoryModel();
-                            }
-                            onCurrentIndexChanged: {
-                                console.debug("CategoryIndex: "+currentIndex)
-                                updateCategoryData();
-                            }
-                            function updateCategoryData() {
-                                var cdata=categorySelection.model.get(currentIndex);
-                                if (!cdata || currentIndex==0) {
-                                    console.debug("Category de-selected, clearing")
-                                    categoryFlags=0;
-                                    categoryID=''
-                                    categorySubID=''
-                                    subCategorySelection.model=false;
-                                    return;
+                            // This is the "main" category
+                            ComboBoxLabel {
+                                id: categorySelection
+                                currentIndex: 0
+                                invalidIndex: 0
+                                placeHolder: qsTr("Category")
+                                Layout.fillWidth: true
+
+                                // XXX lets allow always?
+                                // enabled: barcodeText.acceptableInput
+                                textRole: "category"
+                                Component.onCompleted: {
+                                    model=root.api.getCategoryModel();
+                                }
+                                onCurrentIndexChanged: {
+                                    console.debug("CategoryIndex: "+currentIndex)
+                                    updateCategoryData();
+                                }
+                                function updateCategoryData() {
+                                    var cdata=categorySelection.model.get(currentIndex);
+                                    if (!cdata || currentIndex==0) {
+                                        console.debug("Category de-selected, clearing")
+                                        categoryFlags=0;
+                                        categoryID=''
+                                        categorySubID=''
+                                        subCategorySelection.model=false;
+                                        return;
+                                    }
+
+                                    categoryFlags=cdata.flags;
+                                    categoryID=cdata.cid;
+
+                                    var scm=root.api.getSubCategoryModel(cdata.cid);
+                                    if (scm)
+                                        subCategorySelection.model=scm;
+                                    else
+                                        subCategorySelection.model=false;
                                 }
 
-                                categoryFlags=cdata.flags;
-                                categoryID=cdata.cid;
-
-                                var scm=root.api.getSubCategoryModel(cdata.cid);
-                                if (scm)
-                                    subCategorySelection.model=scm;
-                                else
-                                    subCategorySelection.model=false;
                             }
 
-                        }
-
-                        // This is the specific category
-                        ComboBoxLabel {
-                            id: subCategorySelection
-                            enabled: categorySelection.enabled && categorySelection.currentIndex>0 && model
-                            textRole: "category"
-                            placeHolder: qsTr("Subcategory")
-                            Layout.fillWidth: true
-
-                            onCurrentIndexChanged: {
-                                updateSubcategory()
-                            }
-                            onModelChanged: {
-                                updateSubcategory();
-                            }
-                            function updateSubcategory() {
-                                if (!model) {
-                                    categorySubID=''
-                                    return;
+                            // This is the specific category
+                            ComboBoxLabel {
+                                id: subCategorySelection
+                                visible: enabled && model && model.count>0
+                                enabled: categorySelection.enabled && categorySelection.currentIndex>0 && model
+                                textRole: "category"
+                                placeHolder: qsTr("Subcategory")
+                                Layout.fillWidth: true
+                                onCurrentIndexChanged: {
+                                    updateSubcategory()
                                 }
-                                var cdata=subCategorySelection.model.get(currentIndex)
-                                if (!cdata.cid)
-                                    return;
-                                categoryFlags=cdata.flags;
-                                categorySubID=cdata.cid;
-                                productTitle.setDefaultProductTitle("", cdata.category)
-                            }
-                        }
-
-                        ComboBoxLabel {
-                            id: purposeSelection
-                            model: root.purposeModel
-                            enabled: true
-                            visible: categoryHasPurpose
-                            textRole: "purpose"
-                            placeHolder: qsTr("Usage")
-                            Layout.fillWidth: true
-                            onCurrentIndexChanged: {
-                                var pdata=model.get(currentIndex)
-                                purposeID=pdata.pid;
-                            }
-                            contentItem: Row {
-                                width: parent.width
-                                PurposeBadge {
-                                    size: pst.height+16
-                                    purpose: purposeID
+                                onModelChanged: {
+                                    updateSubcategory();
                                 }
-                                Text {
-                                    id: pst
-                                    leftPadding: 8
-                                    rightPadding: purposeSelection.indicator.width + purposeSelection.spacing
-                                    text: purposeSelection.displayText
-                                    font: purposeSelection.font
-                                    //color: purposeSelection.pressed ? "#17a81a" : "#21be2b"
-                                    horizontalAlignment: Text.AlignLeft
-                                    verticalAlignment: Text.AlignVCenter
-                                    elide: Text.ElideRight
+                                function updateSubcategory() {
+                                    if (!model) {
+                                        categorySubID=''
+                                        return;
+                                    }
+                                    var cdata=subCategorySelection.model.get(currentIndex)
+                                    if (!cdata.cid)
+                                        return;
+                                    categoryFlags=cdata.flags;
+                                    categorySubID=cdata.cid;
+                                    productTitle.setDefaultProductTitle("", cdata.category)
                                 }
                             }
-                        }
 
-                        TextField {
-                            id: productTitle
-                            Layout.fillWidth: true
-                            leftPadding: 4
-                            inputMethodHints: Qt.ImhNoPredictiveText
-                            placeholderText: qsTr("Product summary, title")
-                            validator: RegExpValidator {
-                                regExp: /.{4,}/
-                            }
-                            maximumLength: 200
-                            background: Rectangle {
-                                color: "transparent"
-                                border.color: parent.acceptableInput ? "green" : "red"
-                            }
-                            property bool wasModified: false;
-                            onEditingFinished: {
-                                if (acceptableInput)
-                                    wasModified=true;
+                            ComboBoxLabel {
+                                id: purposeSelection
+                                model: root.purposeModel
+                                enabled: true
+                                visible: categoryHasPurpose
+                                textRole: "purpose"
+                                placeHolder: qsTr("Usage")
+                                Layout.fillWidth: true
+                                onCurrentIndexChanged: {
+                                    var pdata=model.get(currentIndex)
+                                    purposeID=pdata.pid;
+                                }
+                                contentItem: Row {
+                                    width: parent.width
+                                    PurposeBadge {
+                                        size: pst.height+16
+                                        purpose: purposeID
+                                    }
+                                    Text {
+                                        id: pst
+                                        leftPadding: 8
+                                        rightPadding: purposeSelection.indicator.width + purposeSelection.spacing
+                                        text: purposeSelection.displayText
+                                        font: purposeSelection.font
+                                        //color: purposeSelection.pressed ? "#17a81a" : "#21be2b"
+                                        horizontalAlignment: Text.AlignLeft
+                                        verticalAlignment: Text.AlignVCenter
+                                        elide: Text.ElideRight
+                                    }
+                                }
                             }
 
-                            // XXX: Expand on this!
-                            function setDefaultProductTitle(mc, sc) {
-                                if (hasProduct || productTitle.wasModified)
-                                    return;
+                            RowLayout {
+                                ColumnLayout  {
+                                    Layout.fillWidth: true
+                                    Label {
+                                        id: locationName
+                                        Layout.fillWidth: true
+                                    }
+                                    Label {
+                                        id: locationAddress
+                                        font.pixelSize: 14
+                                        Layout.fillWidth: true
+                                    }
+                                }
 
-                                if (sc)
-                                    productTitle.text=sc;
+                                RoundButton {
+                                    icon.source: "qrc:/images/icon_location.png"
+                                    onClicked: {
+                                        locationPopup.open();
+                                    }
+                                }
                             }
+
+                            TextField {
+                                id: productTitle
+                                Layout.fillWidth: true
+                                leftPadding: 4
+                                inputMethodHints: Qt.ImhNoPredictiveText
+                                placeholderText: qsTr("Product summary, title")
+                                validator: RegExpValidator {
+                                    regExp: /.{4,}/
+                                }
+                                maximumLength: 200
+                                background: Rectangle {
+                                    color: "transparent"
+                                    border.color: parent.acceptableInput ? "green" : "red"
+                                }
+                                property bool wasModified: false;
+                                onEditingFinished: {
+                                    if (acceptableInput)
+                                        wasModified=true;
+                                }
+
+                                // XXX: Expand on this!
+                                function setDefaultProductTitle(mc, sc) {
+                                    if (hasProduct || productTitle.wasModified)
+                                        return;
+
+                                    if (sc)
+                                        productTitle.text=sc;
+                                }
+                            }
+                            ScrollView {
+                                Layout.fillWidth: true
+                                ScrollBar.horizontal.interactive: true
+                                Layout.minimumHeight: productTitle.height*2
+                                Layout.maximumHeight: productTitle.height*4
+                                clip: true
+                                TextArea {
+                                    id: productDescription
+                                    textFormat: TextEdit.PlainText
+                                    wrapMode: TextEdit.Wrap
+                                    placeholderText: qsTr("Enter product description")
+                                }
+                            }
+                            SpinBoxLabel {
+                                id: productStock
+                                visible: categoryHasStock
+                                value: hasProduct ? product.stock : 1
+                                from: 1
+                                to: 500
+                                label: qsTr("Stock amount")
+                                // enabled: categoryHasStock
+                            }
+
                         }
                     }
                 }
@@ -584,11 +646,10 @@ Page {
                         }
                     }
 
-                    ListView {
+                    GridView {
                         id: productImages
                         clip: true
-                        visible: imageModel.count>0
-                        spacing: 4
+                        visible: imageModel.count>0                        
                         Layout.fillHeight: true
                         Layout.fillWidth: true
                         highlightFollowsCurrentItem: true
@@ -596,6 +657,9 @@ Page {
                         delegate: imageDelegate
                         header: listHeaderImages
                         ScrollIndicator.vertical: ScrollIndicator { }
+                        cellWidth: productImages.width/2
+                        cellHeight: productImages.height/3
+                        snapMode: GridView.SnapToRow
                     }
 
                     Component {
@@ -604,8 +668,7 @@ Page {
                             width: parent.width
                             height: ht.height
                             Text {
-                                id: ht
-                                color: "#ffffff"
+                                id: ht                                
                                 anchors.centerIn: parent
                                 text: qsTr("Images: ")+imageModel.count+" / " + maxImages;
                                 font.pixelSize: 16
@@ -616,10 +679,10 @@ Page {
                     Component {
                         id: imageDelegate
                         Rectangle {
-                            color: ListView.isCurrentItem ? "#f0f0f0" : "#ffffff"
+                            color: ListView.isCurrentItem ? "#e0e0e0" : "#fafafa"
                             id: imageDelegateItem
-                            width: parent.width
-                            height: Math.min(productEditPage.width/2, productEditPage.height/2)
+                            width: productImages.cellWidth
+                            height: productImages.cellHeight
                             clip: true
 
                             Image {
@@ -632,7 +695,7 @@ Page {
                                 fillMode: Image.PreserveAspectFit
                                 source: image
                                 anchors.horizontalCenter: parent.horizontalCenter
-                                rotation: appUtil.getImageRotation(image);                                
+                                rotation: appUtil.getImageRotation(image);
                             }
 
                             Menu {
@@ -683,67 +746,12 @@ Page {
 
                 }
 
-                // Location/Warehouse
-                ColumnLayout {
-                    id: warehouse
-                    Layout.fillWidth: true
-                    Layout.fillHeight: false
-                    Layout.alignment: Qt.AlignTop
-
-                    RowLayout {
-                        Layout.alignment: Qt.AlignTop
-                        TextField {
-                            id: productWarehouseSearch
-                            Layout.fillWidth: true
-                            placeholderText: qsTr("Search for locations")
-                            onAccepted: {
-                                productWarehouse.currentIndex=-1
-                                productWarehouse.model.search(text);
-                            }
-                        }
-
-                        Button {
-                            text: qsTr("Clear")
-                            //enabled: productWarehouseSearch.text!=''
-                            onClicked: {
-                                productWarehouseSearch.text='';
-                                productWarehouse.model.clearFilter();
-                            }
-                        }
-                    }
-
-                    LocationListView {
-                        id: productWarehouse
-                        // headerPositioning: ListView.PullBackHeader
-                        header: Text {
-                            Layout.alignment: Qt.AlignTop
-                            text: qsTr("Locations found: ")+productWarehouse.model.count
-                            Layout.fillWidth: true
-                        }
-                        onLocationChanged: {
-                            console.debug("productWarehouse "+location)
-                            locationID=location;
-                        }
-                        onLocationPressAndHold: {
-
-                        }
-                    }                    
-
-                    TextField {
-                        id: productWarehouseLocation
-                        enabled: productWarehouse.currentIndex>=0
-                        Layout.fillWidth: true
-                        placeholderText: qsTr("Enter storage location")
-                        onTextChanged: {
-                            locationDetail=text;
-                        }
-                    }
-                }
-
                 // Extra attributes
                 ColumnLayout {
                     id: attributes
+                    Layout.fillWidth: true
                     Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignTop
 
                     Text {
                         visible: categoryID=='';
@@ -815,27 +823,17 @@ Page {
                         }
                         ComboBox {
                             id: productTax
-                            visible: hasTax                            
+                            visible: hasTax
                             displayText: qsTr("Tax: ")+currentText
                             model: api.getTaxModel();
                             textRole: "display"
                         }
-                    }
-
-                    RowLayout {
-                        visible: categoryHasStock
-                        SpinBoxLabel {
-                            id: productStock
-                            value: hasProduct ? product.stock : 1
-                            from: 1
-                            to: 500
-                            label: qsTr("Stock amount")
-                            // enabled: categoryHasStock
-                        }
-                    }
+                    }                   
 
                     RowLayout {
                         visible: categoryHasColor
+                        Layout.fillHeight: false
+                        Layout.alignment: Qt.AlignTop
                         Rectangle {
                             id: colorIndicator
                             height: productColor.height
@@ -861,17 +859,12 @@ Page {
                         }
                     }
 
-                    Switch {
-                        id: sizeSwitch
-                        text: qsTr("Size (WxHxD)")
-                        visible: categoryHasSize
-                        enabled: categoryHasSize
-                    }
                     SizeField {
                         id: productSize
+                        Layout.alignment: Qt.AlignTop
                         visible: categoryHasSize
-                        enabled: sizeSwitch.checked
-                        Layout.fillWidth: true
+                        //enabled: sizeSwitch.checked
+                        Layout.fillWidth: true                        
                     }
                 }
 
@@ -879,21 +872,6 @@ Page {
                 ColumnLayout {
                     Layout.fillWidth: true
                     Layout.fillHeight: false
-                    Flickable {
-                        clip: true
-                        Layout.fillWidth: true
-                        Layout.alignment: Qt.AlignTop
-                        Layout.minimumHeight: productTitle.height*2
-                        Layout.maximumHeight: productTitle.height*4
-                        TextArea.flickable: TextArea {
-                            id: productDescription
-                            textFormat: TextEdit.PlainText
-                            wrapMode: TextEdit.Wrap
-                            placeholderText: qsTr("Enter product description")
-                        }
-                        flickableDirection: Flickable.VerticalFlick
-                        ScrollBar.vertical: ScrollBar { }
-                    }
 
                     ColumnLayout {
                         id: makeAndModel
@@ -942,7 +920,7 @@ Page {
                                 }
                             }
                         }
-                        RowLayout {                            
+                        RowLayout {
                             BarcodeScannerField {
                                 id: productISBN
                                 visible: categoryHasISBN
@@ -963,6 +941,36 @@ Page {
         id: productTemplate
         Product {
 
+        }
+    }
+
+    RowLayout {
+        id: cameraActionButtons
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.rightMargin: 32
+        anchors.bottomMargin: 32
+        height: 32
+        property bool maybeVisible: images.isActive && canAddImages
+        visible: maybeVisible
+        opacity: maybeVisible ? 1 : 0;
+        RoundButton {
+            icon.source: "qrc:/images/icon_gallery.png"
+            enabled: canAddImages && hasFileView
+            visible: canAddImages && hasFileView
+            onClicked: {
+                // XXX: Don't go there bar.currentIndex=1 // image view
+                igs.startSelector();
+            }
+        }
+        RoundButton {
+            id: buttonUp
+            // text: qsTr("Camera")
+            icon.source: "qrc:/images/icon_camera.png"
+            enabled: canAddImages
+            onClicked: {
+                startCamera();
+            }
         }
     }
 
@@ -1001,7 +1009,9 @@ Page {
     }
 
     LocationPopup {
-        id: locationPopup
+        id: locationPopup        
+        onLocationDetailChanged: productEditPage.locationDetail=locationDetail;
+        onLocationIDChanged: productEditPage.locationID=locationID
     }
 
     function createProduct() {
@@ -1037,13 +1047,13 @@ Page {
         if (categoryHasISBN && productISBN.text!='')
             p.setAttribute("isbn", productISBN.text)
 
-        if (categoryHasSize && sizeSwitch.checked) {
+        if (categoryHasSize) {
             p.setAttribute("width", productSize.itemWidth)
             p.setAttribute("height", productSize.itemHeight)
-            p.setAttribute("depth", productSize.itemDepth)
-            if (categoryHasWeight) {
-                p.setAttribute("weight", productSize.itemWeight)
-            }
+            p.setAttribute("depth", productSize.itemDepth)            
+        }
+        if (categoryHasWeight) {
+            p.setAttribute("weight", productSize.itemWeight)
         }
 
         if (categoryHasPrice) {
@@ -1064,8 +1074,7 @@ Page {
             p.setAttribute("author", productAuthor.text)
         }
 
-        if (categoryHasStock) {
-            console.debug("Setting stock to "+productStock.value)
+        if (categoryHasStock) {            
             p.setStock(productStock.value);
         } else {
             p.setStock(1);
@@ -1086,9 +1095,10 @@ Page {
 
     MessageDialog {
         id: confirmDialog
-        standardButtons: StandardButton.Ok | StandardButton.Cancel
+        standardButtons: MessageDialog.Ok | MessageDialog.Cancel
         title: qsTr("Save product ?")
-        text: qsTr("Save product:")+"\n"+productTitle.text
+        text: qsTr("Save product:")
+        informativeText: productTitle.text
 
         onAccepted: {
             console.debug("*** Save accepted");

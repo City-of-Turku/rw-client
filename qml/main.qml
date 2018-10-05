@@ -1,5 +1,5 @@
-import QtQuick 2.8
-import QtQuick.Controls 2.2
+import QtQuick 2.9
+import QtQuick.Controls 2.4
 import QtQuick.Controls.Material 2.0
 import QtQuick.Layouts 1.3
 import QtQuick.Dialogs 1.2
@@ -17,7 +17,9 @@ ApplicationWindow {
     visible: true
     width: 480
     height: 800
-    title: appName
+    title: appTitle
+
+    visibility: Window.Maximized
 
     property bool isLogged: false
     property bool debugBuild: true
@@ -38,7 +40,7 @@ ApplicationWindow {
     property int savedLocation: 0
 
     onBusyChanged: {
-        console.debug("*** BUSY"+busy)
+        console.debug("*** BUSY: "+busy)
     }
 
     onClosing: {
@@ -108,12 +110,7 @@ ApplicationWindow {
         RowLayout {
             anchors.fill: parent
             ToolButton {
-                contentItem: Image {
-                    fillMode: Image.Pad
-                    horizontalAlignment: Image.AlignHCenter
-                    verticalAlignment: Image.AlignVCenter
-                    source: "qrc:/images/icon_menu.png"
-                }
+                icon.source: "qrc:/images/icon_menu.png"
                 visible: rootStack.depth==1
                 onClicked: {
                     mainDrawer.open();
@@ -123,13 +120,7 @@ ApplicationWindow {
             ToolButton {
                 id: backButton
                 enabled: !api.busy // XXX We need to be able to somehow block back button in some cases, how ?
-                contentItem: Image {
-                    fillMode: Image.Pad
-                    horizontalAlignment: Image.AlignHCenter
-                    verticalAlignment: Image.AlignVCenter
-                    source: "qrc:/images/icon_back.png"
-                    opacity: parent.enabled ? 1.0 : 0.8
-                }
+                icon.source: "qrc:/images/icon_back.png"
                 visible: rootStack.depth>1
                 onClicked: {
                     rootStack.pop()
@@ -150,26 +141,15 @@ ApplicationWindow {
 
             ToolButton {
                 enabled: !api.busy && rootStack.currentItem && rootStack.currentItem.objectName=="search"
-                contentItem: Image {
-                    fillMode: Image.Pad
-                    horizontalAlignment: Image.AlignHCenter
-                    verticalAlignment: Image.AlignVCenter
-                    source: "qrc:/images/icon_search.png"
-                }
+                icon.source: "qrc:/images/icon_search.png"
                 visible: isLogged && rootStack.currentItem && rootStack.currentItem.objectName=="search"
                 onClicked: {
-                    rootStack.currentItem.toggleSearch()                    
+                    rootStack.currentItem.toggleSearch()
                 }
             }
 
             ToolButton {
-                contentItem: Image {
-                    fillMode: Image.Pad
-                    horizontalAlignment: Image.AlignHCenter
-                    verticalAlignment: Image.AlignVCenter
-                    source: "qrc:/images/icon_menu_2.png"
-                }
-
+                icon.source: "qrc:/images/icon_menu_2.png"
                 onClicked: mainMenu.open();
                 Menu {
                     id: mainMenu
@@ -336,7 +316,7 @@ ApplicationWindow {
         initialItem: mainView
         focus: true;
         onCurrentItemChanged: {
-            console.debug("*** view is "+currentItem)            
+            console.debug("*** view is "+currentItem)
             mainActionList.currentIndex=-1
             if (currentItem)
                 currentItem.forceActiveFocus();
@@ -671,46 +651,44 @@ ApplicationWindow {
         }
 
         onProductSaved: {
-            console.debug("*** ProductSaved")
+            console.debug("*** onProductSaved")
         }
 
         onProductFail: {
-            console.debug("*** ProductFailed "+error)
+            console.debug("*** onProductFail "+error)
             if (rootStack.currentItem.objectName=="productEdit")
                 rootStack.currentItem.confirmProductSave(false, 0, msg);
         }
 
         onProductsFail: {
-            console.debug("*** ProductsFailed "+error)
+            console.debug("*** onProductsFail "+error)
+            messagePopup.show(qsTr("Failure"), qsTr("Failed to load products"))
         }
 
         onLoginFailure: {
-            console.debug("Login failure: "+msg)
+            console.debug("*** onLoginFailure: "+msg)
             isLogged=false;
             if (rootStack.currentItem.objectName=="login") {
                 rootStack.currentItem.reportLoginFailed();
             }
-            if (code==500) {
-                messagePopup.show(qsTr("Authentication Failure"), qsTr("Application authentication failed")+"\n\n"+msg)
-            } else {
-                messagePopup.show(qsTr("Authentication Failure"), qsTr("Login failed, check username and password")+"\n\n"+msg)
+            // Login specific error messages
+            switch (code) {
+            case 500:
+                messagePopup.show(qsTr("Authentication Failure"), qsTr("Application authentication failed"), code)
+                break;
+            case 401:
+            case 403:
+                messagePopup.show(qsTr("Authentication Failure"), qsTr("Login failed, check username and password"), code)
+                break;
+            default:
+                errorMessage(code, msg);
             }
         }
 
         onRequestFailure: {
-            console.debug("*** FAIL: "+error)
-            switch (error) {
-            case 401:
-            case 403:
-                messagePopup.show(qsTr("Authentication Failure"), qsTr("Request is not authorized"));
-                break;
-            case 404:
-                messagePopup.show(qsTr("Failure"), qsTr("Requested item does not exist"));
-                break;
-            case 500:
-            default:
-                messagePopup.show("Failure ("+error+")", "Internal network request failure!\n(Error '"+msg+"')");
-            }
+            console.debug("*** onRequestFailure: "+error)
+
+            errorMessage(error, msg);
 
             // XXX: This should not be required
             if (rootStack.currentItem.objectName=="productEdit")
@@ -718,7 +696,7 @@ ApplicationWindow {
         }
 
         onSecureConnectionFailure: {
-            messagePopup.show("Failure", "Secure network request failure!");
+            messagePopup.show(qsTr("Network error"), "Secure network request failure!");
         }
 
         onRequestSuccessful: {
@@ -727,6 +705,40 @@ ApplicationWindow {
 
         Component.onCompleted: {
             setAppVersion(appVersionCode);
+        }
+
+        // Generic error message helper
+        function errorMessage(code, msg) {
+            switch (code) {
+            case 200:
+            case 201:
+                // No error
+                break;
+            case 401:
+            case 403:
+                messagePopup.show(qsTr("Authentication Failure"), qsTr("Request is not authorized"), code);
+                break;
+            case 404:
+                messagePopup.show(qsTr("Not found"), qsTr("Requested item does not exist"), code);
+                break;
+            case 500:
+                messagePopup.show(qsTr("Network error"), msg, code);
+                break;
+            case 1001: // QNetworkReply::NetworkError + 1000
+                messagePopup.show(qsTr("Network error"), qsTr("Server refused connection"), code);
+                break;
+            //case 1002:
+            case 1003:
+                messagePopup.show(qsTr("Network error"), qsTr("Server not found"), code);
+                break;
+            case 1004:
+            case 1007:
+            case 1008:
+                messagePopup.show(qsTr("Network error"), qsTr("Unable to contact server"), code);
+                break;
+            default:
+                messagePopup.show(qsTr("Unexpected network error"), msg, code);
+            }
         }
 
     }
