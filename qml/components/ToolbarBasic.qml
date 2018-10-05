@@ -19,6 +19,9 @@ ToolBar {
     property alias visibleActionButton: actionBtn.visible
     property alias actionIcon: actionBtn.icon.source
 
+    property alias enableMenuButton: menuBtn.enabled
+    property alias visibleMenuButton: menuBtn.visible
+
     RowLayout {
         id: toolbarContainer
         anchors.fill: parent
