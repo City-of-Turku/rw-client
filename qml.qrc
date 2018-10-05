@@ -9,7 +9,7 @@
         <file>qml/pages/PageProductEdit.qml</file>
         <file>qml/pages/PageSettings.qml</file>
         <file>qml/pages/PageImageDisplay.qml</file>
-        <file>qml/pages/CameraPage.qml</file>
+        <file>qml/pages/PageCamera.qml</file>
         <file>qml/components/MessagePopup.qml</file>
         <file>qml/components/BarcodeField.qml</file>
         <file>qml/components/CameraItem.qml</file>

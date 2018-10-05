@@ -154,7 +154,7 @@ Page {
 
     Component {
         id: cameraScanner
-        CameraPage {
+        PageCamera {
             id: scanCamera
             oneShot: true
             Component.onCompleted: {

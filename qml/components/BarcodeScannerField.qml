@@ -48,7 +48,7 @@ RowLayout {
 
     Component {
         id: cameraScanner
-        CameraPage {
+        PageCamera {
             id: scanCamera
             title: qsTr("Scan barcode")
             oneShot: true

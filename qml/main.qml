@@ -471,7 +471,7 @@ ApplicationWindow {
 
     Component {
         id: camera
-        CameraPage {
+        PageCamera {
 
         }
     }

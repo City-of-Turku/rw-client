@@ -244,7 +244,7 @@ Page {
 
     Component {
         id: pictureCamera
-        CameraPage {
+        PageCamera {
             id: pCamera
             title: qsTr("Take picture")
             oneShot: false
