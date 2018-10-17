@@ -100,5 +100,4 @@ for(file, TSFILES) {
 ts-all.commands = cd $$PWD && $$LUPDATE $$SOURCES $$APP_FILES -ts $$TSFILES
 QMAKE_EXTRA_TARGETS ''= ts-all
 
-DISTFILES +=
 

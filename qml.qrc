@@ -41,5 +41,6 @@
         <file>qml/delegates/OrderItemDelegate.qml</file>
         <file>qml/pages/PageMessages.qml</file>
         <file>qml/components/RoundIconButton.qml</file>
+        <file>qml/components/ColorSelector.qml</file>
     </qresource>
 </RCC>

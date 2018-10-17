@@ -828,35 +828,12 @@ Page {
                             model: api.getTaxModel();
                             textRole: "display"
                         }
-                    }                   
+                    }
 
-                    RowLayout {
+                    ColorSelector {
+                        id: productColor
                         visible: categoryHasColor
-                        Layout.fillHeight: false
-                        Layout.alignment: Qt.AlignTop
-                        Rectangle {
-                            id: colorIndicator
-                            height: productColor.height
-                            width: height
-                            Behavior on color {
-                                ColorAnimation {
-                                    easing.type: Easing.InOutQuad
-                                    duration: 200
-                                }
-                            }
-                            border.color: "black"
-                        }
-                        ComboBox {
-                            id: productColor
-                            Layout.fillWidth: true
-                            textRole: "color"
-                            model: root.colorModel
-                            onCurrentIndexChanged: {
-                                var tmp=model.get(currentIndex);
-                                colorIndicator.color=tmp.code;
-                                colorID=tmp.cid;
-                            }
-                        }
+                        model: root.colorModel
                     }
 
                     SizeField {
@@ -872,6 +849,7 @@ Page {
                 ColumnLayout {
                     Layout.fillWidth: true
                     Layout.fillHeight: false
+                    Layout.alignment: Qt.AlignTop
 
                     ColumnLayout {
                         id: makeAndModel
