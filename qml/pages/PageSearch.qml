@@ -386,7 +386,7 @@ Page {
                 if (popupImage.status==Image.Ready) {
                     // imagePopup.width=popupImage.paintedWidth
                     imagePopup.height=popupImage.paintedHeight
-                    imagePopup.y=searchPage.height/2 // -imagePopup.height/2
+                    imagePopup.y=searchPage.height/2-imagePopup.height/2
                 }
             }
 
