@@ -32,6 +32,7 @@ Page {
     property bool validWarehouse: locationID>0
     property bool validPurpose: (categoryHasPurpose && purposeSelection.currentIndex>0) || !categoryHasPurpose
     property bool validPrice: (categoryHasPrice && productPrice.price>0.0 && productPrice.acceptableInput) || !categoryHasPrice
+    property bool validValue: (categoryHasValue && productValue.price>0.0 && productValue.acceptableInput) || !categoryHasValue
     property bool validAttributes: validPrice && validCategory
     property bool validCategory: categoryID!='' // && ((subCategorySelection.model && categorySubID!='') || !subCategorySelection.model)
 
@@ -617,7 +618,7 @@ Page {
                     onIsActiveChanged: {
                         if (isActive && canAddImages && imageModel.count===0 && isFirstVisit) {
                             isFirstVisit=false;
-                            rootStack.push(pictureCamera)
+                            startCamera();
                         }
                     }
 
@@ -633,15 +634,26 @@ Page {
                                 font.pointSize: 18
                                 wrapMode: Text.Wrap
                                 horizontalAlignment: Text.AlignHCenter
+                            }                            
 
+                            RoundButton {                                
+                                text: qsTr("Take picture")
+                                icon.source: "qrc:/images/icon_camera.png"
+                                enabled: canAddImages && imageModel.count==0
+                                anchors.horizontalCenter: parent.horizontalCenter
+                                onClicked: {
+                                    startCamera();
+                                }
                             }
 
-                            Button {
-                                enabled: canAddImages
-                                visible: imageModel.count==0
-                                text: qsTr("Add images")
+                            RoundButton {
+                                text: qsTr("Pick from gallery")
+                                icon.source: "qrc:/images/icon_gallery.png"
+                                enabled: canAddImages && hasFileView
+                                visible: canAddImages && hasFileView && imageModel.count==0
+                                anchors.horizontalCenter: parent.horizontalCenter
                                 onClicked: {
-                                    rootStack.push(pictureCamera)
+                                    igs.startSelector();
                                 }
                             }
                         }
@@ -895,7 +907,7 @@ Page {
         anchors.bottomMargin: 32
         height: 32
         property bool maybeVisible: images.isActive && canAddImages
-        visible: maybeVisible
+        visible: maybeVisible && imageModel.count>1
         opacity: maybeVisible ? 1 : 0;
         RoundButton {
             icon.source: "qrc:/images/icon_gallery.png"
@@ -906,9 +918,7 @@ Page {
                 igs.startSelector();
             }
         }
-        RoundButton {
-            id: buttonUp
-            // text: qsTr("Camera")
+        RoundButton {            
             icon.source: "qrc:/images/icon_camera.png"
             enabled: canAddImages
             onClicked: {
@@ -1008,7 +1018,7 @@ Page {
             p.setPrice(0.0);
         }
 
-        if (categoryHasValue) {
+        if (categoryHasValue && validValue) {
             p.setAttribute("value", productValue.price)
         }
 
