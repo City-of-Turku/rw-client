@@ -30,7 +30,7 @@ public:
         HasAuthor=1 << 7,
         HasPrice=1 << 8,
         HasPurpose=1 << 9,
-        PlaceHolder006=1 << 10,
+        HasValue=1 << 10,
         InvalidCategory=1 << 11
     };
     Q_DECLARE_FLAGS(FeatureFlags, FeatureFlag)

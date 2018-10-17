@@ -471,6 +471,8 @@ void RvAPI::parseCategoryMap(const QString key, CategoryModel &model, QVariantMa
         flags|=CategoryModel::HasEAN;
     if (tmp.value("hasPrice").toBool())
         flags|=CategoryModel::HasPrice;
+    if (tmp.value("hasValue").toBool())
+        flags|=CategoryModel::HasValue;
 
     model.addCategory(key, tmp.value("name").toString(), flags);
 

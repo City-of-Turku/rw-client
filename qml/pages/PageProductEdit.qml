@@ -38,6 +38,7 @@ Page {
     // What attributes does the current category need ?
     // Base properties: basic details
     property bool categoryHasPrice: categoryFlags & CategoryModel.HasPrice
+    property bool categoryHasValue: categoryFlags & CategoryModel.HasValue
     property bool categoryHasStock: categoryFlags & CategoryModel.HasStock
 
     // Base properties: Our special details
@@ -765,61 +766,13 @@ Page {
                     RowLayout {
                         visible: categoryHasPrice
                         Layout.alignment: Layout.Center
-                        TextField {
-                            id: productPrice
-                            text: hasProduct ? product.price : ''
-                            inputMethodHints: Qt.ImhPreferNumbers | Qt.ImhFormattedNumbersOnly
-                            placeholderText: qsTr("Price")
-                            background: Rectangle {
-                                color: "transparent"
-                                border.color: parent.acceptableInput ? "green" : "red"
-                            }
-                            leftPadding: 4
-                            rightPadding: 4
-                            verticalAlignment: TextInput.AlignVCenter
+
+                        PriceField {
                             Layout.minimumWidth: 120
                             Layout.maximumWidth: 200
 
-                            property double price;
-
-                            signal invalidPrice();
-
-                            validator: DoubleValidator {
-                                bottom: 0.0
-                                top: 99999.0
-                                decimals: 2
-                                notation: DoubleValidator.StandardNotation
-                            }
-                            onAccepted: {
-                                parsePrice();
-                            }
-                            onEditingFinished: {
-
-                            }
-                            onFocusChanged: {
-                                console.debug("Focus: "+focus)
-                                if (!focus)
-                                    parsePrice();
-                            }
-                            onInvalidPrice: {
-                                messagePopup.show(qsTr("Product price"), qsTr("Invalid price entry"));
-                                price=0.0;
-                            }
-
-                            function parsePrice() {
-                                var price;
-                                try {
-                                    price=Number.fromLocaleString(productPrice.text);
-                                    if (isNaN(price)) {
-                                        invalidPrice();
-                                    }
-                                } catch(err) {
-                                    price=0.0;
-                                    invalidPrice();
-                                }
-                                console.debug("Price is: "+price)
-                                productPrice.price=price;
-                            }
+                            id: productPrice
+                            text: hasProduct ? product.price : ''
                         }
                         ComboBox {
                             id: productTax
@@ -827,6 +780,18 @@ Page {
                             displayText: qsTr("Tax: ")+currentText
                             model: api.getTaxModel();
                             textRole: "display"
+                        }
+                    }
+
+                    RowLayout {
+                        visible: categoryHasValue
+                        Layout.alignment: Layout.Center
+
+                        PriceField {
+                            Layout.fillWidth: true
+                            id: productValue
+                            text: hasProduct ? product.value : ''
+                            placeholderText: qsTr("Product value")
                         }
                     }
 
@@ -1034,11 +999,17 @@ Page {
             p.setAttribute("weight", productSize.itemWeight)
         }
 
-        if (categoryHasPrice) {
-            p.setPrice(parseFloat(productPrice.text));
+        if (categoryHasPrice && validPrice) {
+            p.setPrice(productPrice.price)
             if (hasTax) {
                 p.setTax(productTax.currentIndex)
             }
+        } else {
+            p.setPrice(0.0);
+        }
+
+        if (categoryHasValue) {
+            p.setAttribute("value", productValue.price)
         }
 
         if (categoryHasMakeAndModel) {
@@ -1056,17 +1027,7 @@ Page {
             p.setStock(productStock.value);
         } else {
             p.setStock(1);
-        }
-
-        if (categoryHasPrice && validPrice) {
-            p.setPrice(productPrice.price)
-        } else {
-            p.setPrice(0.0);
-        }
-
-        // XXX: Hmm...
-        if (categoryHasPrice && hasTax)
-            p.setTax(productTax.currentIndex)
+        }     
 
         return p;
     }

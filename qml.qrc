@@ -42,5 +42,6 @@
         <file>qml/pages/PageMessages.qml</file>
         <file>qml/components/RoundIconButton.qml</file>
         <file>qml/components/ColorSelector.qml</file>
+        <file>qml/components/PriceField.qml</file>
     </qresource>
 </RCC>
