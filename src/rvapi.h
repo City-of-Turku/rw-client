@@ -370,6 +370,7 @@ private:
     bool parseFileDownload(const QByteArray &data);
     void parseCategoryMap(const QString key, CategoryModel &model, QVariantMap &tmp);
     bool parseOrderCreated(QVariantMap &data);
+    bool parseOrders(QVariantMap &data);
     void addCommonProductParameters(QHttpMultiPart *mp, ProductItem *product);
 };
 

@@ -497,6 +497,24 @@ bool RvAPI::parseOrderCreated(QVariantMap &data)
     return true;
 }
 
+bool RvAPI::parseOrders(QVariantMap &data)
+{
+    QVariantMap orders=data.value("orders").toMap();
+
+    QMapIterator<QString, QVariant> i(orders);
+    while (i.hasNext()) {
+        i.next();
+
+        QString oid=i.key();
+        QVariantMap o=i.value().toMap();
+
+        qDebug() << "OrderID: " << oid;
+        qDebug() << "Order Data:\n---\n" << o << "\n\n";
+    }
+
+    return true;
+}
+
 bool RvAPI::parseCategoryData(QVariantMap &data)
 {
     m_categorymodel.clear();
@@ -734,6 +752,8 @@ bool RvAPI::parseOKResponse(const QString op, const QByteArray &response, const 
     case RvAPI::Orders:
         if (method==QNetworkAccessManager::PostOperation)
             return parseOrderCreated(data);
+        else if (method==QNetworkAccessManager::GetOperation)
+            return parseOrders(data);
         else
             return false;
     case RvAPI::DownloadAPK:
