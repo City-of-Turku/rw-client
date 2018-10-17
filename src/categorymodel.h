@@ -6,10 +6,11 @@
 #include <QPair>
 #include <QAbstractListModel>
 
-class CategoryModel : public QAbstractListModel
+#include "baselistmodel.h"
+
+class CategoryModel : public BaseListModel
 {
-    Q_OBJECT
-    Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
+    Q_OBJECT    
     Q_FLAGS(FeatureFlags)
     Q_ENUMS(Roles)
 public:

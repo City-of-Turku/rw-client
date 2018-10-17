@@ -2,13 +2,13 @@
 #include <QDebug>
 
 CategoryModel::CategoryModel(QObject *parent) :
-    QAbstractListModel(parent)
+    BaseListModel(parent)
 {
 
 }
 
 CategoryModel::CategoryModel(QString cparent, QObject *parent) :
-    QAbstractListModel(parent),
+    BaseListModel(parent),
     m_cparent(cparent)
 {
 
@@ -22,8 +22,7 @@ int CategoryModel::rowCount(const QModelIndex &parent) const
 
 QVariant CategoryModel::data(const QModelIndex &index, int role) const
 {    
-    if (!index.isValid()) {
-        qWarning("Invalid index");
+    if (!index.isValid()) {        
         return QVariant();
     }
 
@@ -35,13 +34,10 @@ QVariant CategoryModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case CategoryModel::CategoryID:
         return QVariant(key);
-        break;
     case CategoryModel::TitleRole:
-        return QVariant(tmp.first);
-        break;
+        return QVariant(tmp.first);        
     case CategoryModel::FlagsRole:
-        return QVariant(tmp.second);
-        break;
+        return QVariant(tmp.second);        
     }
 
     return QVariant();
@@ -62,7 +58,7 @@ void CategoryModel::addCategory(const QString id, const QString category, Featur
     QPair<QString, FeatureFlags> tmp;
     tmp.first=category;
     tmp.second=flags;
-    m_data.insert(id, tmp);
+    m_data.insert(id, tmp);    
     //endInsertRows();
     endResetModel();
 
@@ -85,9 +81,7 @@ QVariantMap CategoryModel::get(int index) const
     if (m_data.size()==0)
         return map;
 
-    const QList<QString> keys=m_data.keys();
-
-    qDebug() << keys.size() << index;
+    const QList<QString> keys=m_data.keys();    
 
     if (index>keys.size())
         return map;

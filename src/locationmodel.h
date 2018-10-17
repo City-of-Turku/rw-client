@@ -6,25 +6,25 @@
 #include <QGeoCoordinate>
 
 #include "locationitem.h"
+#include "baselistmodel.h"
 
-class LocationListModel : public QAbstractListModel
+class LocationListModel : public BaseListModel
 {
-    Q_OBJECT
-    Q_PROPERTY(int count READ rowCount NOTIFY countChanged)
+    Q_OBJECT    
 public:
     explicit LocationListModel(QObject *parent=nullptr);
     virtual ~LocationListModel();
 
-    Q_INVOKABLE void setPosition(double latitude, double longitude);
-
     Q_INVOKABLE void clear();
+
+    Q_INVOKABLE void setPosition(double latitude, double longitude);    
     Q_INVOKABLE LocationItem *get(int index);
     Q_INVOKABLE LocationItem *getId(uint id);
     Q_INVOKABLE bool search(QString string);
+    Q_INVOKABLE int findLocationByID(uint id);
+
     bool prepend(LocationItem *item);
     bool append(LocationItem *item);
-
-    Q_INVOKABLE int findLocationByID(uint id);
 
     enum Roles {NameRole = Qt::UserRole, StreetRole, ZipCodeRole, CityRole, GeoValidRole, LatitudeRole, LongitudeRole, DistanceRole};
 

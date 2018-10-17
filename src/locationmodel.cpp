@@ -3,7 +3,7 @@
 #include <QDebug>
 
 LocationListModel::LocationListModel(QObject *parent) :
-    QAbstractListModel(parent)
+    BaseListModel(parent)
 {
 
 }
@@ -63,6 +63,7 @@ int LocationListModel::findLocationByID(uint id)
 
 int LocationListModel::rowCount(const QModelIndex &parent) const
 {
+    Q_UNUSED(parent)
     if (m_filter.isEmpty())
         return m_data.size();
     else
@@ -91,33 +92,25 @@ QVariant LocationListModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case LocationListModel::NameRole:
-        return QVariant(item->name);
-        break;
+        return QVariant(item->name);        
     case LocationListModel::StreetRole:
-        return QVariant(item->street);
-        break;
+        return QVariant(item->street);        
     case LocationListModel::ZipCodeRole:
-        return QVariant(item->zipcode);
-        break;
+        return QVariant(item->zipcode);        
     case LocationListModel::CityRole:
-        return QVariant(item->city);
-        break;
+        return QVariant(item->city);        
     case LocationListModel::GeoValidRole:
-        return QVariant(item->geo.isValid());
-        break;
+        return QVariant(item->geo.isValid());        
     case LocationListModel::LatitudeRole:
-        return QVariant(item->geo.latitude());
-        break;
+        return QVariant(item->geo.latitude());        
     case LocationListModel::LongitudeRole:
-        return QVariant(item->geo.longitude());
-        break;
+        return QVariant(item->geo.longitude());        
     case LocationListModel::DistanceRole:
         if (m_geo.isValid() && item->geo.isValid()) {
             qreal dist=m_geo.distanceTo(item->geo)/1000;
             return QVariant(dist);
         }
-        return QVariant(false);
-        break;
+        return QVariant(false);        
     }
 
     return QVariant();
