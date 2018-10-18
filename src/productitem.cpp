@@ -33,8 +33,6 @@ ProductItem* ProductItem::fromVariantMap(QVariantMap &data, QObject *parent)
 {
     ProductItem *p=new ProductItem(parent);
 
-    qDebug() << data;
-
     p->setBarcode(data["barcode"].toString());
     p->setTitle(data["title"].toString());
     p->setCategory(data["category"].toString());
@@ -60,6 +58,9 @@ ProductItem* ProductItem::fromVariantMap(QVariantMap &data, QObject *parent)
         p->m_tax=data["tax"].toString().toUInt();
     else
         p->m_tax=0;
+
+    if (data.contains("value"))
+        p->setAttribute("value", data["value"].toUInt());
 
     if (data.contains("images")) {
         QVariantList tmp=data["images"].toList();
