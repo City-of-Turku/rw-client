@@ -31,7 +31,7 @@ class ProductItem : public QObject
 public:
     explicit ProductItem(QObject *parent = nullptr);
     explicit ProductItem(const QString &barcode,const QString &title,const QString &description, QObject *parent = nullptr);
-    virtual ~ProductItem();
+    ~ProductItem();
 
     static ProductItem* fromVariantMap(QVariantMap &data, QObject *parent = nullptr);
 
