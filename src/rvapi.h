@@ -28,6 +28,7 @@
 #include "itemlistmodel.h"
 #include "categorymodel.h"
 #include "locationmodel.h"
+#include "orderitem.h"
 #include "ordersmodel.h"
 
 class RvAPI : public QObject
@@ -323,6 +324,8 @@ private:
     int m_loadedPage;
 
     ProductMap m_product_store;
+
+    QObjectList m_orders;
 
     ItemListModel m_itemsmodel;
     ItemListModel m_cartmodel;

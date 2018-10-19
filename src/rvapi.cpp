@@ -501,15 +501,16 @@ bool RvAPI::parseOrders(QVariantMap &data)
 {
     QVariantMap orders=data.value("orders").toMap();
 
+    m_orders.clear();
+
     QMapIterator<QString, QVariant> i(orders);
     while (i.hasNext()) {
         i.next();
 
-        QString oid=i.key();
-        QVariantMap o=i.value().toMap();
+        auto om=i.value().toMap();
 
-        qDebug() << "OrderID: " << oid;
-        qDebug() << "Order Data:\n---\n" << o << "\n\n";
+        OrderItem *o=OrderItem::fromVariantMap(om, this);
+        m_orders.append(o);
     }
 
     return true;
