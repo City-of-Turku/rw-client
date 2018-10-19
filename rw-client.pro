@@ -18,7 +18,9 @@ HEADERS += \
     src/categorymodel.h src/settings.h \
     3rdparty/qexifimageheader/qexifimageheader.h \
     src/apputility.h \
-    src/ordersmodel.h
+    src/ordersmodel.h \
+    src/baselistmodel.h \
+    src/orderitem.h
 
 SOURCES += src/main.cpp \
     src/rvapi.cpp \
@@ -28,7 +30,9 @@ SOURCES += src/main.cpp \
     src/categorymodel.cpp src/settings.cpp \
     3rdparty/qexifimageheader/qexifimageheader.cpp \
     src/apputility.cpp \
-    src/ordersmodel.cpp
+    src/ordersmodel.cpp \
+    src/baselistmodel.cpp \
+    src/orderitem.cpp
 
 lupdate_only {
     SOURCES +=  qml/*.qml qml/components/*.qml qml/pages/*.qml qml/delegates/*.qml qml/models/*.qml
