@@ -290,8 +290,7 @@ Page {
 
                     function popupProductImageAtIndex(index) {
                         var p=searchPage.model.get(index);
-                        imagePopup.open();
-                        imagePopup.source=p.thumbnail;
+                        imagePopup.showPopupImage(p.thumbnail)
                     }
 
                     function popupProductImageClose() {
@@ -360,6 +359,11 @@ Page {
 
         property alias source: popupImage.source
 
+        function showPopupImage(s) {
+            popupImage.source=s;
+            imagePopup.open();
+        }
+
         enter: Transition {
             NumberAnimation { property: "opacity"; duration: 200; easing.type: Easing.InQuad; from: 0.0; to: 1.0 }
         }
@@ -367,29 +371,29 @@ Page {
             NumberAnimation { property: "opacity"; duration: 200; easing.type: Easing.OutQuad; from: 1.0; to: 0.0 }
         }
 
-        //Behavior on x { NumberAnimation {} }
-        //Behavior on y { NumberAnimation {} }
-        Behavior on width { NumberAnimation {} }
-        Behavior on height { NumberAnimation {} }
+        x: Math.round((parent.width - width) / 2)
+        y: Math.round((parent.height - height) / 2)
 
         Image {
-            id: popupImage
-            fillMode: Image.PreserveAspectFit
+            id: popupImage            
             anchors.fill: parent
             asynchronous: true
-            cache: true
-            smooth: true
+            cache: false
+            smooth: true            
             sourceSize.width: searchPage.width-64
             sourceSize.height: searchPage.height-64
 
+            property double ratio: width/height
+
             onStatusChanged: {
                 if (popupImage.status==Image.Ready) {
-                    // imagePopup.width=popupImage.paintedWidth
-                    imagePopup.height=popupImage.paintedHeight
                     imagePopup.y=searchPage.height/2-imagePopup.height/2
+//                    imagePopup.open();
+                } else if (popupImage.status==Image.Error) {
+                    console.debug("Failed to load")
+                    imagePopup.close();
                 }
             }
-
             MouseArea {
                 anchors.fill: parent
                 onReleased: imagePopup.close()
@@ -404,11 +408,11 @@ Page {
 
         onOpened: {
             console.debug("popped")
+            forceActiveFocus();
         }
 
-        onClosed: {
-            imagePopup.height=undefined;
-
+        onClosed: {            
+            popupImage.source='';
         }
     }
 
