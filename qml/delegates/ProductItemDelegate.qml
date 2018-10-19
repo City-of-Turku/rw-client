@@ -12,6 +12,7 @@ Rectangle {
     signal clicked(variant index)
     signal clickedImage(variant index)
     signal pressandhold(variant index)
+    signal pressandholdDetails(variant index)
     signal released(variant index)
 
     property int imageSize: width-8 // 4px margins
@@ -61,15 +62,19 @@ Rectangle {
                 size: i.width/4
                 purpose: model.purpose;
             }
-
             ProgressBar {
                 width: i.width/2
                 anchors.centerIn: i
                 visible: i.status==Image.Loading
                 value: i.progress
             }
-
+            Rectangle {
+                anchors.fill: parent
+                color: "#000000"
+                opacity: ima.pressed ? 0.4 : 0
+            }
             MouseArea {
+                id: ima
                 anchors.fill: imageItem
                 onClicked: {
                     console.debug("ImageCL"+index);
@@ -113,7 +118,7 @@ Rectangle {
                 //maximumLineCount: 2
                 elide: Text.ElideRight
             }
-            Text {
+            Text {                
                 text: price.toFixed(2)+ " €"
                 visible: price>0
                 font.pixelSize: 12
@@ -141,9 +146,10 @@ Rectangle {
         }
 
         MouseArea {
+            id: ma
             anchors.fill: ic
             onClicked: wrapper.clicked(index)
-            onPressAndHold: wrapper.pressandhold(index)
+            onPressAndHold: wrapper.pressandholdDetails(index)
             onReleased: wrapper.released(index)
         }
     }
