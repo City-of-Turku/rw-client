@@ -208,6 +208,9 @@ Page {
         GridView {
             id: searchResults
             enabled: !searchActive
+            // Note: We open the popup from a press'n'hold, if don't disable then the list will continue scrolling in the bg
+            interactive: !imagePopup.opened
+            //interactive: true
             clip: true
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -217,8 +220,6 @@ Page {
             currentIndex: -1;
             cellWidth: model.count>1 ? cellSize : searchResults.width
             cellHeight: model.count>1 ? cellSize : searchResults.width
-
-            interactive: true
 
             // XXX: Does not trigger atYEnd so can't use this
             //highlightRangeMode: GridView.StrictlyEnforceRange
