@@ -39,7 +39,7 @@ Popup {
     function show(title, message, code) {
         titleText.text = title;
         msgText.text = message;
-        msgCode.text = code;
+        msgCode.text = code!=undefined ? code : '';
         messagePopup.open();
     }
 }
