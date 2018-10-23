@@ -104,12 +104,12 @@ Page {
                 addMoreProducts.open();
                 return false;
             }
-            messagePopup.show(qsTr("Product saved"), qsTr("Product saved succesfully"));
+            messagePopup.show(qsTr("Product saved"), qsTr("Product saved succesfully"), 200); // XXX
             rootStack.pop();
             return true;
         }
         console.debug("*** Saved failed")
-        messagePopup.show(qsTr("Save failed"), qsTr("Saving item failed")+"\n"+"(Error '"+msg+"')");
+        messagePopup.show(qsTr("Saving failed"),msg, 500); //XXX
         savingPopup.close();
         return false;
     }
@@ -907,7 +907,7 @@ Page {
         anchors.bottomMargin: 32
         height: 32
         property bool maybeVisible: images.isActive && canAddImages
-        visible: maybeVisible && imageModel.count>1
+        visible: maybeVisible && imageModel.count>0
         opacity: maybeVisible ? 1 : 0;
         RoundButton {
             icon.source: "qrc:/images/icon_gallery.png"
