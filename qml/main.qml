@@ -402,25 +402,32 @@ ApplicationWindow {
         PageSearch {
             id: psc
             onSearchRequested: {
-                var r=root.api.products(1, 0, category, str);
+                // Set filtering properties
+                root.api.searchCategory=category;
+                root.api.searchString=str;
+                root.api.searchSort=sort;
+
+                var r=root.api.products(1, 0);
                 if (r)
                     setSearchActive();
             }
 
             onSearchBarcodeRequested: {
+                api.clearProductFilters();
                 var r=api.searchBarcode(barcode);
                 if (r)
                     setSearchActive(r);
             }
 
             onRequestLoadMore: {
-                if (!root.api.products(0, 0, category, str))
+                if (!root.api.products(0, 0))
                     console.debug("Failed to load more")
                 else
                     setSearchActive(false);
             }
 
             Component.onCompleted: {
+                api.clearProductFilters();
                 root.api.products(1);
             }
 

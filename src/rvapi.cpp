@@ -224,6 +224,17 @@ void RvAPI::setProxy(const QString server, quint16 port, const QString user, con
     }
 }
 
+void RvAPI::clearProductFilters()
+{
+    m_searchsort.clear();
+    m_searchstring.clear();
+    m_searchcategory.clear();
+
+    emit searchCategoryChanged();
+    emit searchStringChanged();
+    emit searchSortChanged();
+}
+
 ProductItem *RvAPI::getProduct(const QString &barcode) const
 {
     if (!m_product_store.contains(barcode))
@@ -953,7 +964,7 @@ void RvAPI::setAppVersion(uint ver)
     m_appversion=ver;
 }
 
-bool RvAPI::products(uint page, uint amount, const QString category, const QString search)
+bool RvAPI::products(uint page, uint amount)
 {
     if (!m_authenticated)
         return false;
@@ -988,13 +999,16 @@ bool RvAPI::products(uint page, uint amount, const QString category, const QStri
     query.addQueryItem("page", tmp.setNum(page));
     query.addQueryItem("amount", tmp.setNum(amount));
 
-    if (!category.isEmpty()) {
-        query.addQueryItem("category", category);
+    if (!m_searchcategory.isEmpty()) {
+        query.addQueryItem("category", m_searchcategory);
     }
-    if (!search.isEmpty()) {
-        query.addQueryItem("q", search);
+    if (!m_searchstring.isEmpty()) {
+        query.addQueryItem("q", m_searchstring);
         // XXX: Remove when API fixed
-        query.addQueryItem("string", search);
+        query.addQueryItem("string", m_searchstring);
+    }
+    if (!m_searchsort.isEmpty()) {
+        query.addQueryItem("s", m_searchsort);
     }
 
     url.setQuery(query);

@@ -28,16 +28,21 @@ Page {
 
     property ItemModel cartModel;
 
-    signal searchRequested(string str, string category);
+    signal searchRequested(string str, string category, string sort);
     signal searchBarcodeRequested(string barcode);
     signal searchCancel();
 
-    signal requestLoadMore(string str, string category);
+    signal requestLoadMore();
 
     property bool searchVisible: true
 
     property string categorySearchID: '';
     property string searchString: ''
+    property string sortOrder: 'date_desc'
+
+    onSearchStringChanged: console.debug("SearchString: "+searchString)
+    onCategorySearchIDChanged: console.debug("SearchCategory: "+categorySearchID)
+    onSortOrderChanged: console.debug("SearchSort: "+sortOrder)
 
     property double pageRatio: width/height
     //onPageRatioChanged: console.debug(pageRatio)
@@ -107,10 +112,7 @@ Page {
         }
     }
 
-    Component.onCompleted: {
-        console.debug("*** Completed: "+objectName)
-        console.debug(searchString)
-        console.debug(searchString.length)
+    Component.onCompleted: {        
         model=root.api.getItemModel();
         cartModel=root.api.getCartModel();
         searchResults.currentIndex=-1;
@@ -119,7 +121,7 @@ Page {
             if (api.validateBarcode(searchString))
                 searchBarcodeRequested(searchString);
             else
-                searchRequested(searchString, -1)
+                searchRequested(searchString, '', sortOrder)
         }
         searchPage.forceActiveFocus();
     }
@@ -127,7 +129,7 @@ Page {
     Component.onDestruction: {
         console.debug("*** Destroy: "+objectName)
         //model.clear();
-    }
+    }      
 
     footer: ToolBar {
         RowLayout {
@@ -313,7 +315,7 @@ Page {
 
                 if ((rt || atYEnd) && api.hasMore && !api.busy) {
                     console.debug("*** Near end, requesting more")
-                    requestLoadMore(searchString, categorySearchID);
+                    requestLoadMore();
                     //searchResults.positionViewAtEnd();
                 }
             }
@@ -440,7 +442,7 @@ Page {
                     focus: true
                     enabled: !searchActive
 
-                    property bool validInput: length>0;
+                    property bool validInput: length>0 && text.trim()!='';
 
                     onAccepted: {
                         searchDrawerContainer.activateSearch();
@@ -456,29 +458,33 @@ Page {
                 }
                 RoundButton {
                     text: "Clear"
+                    enabled: searchText.length>0
                     onClicked: {
                         searchDrawerContainer.resetSearch();
                     }
                 }
             }
 
+            property bool validSearchCriterias: categorySearchID!='' || searchText.validInput
+
+            onValidSearchCriteriasChanged: console.debug("CanSearch: "+validSearchCriterias)
+
             function activateSearch() {
-                if (!searchText.validInput)
+                if (!validSearchCriterias) {
+                    console.debug("Nothing to search with...")
                     return false;
-
-                searchString=searchText.text.trim()
-
-                if (searchString.length==0)
-                    return false;
+                }
 
                 if (api.validateBarcode(searchString))
                     searchBarcodeRequested(searchString);
                 else
-                    searchRequested(searchString, categorySearchID);
+                    searchRequested(searchString, categorySearchID, sortOrder);
+                return true;
             }
 
             function resetSearch() {
                 searchText.text=''
+                sortOrder='date_desc';
                 categorySelection.currentIndex=0;
             }
 
@@ -487,20 +493,11 @@ Page {
                 currentIndex: -1
                 Layout.fillWidth: true
                 textRole: "category"
-
-                property string currentID: ''
-
                 onActivated: {
                     var cdata=model.get(index);
                     categorySearchID=cdata.cid;
-
-                    if (currentID==categorySearchID)
-                        return;
-
-                    currentID=categorySearchID                    
                 }
-                onCurrentIndexChanged: console.debug("Category currentIndex: "+currentIndex)
-                onModelChanged: console.debug("Categories available: "+model.count)
+                // XXX visible: model.count>0 ? true : false;
                 Component.onCompleted: {
                     model=root.api.getCategoryModel();
                     currentIndex=0;
@@ -522,19 +519,45 @@ Page {
                     id: sortButtonLatest
                     checked: true
                     text: qsTr("Latest first")
-                    ButtonGroup.group: sortButtonGroup                    
+                    ButtonGroup.group: sortButtonGroup
+                    onClicked: sortOrder='date_desc';
                 }
                 RadioButton {
                     id: sortButtonOldest
                     text: qsTr("Oldest first")
                     ButtonGroup.group: sortButtonGroup
+                    onClicked: sortOrder='date_asc';
+                }
+                RadioButton {
+                    id: sortButtonTitle
+                    text: qsTr("Product title A-Z")
+                    ButtonGroup.group: sortButtonGroup
+                    onClicked: sortOrder='title_desc';
+                }
+                RadioButton {
+                    id: sortButtonPrice
+                    visible: false
+                    text: qsTr("Product price")
+                    ButtonGroup.group: sortButtonGroup
+                    onClicked: sortOrder='price_desc';
                 }
             }
 
             RowLayout {
+                RoundButton {
+                    text: qsTr("Search")
+                    icon.source: "qrc:/images/icon_search.png"
+                    enabled: searchDrawerContainer.validSearchCriterias
+                    Layout.alignment: Qt.AlignLeft
+                    onClicked: {
+                        if (searchDrawerContainer.activateSearch())
+                            searchDrawer.close()
+                    }
+                }
                 RoundButton {                    
                     text: qsTr("Scan")
                     icon.source: "qrc:/images/icon_camera.png"
+                    Layout.alignment: Qt.AlignCenter
                     onClicked: {
                         searchDrawer.close()
                         rootStack.push(cameraScanner);
@@ -542,22 +565,14 @@ Page {
                 }
                 RoundButton {
                     // XXX: Icon!
-                    text: qsTr("Clear")
+                    text: qsTr("Reset")
                     onClicked: {
                         searchDrawerContainer.resetSearch();
-                        searchRequested('', '');
+                        searchRequested('', '', sortOrder);
                         searchDrawer.close()
                     }
                 }
-                RoundButton {
-                    text: qsTr("Search")
-                    icon.source: "qrc:/images/icon_search.png"
-                    Layout.alignment: Qt.AlignRight
-                    onClicked: {
-                        searchDrawerContainer.activateSearch();
-                        //searchDrawer.close()
-                    }
-                }
+
                 RoundButton {
                     icon.source: "qrc:/images/icon_cancel.png"
                     Layout.alignment: Qt.AlignRight

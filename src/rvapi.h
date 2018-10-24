@@ -53,6 +53,10 @@ class RvAPI : public QObject
     Q_PROPERTY(uint uploadProgress READ uploadProgress NOTIFY uploadProgressChanged)
     Q_PROPERTY(uint downloadProgress READ downloadProgress NOTIFY downloadProgressChanged)
 
+    Q_PROPERTY(QString searchCategory MEMBER m_searchcategory NOTIFY searchCategoryChanged)
+    Q_PROPERTY(QString searchString MEMBER m_searchstring NOTIFY searchStringChanged)
+    Q_PROPERTY(QString searchSort MEMBER m_searchsort NOTIFY searchSortChanged)
+
 public:
     explicit RvAPI(QObject *parent = nullptr);
     virtual ~RvAPI();
@@ -108,7 +112,7 @@ public:
 
     Q_INVOKABLE bool searchBarcode(const QString barcode, bool checkonly=false);    
 
-    Q_INVOKABLE bool products(uint page=0, uint amount=50, const QString category="", const QString search="");
+    Q_INVOKABLE bool products(uint page=0, uint amount=50);
     Q_INVOKABLE bool searchCancel();
 
     Q_INVOKABLE bool add(ProductItem *product);
@@ -146,6 +150,8 @@ public:
     Q_INVOKABLE void clearProductStore();
 
     Q_INVOKABLE void setProxy(const QString server, quint16 port, const QString user, const QString password);
+
+    Q_INVOKABLE void clearProductFilters();
 
 signals:
 
@@ -195,6 +201,10 @@ signals:
     void authenticatedChanged(bool authenticated);
 
     void hasMoreChanged(bool hasMore);
+
+    void searchCategoryChanged();
+    void searchStringChanged();
+    void searchSortChanged();
 
 public slots:
 
@@ -322,6 +332,11 @@ private:
     bool m_hasMore;
     int m_loadedAmount;
     int m_loadedPage;
+
+    // Filtering settings
+    QString m_searchcategory;
+    QString m_searchstring;
+    QString m_searchsort;
 
     ProductMap m_product_store;
 
