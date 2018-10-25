@@ -409,7 +409,7 @@ ApplicationWindow {
 
                 var r=root.api.products(1, 0);
                 if (r)
-                    setSearchActive();
+                    setSearchActive(r);
             }
 
             onSearchBarcodeRequested: {
