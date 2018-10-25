@@ -28,7 +28,7 @@ Page {
 
     property ItemModel cartModel;
 
-    signal searchRequested(string str, string category, string sort);
+    signal searchRequested(string str, string category, int sort);
     signal searchBarcodeRequested(string barcode);
     signal searchCancel();
 
@@ -38,7 +38,7 @@ Page {
 
     property string categorySearchID: '';
     property string searchString: ''
-    property string sortOrder: 'date_desc'
+    property int sortOrder: ServerApi.SortNotSet
 
     onSearchStringChanged: console.debug("SearchString: "+searchString)
     onCategorySearchIDChanged: console.debug("SearchCategory: "+categorySearchID)
@@ -515,31 +515,38 @@ Page {
                     text: qsTr("Sort order")
                 }
 
-                RadioButton {
-                    id: sortButtonLatest
-                    checked: true
-                    text: qsTr("Latest first")
-                    ButtonGroup.group: sortButtonGroup
-                    onClicked: sortOrder='date_desc';
-                }
-                RadioButton {
-                    id: sortButtonOldest
-                    text: qsTr("Oldest first")
-                    ButtonGroup.group: sortButtonGroup
-                    onClicked: sortOrder='date_asc';
-                }
-                RadioButton {
-                    id: sortButtonTitle
-                    text: qsTr("Product title A-Z")
-                    ButtonGroup.group: sortButtonGroup
-                    onClicked: sortOrder='title_desc';
-                }
-                RadioButton {
-                    id: sortButtonPrice
-                    visible: false
-                    text: qsTr("Product price")
-                    ButtonGroup.group: sortButtonGroup
-                    onClicked: sortOrder='price_desc';
+                RowLayout {
+                    Layout.fillWidth: true
+                    ColumnLayout {
+                        RadioButton {
+                            id: sortButtonLatest
+                            checked: true
+                            text: qsTr("Latest first")
+                            ButtonGroup.group: sortButtonGroup
+                            onClicked: sortOrder=ServerApi.SortDateDesc
+                        }
+                        RadioButton {
+                            id: sortButtonOldest
+                            text: qsTr("Oldest first")
+                            ButtonGroup.group: sortButtonGroup
+                            onClicked: sortOrder=ServerApi.SortDateAsc
+                        }
+                    }
+                    ColumnLayout {
+                        RadioButton {
+                            id: sortButtonTitle
+                            text: qsTr("Product title A-Z")
+                            ButtonGroup.group: sortButtonGroup
+                            onClicked: sortOrder=ServerApi.SortTitleDesc
+                        }
+                        RadioButton {
+                            id: sortButtonPrice
+                            visible: false
+                            text: qsTr("Product price")
+                            ButtonGroup.group: sortButtonGroup
+                            onClicked: sortOrder=ServerApi.SortPriceDesc
+                        }
+                    }
                 }
             }
 
