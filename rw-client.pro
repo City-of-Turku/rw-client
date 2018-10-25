@@ -73,9 +73,12 @@ defineReplace(prependAll) {
  return($$result)
 }
 
-TRANSLATIONS = $$prependAll(LANGUAGES, $$PWD/translations/rvtku_, .ts)
+TRANSLATIONS = \
+    translations/rw-client_fi.ts \
+    translations/rw-client_sv.ts
 
-TRANSLATIONS_FILES =
+#TRANSLATIONS = $$prependAll(LANGUAGES, $$PWD/translations/rw-client_, .ts)
+#TRANSLATIONS_FILES =
  
 qtPrepareTool(LRELEASE, lrelease)
 for(tsfile, TRANSLATIONS) {
@@ -90,18 +93,18 @@ for(tsfile, TRANSLATIONS) {
  TRANSLATIONS_FILES''= $$qmfile
 }
 
-wd = $$replace(PWD, /, $$QMAKE_DIR_SEP)
+#wd = $$replace(PWD, /, $$QMAKE_DIR_SEP)
  
-qtPrepareTool(LUPDATE, lupdate)
-LUPDATE ''= -locations relative -no-ui-lines
-TSFILES = $$files($$PWD/translations/rvtku_''''.ts) $$PWD/translations/rvtku_untranslated.ts
-for(file, TSFILES) {
- lang = $$replace(file, .''''_([^/]*).ts, 1)
- v = ts-$${lang}.commands
- $$v = cd $$wd && $$LUPDATE $$SOURCES $$APP_FILES -ts $$file
- QMAKE_EXTRA_TARGETS''= ts-$$lang
-}
-ts-all.commands = cd $$PWD && $$LUPDATE $$SOURCES $$APP_FILES -ts $$TSFILES
-QMAKE_EXTRA_TARGETS ''= ts-all
+#qtPrepareTool(LUPDATE, lupdate)
+#LUPDATE ''= -locations relative -no-ui-lines
+#TSFILES = $$files($$PWD/translations/rvtku_''''.ts) $$PWD/translations/rvtku_untranslated.ts
+#for(file, TSFILES) {
+# lang = $$replace(file, .''''_([^/]*).ts, 1)
+# v = ts-$${lang}.commands
+# $$v = cd $$wd && $$LUPDATE $$SOURCES $$APP_FILES -ts $$file
+# QMAKE_EXTRA_TARGETS''= ts-$$lang
+#}
+#ts-all.commands = cd $$PWD && $$LUPDATE $$SOURCES $$APP_FILES -ts $$TSFILES
+#QMAKE_EXTRA_TARGETS ''= ts-all
 
 
