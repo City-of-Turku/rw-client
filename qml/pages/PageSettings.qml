@@ -46,6 +46,11 @@ Page {
                 }
             }
 
+            Button {
+                text: qsTr("Clear network cache")
+                onClicked: root.api.clearCache();
+            }
+
             GroupBox {
                 title: qsTr("Language settings")
                 Layout.fillWidth: true
