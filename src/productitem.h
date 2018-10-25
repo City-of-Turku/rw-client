@@ -5,6 +5,7 @@
 #include <QVariantList>
 #include <QVariantHash>
 #include <QList>
+#include <QDateTime>
 
 class ProductItem : public QObject
 {
@@ -43,6 +44,7 @@ public:
     Q_INVOKABLE const QString getDescription() const;
     Q_INVOKABLE uint getOwner() const;
     Q_INVOKABLE uint getStock() const;
+    Q_INVOKABLE QDateTime getCreated() const;
 
     Q_INVOKABLE void addImage(const QVariant image, const ImageSource source);
     Q_INVOKABLE void removeImages();
@@ -167,6 +169,8 @@ private:
     // Category identifier
     QString m_category;
     QString m_subcategory;
+
+    QDateTime m_created;
 
     QVariantMap m_attributes;
     QString m_thumbnail;

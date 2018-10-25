@@ -59,6 +59,8 @@ ProductItem* ProductItem::fromVariantMap(QVariantMap &data, QObject *parent)
     else
         p->m_tax=0;
 
+    p->m_created=QDateTime::fromSecsSinceEpoch(data["created"].toString().toLong());
+
     if (data.contains("value"))
         p->setAttribute("value", data["value"].toUInt());
 
@@ -118,6 +120,11 @@ uint ProductItem::getOwner() const
 uint ProductItem::getStock() const
 {
     return m_stock;
+}
+
+QDateTime ProductItem::getCreated() const
+{
+    return m_created;
 }
 
 const QString ProductItem::getBarcode() const
@@ -239,8 +246,6 @@ void ProductItem::setImages(QVariantList images)
 {    
     if (m_images==images)
         return;
-
-    qDebug() << images;
 
     m_imagesource.clear();
     m_images = images;
