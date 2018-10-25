@@ -38,11 +38,11 @@ Page {
 
     property string categorySearchID: '';
     property string searchString: ''
-    property int sortOrder: ServerApi.SortNotSet
+    property int sortOrder: ServerApi.SortDateDesc
 
-    onSearchStringChanged: console.debug("SearchString: "+searchString)
-    onCategorySearchIDChanged: console.debug("SearchCategory: "+categorySearchID)
-    onSortOrderChanged: console.debug("SearchSort: "+sortOrder)
+    //onSearchStringChanged: console.debug("SearchString: "+searchString)
+    //onCategorySearchIDChanged: console.debug("SearchCategory: "+categorySearchID)
+    //onSortOrderChanged: console.debug("SearchSort: "+sortOrder)
 
     property double pageRatio: width/height
     //onPageRatioChanged: console.debug(pageRatio)
@@ -452,6 +452,8 @@ Page {
                             isInitialView=true;
                     }
 
+                    onTextChanged: searchString=text;
+
                     Component.onCompleted: {
                         searchText.text=searchString
                     }
@@ -470,21 +472,21 @@ Page {
             onValidSearchCriteriasChanged: console.debug("CanSearch: "+validSearchCriterias)
 
             function activateSearch() {
-                if (!validSearchCriterias) {
-                    console.debug("Nothing to search with...")
+                if (!validSearchCriterias) {                    
                     return false;
                 }
 
+                console.debug("A: "+searchString)
                 if (api.validateBarcode(searchString))
                     searchBarcodeRequested(searchString);
                 else
-                    searchRequested(searchString, categorySearchID, sortOrder);
+                    searchRequested(searchString, categorySearchID, sortOrder);                
                 return true;
             }
 
             function resetSearch() {
                 searchText.text=''
-                sortOrder='date_desc';
+                sortOrder=ServerApi.SortDateDesc
                 categorySelection.currentIndex=0;
             }
 
@@ -509,6 +511,9 @@ Page {
                 Layout.fillWidth: true
                 ButtonGroup {
                     id: sortButtonGroup
+                    onClicked: {
+                        console.debug("SortOrder: "+sortOrder)
+                    }
                 }
 
                 Label {
@@ -518,6 +523,7 @@ Page {
                 RowLayout {
                     Layout.fillWidth: true
                     ColumnLayout {
+                        Layout.alignment: Qt.AlignTop
                         RadioButton {
                             id: sortButtonLatest
                             checked: true
@@ -533,18 +539,34 @@ Page {
                         }
                     }
                     ColumnLayout {
+                        Layout.alignment: Qt.AlignTop
                         RadioButton {
-                            id: sortButtonTitle
-                            text: qsTr("Product title A-Z")
+                            id: sortButtonTitleAsc
+                            text: qsTr("Title A-Z")
+                            ButtonGroup.group: sortButtonGroup
+                            onClicked: sortOrder=ServerApi.SortTitleAsc
+                        }
+                        RadioButton {
+                            id: sortButtonTitleDesc
+                            text: qsTr("Title Z-A")
                             ButtonGroup.group: sortButtonGroup
                             onClicked: sortOrder=ServerApi.SortTitleDesc
                         }
+                    }
+                    ColumnLayout {
+                        Layout.alignment: Qt.AlignTop
+                        visible: false
                         RadioButton {
-                            id: sortButtonPrice
-                            visible: false
-                            text: qsTr("Product price")
+                            id: sortButtonPriceDesc
+                            text: qsTr("Price high-low")
                             ButtonGroup.group: sortButtonGroup
                             onClicked: sortOrder=ServerApi.SortPriceDesc
+                        }
+                        RadioButton {
+                            id: sortButtonPriceAsc
+                            text: qsTr("Price low-high")
+                            ButtonGroup.group: sortButtonGroup
+                            onClicked: sortOrder=ServerApi.SortPriceAsc
                         }
                     }
                 }
