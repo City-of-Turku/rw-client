@@ -84,7 +84,9 @@ public:
         SortTitleAsc,
         SortTitleDesc,
         SortPriceAsc,
-        SortPriceDesc
+        SortPriceDesc,
+        SortSKUAsc,
+        SortSKUDesc,
     };
 
     Q_ENUMS(ItemSort)

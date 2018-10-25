@@ -627,8 +627,8 @@ bool RvAPI::parseProductsData(QVariantMap &data)
 {
     uint page=qRound(data["page"].toDouble());
     uint amount=qRound(data["amount"].toDouble());
-    uint requested=qRound(data["ramount"].toDouble());
-    QVariantMap products=data["products"].toMap();   
+    uint requested=qRound(data["ramount"].toDouble());    
+    QVariantList products=data["products"].toList();
 
     if (page==1) {        
         //m_itemsmodel.clear();
@@ -638,11 +638,9 @@ bool RvAPI::parseProductsData(QVariantMap &data)
     m_loadedAmount=amount;
     m_loadedPage=page;    
 
-    QMapIterator<QString, QVariant> i(products);
+    QListIterator<QVariant> i(products);
     while (i.hasNext()) {
-        i.next();
-
-        QVariantMap tmp=i.value().toMap();
+        QVariantMap tmp=i.next().toMap();
         ProductItem *p=ProductItem::fromVariantMap(tmp, this);
         m_product_store.insert(p->barcode(), p);
         m_itemsmodel.append(p);
@@ -991,7 +989,7 @@ bool RvAPI::products(uint page, uint amount)
         m_loadedPage=page;       
     }
 
-    qDebug() << "Loading page " << page << amount;
+    qDebug() << "Loading products: " << page << "of" << amount << m_searchcategory << m_searchstring << m_searchsort;
 
     QUrl url=createRequestUrl(op_products);
     QUrlQuery query;
@@ -1019,6 +1017,8 @@ bool RvAPI::products(uint page, uint amount)
     url.setQuery(query);
     request.setUrl(url);
 
+    qDebug() << url;
+
     queueRequest(get(request), op_products);
 
     return true;
@@ -1039,6 +1039,10 @@ const QString RvAPI::getSortString(ItemSort is) const
         return "title_asc";
     case SortTitleDesc:
         return "title_desc";
+    case SortSKUAsc:
+        return "sku_asc";
+    case SortSKUDesc:
+        return "sku_desc";
     default:
         return "";
     }
