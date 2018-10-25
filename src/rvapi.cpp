@@ -97,6 +97,11 @@ RvAPI::~RvAPI()
     clearProductStore();
 }
 
+void RvAPI::clearCache()
+{
+    m_NetManager->cache()->clear();
+}
+
 void RvAPI::setUrl(QUrl url)
 {
     if (m_url == url)
@@ -226,7 +231,7 @@ void RvAPI::setProxy(const QString server, quint16 port, const QString user, con
 
 void RvAPI::clearProductFilters()
 {
-    m_searchsort.clear();
+    m_searchsort=SortDateDesc;
     m_searchstring.clear();
     m_searchcategory.clear();
 
@@ -1007,8 +1012,8 @@ bool RvAPI::products(uint page, uint amount)
         // XXX: Remove when API fixed
         query.addQueryItem("string", m_searchstring);
     }
-    if (!m_searchsort.isEmpty()) {
-        query.addQueryItem("s", m_searchsort);
+    if (m_searchsort!=SortNotSet) {
+        query.addQueryItem("s", getSortString(m_searchsort));
     }
 
     url.setQuery(query);
@@ -1017,6 +1022,26 @@ bool RvAPI::products(uint page, uint amount)
     queueRequest(get(request), op_products);
 
     return true;
+}
+
+const QString RvAPI::getSortString(ItemSort is) const
+{
+    switch (is) {
+    case SortDateAsc:
+        return "date_asc";
+    case SortDateDesc:
+        return "date_desc";
+    case SortPriceAsc:
+        return "price_asc";
+    case SortPriceDesc:
+        return "price_desc";
+    case SortTitleAsc:
+        return "title_asc";
+    case SortTitleDesc:
+        return "title_desc";
+    default:
+        return "";
+    }
 }
 
 bool RvAPI::searchCancel()

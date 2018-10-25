@@ -55,7 +55,7 @@ class RvAPI : public QObject
 
     Q_PROPERTY(QString searchCategory MEMBER m_searchcategory NOTIFY searchCategoryChanged)
     Q_PROPERTY(QString searchString MEMBER m_searchstring NOTIFY searchStringChanged)
-    Q_PROPERTY(QString searchSort MEMBER m_searchsort NOTIFY searchSortChanged)
+    Q_PROPERTY(ItemSort searchSort MEMBER m_searchsort NOTIFY searchSortChanged)
 
 public:
     explicit RvAPI(QObject *parent = nullptr);
@@ -76,6 +76,18 @@ public:
     };
 
     Q_ENUM(UserRoles)
+
+    enum ItemSort {
+        SortNotSet=0,
+        SortDateAsc,
+        SortDateDesc,
+        SortTitleAsc,
+        SortTitleDesc,
+        SortPriceAsc,
+        SortPriceDesc
+    };
+
+    Q_ENUMS(ItemSort)
 
     QUrl url() const
     {
@@ -153,6 +165,7 @@ public:
 
     Q_INVOKABLE void clearProductFilters();
 
+    Q_INVOKABLE void clearCache();
 signals:
 
     void urlChanged(QUrl url);
@@ -263,12 +276,6 @@ private:
         DownloadAPK,
     };
 
-    enum SortOptions {
-        SortDateAsc,
-        SortDateDesc,
-        SortTitleAsc,
-        SortTitleDesc,
-    };
 
     QNetworkAccessManager *m_NetManager;
 
@@ -336,7 +343,7 @@ private:
     // Filtering settings
     QString m_searchcategory;
     QString m_searchstring;
-    QString m_searchsort;
+    ItemSort m_searchsort;
 
     ProductMap m_product_store;
 
@@ -390,6 +397,7 @@ private:
     bool parseOrderCreated(QVariantMap &data);
     bool parseOrders(QVariantMap &data);
     void addCommonProductParameters(QHttpMultiPart *mp, ProductItem *product);
+    const QString getSortString(ItemSort is) const;
 };
 
 #endif // RVAPI_H
