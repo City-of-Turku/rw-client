@@ -232,10 +232,17 @@ Page {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     ColumnLayout {
+                        Layout.alignment: Qt.AlignTop
+                        Layout.fillWidth: true
                         DetailItem {
                             label: qsTr("Price")
                             visible: product.price>0
                             value: product.price.toFixed(2)+" €"
+                        }
+                        DetailItem {
+                            label: qsTr("Added")
+                            //visible: product.price>0
+                            value: product.getCreated();
                         }
                         DetailItem {
                             label: qsTr("Stock")
@@ -245,7 +252,7 @@ Page {
                         DetailItem {
                             label: qsTr("Size (WxHxD)")
                             visible: product.hasAttribute("depth") && product.hasAttribute("width") && product.hasAttribute("height")
-                            value: product.getAttribute("width")+"cm x " + product.getAttribute("height")+"cm x" + product.getAttribute("depth")+"cm"
+                            value: product.getAttribute("width")+"cm x " + product.getAttribute("height")+"cm x " + product.getAttribute("depth")+"cm"
                         }
                         DetailItem {
                             label: qsTr("Weight")
