@@ -13,13 +13,12 @@ XmlListModel {
         if (status==XmlListModel.Error)
             console.debug("Err: "+errorString())
     }
-    onCountChanged: {
-        console.debug("NewsModelCount: "+count)
-        for (var i=0;i<count;i++) {
-            var data=get(i);
-            console.debug("NEWSITEM "+i)
-            console.debug(data.newsTitle)
-            console.debug(data.description)
+    onCountChanged: {        
+        if (count>0) {
+            var data=get(0);
+            latestEntryDate=data.newsDate;
         }
     }
+
+    property string latestEntryDate;
 }
