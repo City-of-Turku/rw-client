@@ -4,16 +4,17 @@ import QtQuick.Layouts 1.3
 
 RowLayout {
     id: di
-    property string label: ""
-    property string value: ""
+    property alias label: dil.text
+    property alias value: div.text
+
     Label {
-        text: di.label
+        id: dil
         font.pixelSize: 18
-        width: parent.width/3
+        font.bold: true
     }
     Label {
-        text: di.value
-        font.pixelSize: 16
+        id: div
+        font.pixelSize: 18
         Layout.fillWidth: true
     }
 }
