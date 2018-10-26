@@ -621,11 +621,14 @@ ApplicationWindow {
     NewsModel {
         id: newsFeedModel
         source: api.url+"news"
-    }
-
-    LatestProductsModel {
-        id: latestProductsModel
-        source: api.url+"product/latest"
+        onLatestEntryDateChanged: {
+            var ts=settings.getSettingsStr("newsStamp", "");
+            if (ts!=latestEntryDate) {
+                var m=get(0);
+                messagePopup.show(m.newsTitle, m.description, m.newsDate);
+                settings.setSettingsStr("newsStamp", latestEntryDate);
+            }
+        }
     }
 
     ServerApi {
