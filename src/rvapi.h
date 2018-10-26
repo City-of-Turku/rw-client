@@ -330,12 +330,18 @@ private:
 
     QString m_hversion;
 
+    // User details
     bool m_authenticated;
     QString m_username;
     QString m_password;
     QString m_apikey;    
     QString m_authtoken;
     QString m_msg;
+
+    QVariantList m_roles;
+    uint m_uid;
+    QDateTime m_lastlogin;
+
     bool m_busy;
 
     bool m_hasMore;

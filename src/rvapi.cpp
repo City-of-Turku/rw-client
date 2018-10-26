@@ -130,6 +130,11 @@ void RvAPI::setHasMore(bool hasmore)
 
 void RvAPI::setAuthentication(bool auth)
 {
+    if (auth==false) {
+        m_uid=0;
+        m_lastlogin=QDateTime::fromSecsSinceEpoch(0);
+        m_roles.clear();
+    }
     if (m_authenticated==auth)
         return;
 
@@ -677,6 +682,14 @@ bool RvAPI::parseLogin(QVariantMap &data)
         emit loginFailure("Invalid response", 500);
         return true;
     }
+
+    // Store our UID
+    m_uid=data.value("uid").toString().toUInt();
+
+    m_lastlogin=QDateTime::fromSecsSinceEpoch(data["access"].toString().toLong());
+
+    // XXX: Do care about they keys even ? Clenup in proxy API
+    m_roles=data.value("roles").toMap().values();
 
     setAuthentication(true);
     emit loginSuccesfull();
