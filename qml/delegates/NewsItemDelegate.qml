@@ -8,29 +8,35 @@ Item {
     anchors.horizontalCenter: parent.horizontalCenter
     Rectangle {
         anchors.fill: parent;
-        opacity: 0.30
+        opacity: 0.35
         color: "white"
     }
 
     ColumnLayout {
         id: c
         width: parent.width
-        spacing: 16
+        spacing: 2
         Label {
             text: newsTitle
             textFormat: TextEdit.PlainText
             Layout.fillWidth: true
             maximumLineCount: 1
             elide: Text.ElideRight
-            font.pointSize: 16
-            color: "blue"
+            font.pixelSize: 16
+            font.bold: true
+        }
+        Label {
+            text: newsDate
+            textFormat: TextEdit.PlainText
+            Layout.fillWidth: true
+            font.pixelSize: 12
         }
         TextArea {
             text: description
             textFormat: TextEdit.PlainText
             wrapMode: Text.Wrap
             Layout.fillWidth: true
-            font.pointSize: 14
+            font.pixelSize: 14
             Layout.fillHeight: true
         }
     }
@@ -39,6 +45,6 @@ Item {
         onClicked: {
             console.debug("NewsClicked:"+newsUrl)
             Qt.openUrlExternally(newsUrl)
-        }
+        }        
     }
 }
