@@ -39,8 +39,10 @@ lupdate_only {
 }
 
 include(3rdparty/barcodevideofilter/barcodevideofilter.pri)
-
 INCLUDEPATH += 3rdparty/barcodevideofilter
+
+# Generic mode
+include(3rdparty/cutegenericmodel/libcutegenericmodel/cutegenericmodel-static.pri)
 
 # Android specific stuff
 include(android.pri)
