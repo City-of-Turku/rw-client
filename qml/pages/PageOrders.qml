@@ -41,7 +41,7 @@ Page {
 
     Component.onCompleted: {
         ordersPage.forceActiveFocus();
-        //model=root.api.getOrdersModel();
+        model=root.api.getOrderModel();
         root.api.orders();
     }
 
@@ -78,8 +78,7 @@ Page {
         }
 
         ListView {
-            id: orders
-            enabled: !searchActive
+            id: orders            
             clip: true
             Layout.fillWidth: true
             Layout.fillHeight: true
