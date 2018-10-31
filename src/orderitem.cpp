@@ -52,8 +52,23 @@ OrderItem *OrderItem::fromVariantMap(QVariantMap &data, QObject *parent)
     return o;
 }
 
+int OrderItem::count()
+{
+    return m_products.size();
+}
+
 QStringList OrderItem::products()
 {
     return m_products.keys();
+}
+
+QVariantMap OrderItem::shipping()
+{
+    return m_shipping;
+}
+
+QVariantMap OrderItem::billing()
+{
+    return m_billing;
 }
 
