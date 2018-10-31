@@ -142,8 +142,9 @@ public:
 
     Q_INVOKABLE ItemListModel *getItemModel();
     Q_INVOKABLE ItemListModel *getCartModel();
+    Q_INVOKABLE OrdersModel *getOrderModel();
     Q_INVOKABLE LocationListModel *getLocationsModel();
-    Q_INVOKABLE CategoryModel *getCategoryModel();
+    Q_INVOKABLE CategoryModel *getCategoryModel();    
     Q_INVOKABLE CategoryModel *getSubCategoryModel(const QString key);
 
     Q_INVOKABLE QStringListModel *getTaxModel();

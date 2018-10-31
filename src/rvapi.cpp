@@ -520,19 +520,22 @@ bool RvAPI::parseOrderCreated(QVariantMap &data)
 
 bool RvAPI::parseOrders(QVariantMap &data)
 {
-    QVariantMap orders=data.value("orders").toMap();
+    QVariantList orders=data.value("orders").toList();
 
+    m_ordersmodel.clear();
     m_orders.clear();
 
-    QMapIterator<QString, QVariant> i(orders);
+    QListIterator<QVariant> i(orders);
     while (i.hasNext()) {
-        i.next();
-
-        auto om=i.value().toMap();
+        auto om=i.next().toMap();
 
         OrderItem *o=OrderItem::fromVariantMap(om, this);
         m_orders.append(o);
     }
+
+    m_ordersmodel.setList(m_orders);
+
+    qDebug() << "Orders loaded: " << m_ordersmodel.rowCount();
 
     return true;
 }
@@ -1383,6 +1386,11 @@ ItemListModel *RvAPI::getItemModel()
 ItemListModel *RvAPI::getCartModel()
 {
     return &m_cartmodel;
+}
+
+OrdersModel *RvAPI::getOrderModel()
+{
+    return &m_ordersmodel;
 }
 
 LocationListModel *RvAPI::getLocationsModel()
