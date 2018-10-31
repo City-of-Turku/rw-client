@@ -1,6 +1,7 @@
 import QtQuick 2.9
 import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.3
+import net.ekotuki 1.0
 import "../components"
 
 Rectangle {
@@ -17,7 +18,7 @@ Rectangle {
         id: r
         //spacing: 4
         width: parent.width
-        height: showImage ? imageItem.height : bgrect.height
+        height: bgrect.height
 
         Rectangle {
             id: bgrect
@@ -36,17 +37,31 @@ Rectangle {
             anchors.margins: 8
             anchors.bottom: r.bottom
 
-            Text {
-                width: parent.width
-                text: orderID
-                font.pixelSize: 18
-                elide: Text.ElideRight
+            Text {                
+                text: orderID + " " + created
+                font.pixelSize: 18                
+                font.bold: true
             }
+            Text {                
+                text: ic.getStatus(status)
+                font.pixelSize: 16
+            }            
             Text {
-                width: parent.width
-                text: orderStatus
+                text: "Products: "+count
                 font.pixelSize: 18
-                elide: Text.ElideRight
+            }
+
+            function getStatus(s) {
+                switch (s) {
+                case Order.Pending:
+                    return qsTr("Pending");
+                case Order.Shipped:
+                    return qsTr("Shipped");
+                case Order.Cart:
+                    return qsTr("Cart");
+                case Order.Unknown:
+                    return qsTr("Unknown");
+                }
             }
         }
 
