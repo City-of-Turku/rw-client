@@ -1,7 +1,7 @@
 /**
- * Order page
+ * Order details page
  *
- * Displays a list of products to order with barcode input
+ * Displays a list of products in order
  *
  */
 import QtQuick 2.9
@@ -19,60 +19,10 @@ import "../components"
 Page {
     id: orderPage
     title: qsTr("Order")
-
     objectName: "order"
 
-    property string searchString;
-
-    property bool searchActive: false;
-
     property bool showTotalPrice: false;
-
-    property alias model: orderCart.model
-
-    signal searchBarcodeRequested(string barcode);
-    signal searchCancel();
-
-    // searchRequested handler should call this
-    function setSearchActive(a) {
-        searchActive=a;
-        if (a && Qt.inputMethod.visible)
-            Qt.inputMethod.hide();
-    }
-
-    function searchBarcode(barcode) {
-        if (api.validateBarcode(barcode)) {
-            searchString=barcode
-            searchBarcodeRequested(barcode);
-        } else {
-            searchString=''
-            messagePopup.show(qsTr("Barcode"), qsTr("Barcode format is not recognized. Please try again."));
-        }
-    }
-
-    function searchBarcodeNotFound() {
-        messagePopup.show(qsTr("Not found"), qsTr("No product matched given barcode"));
-    }
-
-    function searchComplete() {
-        setSearchActive(false)
-        var p=api.getProduct(searchString);
-        if (!p)
-            return;
-
-        if (p.stock===0) {
-            messagePopup.show(qsTr("No stock"), qsTr("Product is out of stock"));
-        } else {
-            model.appendProduct(searchString);                        
-        }
-        barcodeField.clear();
-        orderCart.forceActiveFocus();
-    }
-
-    function orderCreated() {
-        api.clearProductStore();
-        rootStack.pop();
-    }
+    property alias model: orderProducts.model
 
     Keys.onReleased: {
         if (event.key === Qt.Key_Back) {
@@ -82,7 +32,6 @@ Page {
         }
     }
 
-
     Component.onCompleted: {
         orderPage.forceActiveFocus();
         model=root.api.getCartModel();
@@ -90,91 +39,14 @@ Page {
         console.debug("Cart contains: "+model.count)
     }
 
-    MessageDialog {
-        id: confirmDialog
-        standardButtons: StandardButton.Ok | StandardButton.Cancel
-        title: qsTr("Confirm order")
-        text: qsTr("Commit product order ?")
-
-        onAccepted: {
-            confirmDialog.close();
-            var r=api.createOrder(true);
-            if (!r) {
-                messagePopup.show("Order", "Failed to create order");
-            } else {
-
-            }
-        }
-    }
-
-    MessageDialog {
-        id: confirmClearDialog
-        standardButtons: StandardButton.Ok | StandardButton.Cancel
-        title: qsTr("Clear order")
-        text: qsTr("Clear product order ?")
-
-        onAccepted: {
-            confirmDialog.close();
-            orderPage.model.clear();
-        }
-    }
-
     footer: ToolBar {
         RowLayout {
-            ToolButton {
-                text: qsTr("Scan")
-                enabled: !searchActive && searchString==''
-                onClicked: {
-                    rootStack.push(cameraScanner);
-                }
-            }
 
-            ToolButton {
-                text: qsTr("Send order")
-                enabled: orderCart.count>0 && !api.busy
-                onClicked: {
-                    confirmDialog.open();
-                }
-            }
-
-            ToolSeparator {
-
-            }
-
-            ToolButton {
-                text: qsTr("Clear")
-                enabled: orderCart.count>0 && !api.busy
-                onClicked: {
-                    confirmClearDialog.open();
-                }
-            }
-        }
-    }
-
-    Component {
-        id: cameraScanner
-        PageCamera {
-            id: scanCamera
-            oneShot: true
-            Component.onCompleted: {
-                scanCamera.startCamera();
-            }
-            onBarcodeFound: {
-                searchString=barcode;
-            }
-            onDecodeDone: {
-                searchBarcode(searchString)
-            }
         }
     }
 
     Connections {
         target: api
-
-        onSearchCompleted: {
-            console.debug("SEARCH DONE")
-            setSearchActive(false);
-        }
     }
 
     MessagePopup {
@@ -200,9 +72,12 @@ Page {
         anchors.fill: parent
         anchors.margins: 4
 
+        DetailItem {
+            label: "Status:"
+        }
+
         ListView {
-            id: orderCart
-            enabled: !searchActive
+            id: orderProducts
             clip: true
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -238,14 +113,7 @@ Page {
                             onClicked: {
                                 openProductAtIndex(index)
                             }
-                        }
-
-                        MenuItem {
-                            text: qsTr("Remove")
-                            onClicked: {
-                                orderCart.model.remove(index);
-                            }
-                        }
+                        }                        
                     }
 
                     function openProductAtIndex(index) {
@@ -264,8 +132,8 @@ Page {
         }
 
         Label {
-            visible: orderCart.model.count===0
-            text: qsTr("Cart is empty")
+            visible: orderProducts.model.count===0
+            text: qsTr("Order is empty")
             wrapMode: Text.Wrap
             font.pixelSize: 32
         }
@@ -281,21 +149,7 @@ Page {
             Label {
                 id: totalPrice
             }
-        }
-
-        RowLayout {
-            Layout.fillWidth: true
-            Layout.fillHeight: false
-            BarcodeField {
-                id: barcodeField
-                enabled: !api.busy
-                onAccepted: {
-                    console.debug("BARCODESEARCH: "+text)
-                    searchString=text
-                    searchBarcode(searchString)
-                }
-            }
-        }
+        }        
     }
 
     BusyIndicator {

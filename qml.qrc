@@ -43,5 +43,6 @@
         <file>qml/components/RoundIconButton.qml</file>
         <file>qml/components/ColorSelector.qml</file>
         <file>qml/components/PriceField.qml</file>
+        <file>qml/pages/PageCart.qml</file>
     </qresource>
 </RCC>

@@ -156,9 +156,12 @@ public:
 
     Q_INVOKABLE bool haveLocations();
 
-    Q_INVOKABLE bool isOrderEmpty();
+    Q_INVOKABLE bool isOrderEmpty();  
     Q_INVOKABLE bool createOrder(bool done);
     Q_INVOKABLE bool orders();
+
+    Q_INVOKABLE bool getUserCart();
+    Q_INVOKABLE bool clearUserCart();
 
     Q_INVOKABLE ProductItem *getProduct(const QString &barcode) const;
 
@@ -169,6 +172,7 @@ public:
     Q_INVOKABLE void clearProductFilters();
 
     Q_INVOKABLE void clearCache();
+
 signals:
 
     void urlChanged(QUrl url);
@@ -274,6 +278,7 @@ private:
         AuthLogin, AuthLogout,
         ProductSearch, ProductSearchBarcode, Product, Products,
         Order, Orders,
+        Cart, ClearCart,
         Categories,
         Locations,
         DownloadAPK,
@@ -291,8 +296,13 @@ private:
     const QString op_product=QStringLiteral("product");
     const QString op_products=QStringLiteral("products");
 
+    // Orders
     const QString op_order=QStringLiteral("order");
     const QString op_orders=QStringLiteral("orders");
+
+    // Cart
+    const QString op_getcart=QStringLiteral("cart");
+    const QString op_clearcart=QStringLiteral("cart");
 
     // Search endpoints
     const QString op_product_barcode=QStringLiteral("product/barcode");

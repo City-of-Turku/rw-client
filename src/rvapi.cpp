@@ -37,8 +37,9 @@ RvAPI::RvAPI(QObject *parent) :
     m_loadedPage(0),
     m_itemsmodel(&m_product_store, this),
     m_cartmodel(&m_product_store, this),
-    m_categorymodel(nullptr, this),
+    m_categorymodel(nullptr, this),    
     m_locations(this),
+    m_ordersmodel(this),
     m_tax_model(this)
 {
 
@@ -1319,6 +1320,16 @@ bool RvAPI::createOrder(bool done)
 bool RvAPI::orders()
 {
     return createSimpleAuthenticatedRequest(op_orders);
+}
+
+bool RvAPI::getUserCart()
+{
+    return createSimpleAuthenticatedRequest(op_getcart);
+}
+
+bool RvAPI::clearUserCart()
+{
+    return createSimpleAuthenticatedRequest(op_clearcart);
 }
 
 /**

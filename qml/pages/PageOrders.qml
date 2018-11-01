@@ -90,6 +90,8 @@ Page {
                     width: parent.width
                     height: childrenRect.height
 
+                    onClicked: openOrderAtIndex(index)
+
                     function openOrderAtIndex(index) {
                         var o=orders.model.get(index);
                         orders.currentIndex=index;

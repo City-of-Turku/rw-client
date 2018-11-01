@@ -341,7 +341,7 @@ ApplicationWindow {
             case 7: // About
                 return rootStack.push(aboutView)
             case 8: // Order
-                return rootStack.push(orderView)
+                return rootStack.push(cartView)
             case 9: // Orders
                 return rootStack.push(ordersView)
             case 10:
@@ -443,9 +443,18 @@ ApplicationWindow {
         }
     }
 
+    // Display details of an existing order
     Component {
         id: orderView
         PageOrder {
+
+        }
+    }
+
+    // Displays the users shoppping cart
+    Component {
+        id: cartView
+        PageCart {
             onSearchBarcodeRequested: {
                 var r=api.searchBarcode(barcode);
                 if (r)
@@ -463,7 +472,7 @@ ApplicationWindow {
                 }
                 onOrderCreated: {
                     orderCreated();
-                    messagePopup.show(qsTr("Order"), qsTr("Order created successfully"));
+                    messagePopup.show(qsTr("Cart"), qsTr("Order created successfully"));
                 }
             }
         }
