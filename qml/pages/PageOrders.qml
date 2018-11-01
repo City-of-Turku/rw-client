@@ -93,7 +93,7 @@ Page {
                     onClicked: openOrderAtIndex(index)
 
                     function openOrderAtIndex(index) {
-                        var o=orders.model.get(index);
+                        var o=orders.model.getItem(index);
                         orders.currentIndex=index;
                         rootStack.push(orderView, { "order": o })
                     }

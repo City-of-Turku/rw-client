@@ -24,6 +24,8 @@ Page {
     property bool showTotalPrice: false;
     property alias model: orderProducts.model
 
+    property Order order;
+
     Keys.onReleased: {
         if (event.key === Qt.Key_Back) {
             console.log("*** Back button")
@@ -73,7 +75,16 @@ Page {
         anchors.margins: 4
 
         DetailItem {
+            label: "ID:"
+            value: order.orderID
+        }
+        DetailItem {
             label: "Status:"
+            value: order.status
+        }
+        DetailItem {
+            label: "Created:"
+            value: order.created
         }
 
         ListView {
@@ -113,7 +124,7 @@ Page {
                             onClicked: {
                                 openProductAtIndex(index)
                             }
-                        }                        
+                        }
                     }
 
                     function openProductAtIndex(index) {
@@ -131,12 +142,6 @@ Page {
             }
         }
 
-        Label {
-            visible: orderProducts.model.count===0
-            text: qsTr("Order is empty")
-            wrapMode: Text.Wrap
-            font.pixelSize: 32
-        }
 
         RowLayout {
             visible: showTotalPrice && orderCart.count>0
@@ -149,7 +154,15 @@ Page {
             Label {
                 id: totalPrice
             }
-        }        
+        }
+    }
+
+    Label {
+        visible: orderProducts.model.count===0
+        anchors.centerIn: mainContainer
+        text: qsTr("Order is empty")
+        wrapMode: Text.Wrap
+        font.pixelSize: 32
     }
 
     BusyIndicator {
