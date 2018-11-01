@@ -291,7 +291,7 @@ ApplicationWindow {
         ListElement { title: qsTr("Products"); viewId: 4; roles: 1; image: "qrc:/images/icon_browse.png"}
         ListElement { title: qsTr("Add product"); viewId: 3; roles: 2; image: "qrc:/images/icon_add.png" }
 
-        ListElement { title: qsTr("Order"); viewId: 8; roles: 3; image: "" }
+        ListElement { title: qsTr("Cart"); viewId: 8; roles: 3; image: "" }
         ListElement { title: qsTr("Orders"); viewId: 9; roles: 3; image: "" }
 
         ListElement { title: qsTr("Messages"); viewId: 10; roles: 0; image: "" }
