@@ -20,14 +20,7 @@ import "../components"
 Page {
     id: ordersPage
     title: qsTr("Orders")
-
     objectName: "orders"
-
-    property string searchString;
-
-    property bool searchActive: false;
-
-    property bool showTotalPrice: false;
 
     property alias model: orders.model
 
@@ -88,14 +81,15 @@ Page {
             delegate: Component {
                 OrderItemDelegate {
                     width: parent.width
-                    height: childrenRect.height
+                    //height: childrenRect.height
 
                     onClicked: openOrderAtIndex(index)
 
                     function openOrderAtIndex(index) {
                         var o=orders.model.getItem(index);
+                        var p=orders.model.getItemLineItemModel(index);
                         orders.currentIndex=index;
-                        rootStack.push(orderView, { "order": o })
+                        rootStack.push(orderView, { "order": o, "products": p })
                     }
                 }
             }

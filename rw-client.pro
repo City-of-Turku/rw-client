@@ -20,7 +20,9 @@ HEADERS += \
     src/apputility.h \
     src/ordersmodel.h \
     src/baselistmodel.h \
-    src/orderitem.h
+    src/orderitem.h \
+    src/orderlineitem.h \
+    src/orderlineitemmodel.h
 
 SOURCES += src/main.cpp \
     src/rvapi.cpp \
@@ -32,7 +34,9 @@ SOURCES += src/main.cpp \
     src/apputility.cpp \
     src/ordersmodel.cpp \
     src/baselistmodel.cpp \
-    src/orderitem.cpp
+    src/orderitem.cpp \
+    src/orderlineitem.cpp \
+    src/orderlineitemmodel.cpp
 
 lupdate_only {
     SOURCES +=  qml/*.qml qml/components/*.qml qml/pages/*.qml qml/delegates/*.qml qml/models/*.qml
@@ -108,5 +112,8 @@ for(tsfile, TRANSLATIONS) {
 #}
 #ts-all.commands = cd $$PWD && $$LUPDATE $$SOURCES $$APP_FILES -ts $$TSFILES
 #QMAKE_EXTRA_TARGETS ''= ts-all
+
+DISTFILES += \
+    qml/pages/PageCart.qml
 
 

@@ -726,6 +726,19 @@ ApplicationWindow {
             setAppVersion(appVersionCode);
         }
 
+        function getOrderStatusString(s) {
+            switch (s) {
+            case Order.Pending:
+                return qsTr("Pending");
+            case Order.Shipped:
+                return qsTr("Shipped");
+            case Order.Cart:
+                return qsTr("Cart");
+            case Order.Unknown:
+                return qsTr("Unknown");
+            }
+        }
+
         // Generic error message helper
         function errorMessage(code, msg) {
             switch (code) {

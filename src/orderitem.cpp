@@ -38,16 +38,11 @@ OrderItem *OrderItem::fromVariantMap(QVariantMap &data, QObject *parent)
     QVariantList items=data.value("items").toList();
 
     for (int is=0;is<items.size();is++) {
-        QPair<QString, int> line;
-        QVariantMap l=items.at(is).toMap();
+        QVariantMap lim=items.at(is).toMap();
+        OrderLineItem *lip=OrderLineItem::fromVariantMap(lim, o);
 
-        QString sku=l.value("sku").toString();
-        line.first=l.value("title").toString();
-        line.second=l.value("amount").toInt();
-        o->m_products.insert(sku, line);
+        o->m_products.append(lip);
     }
-
-    // qDebug() << "Order Items:\n"<< items;
 
     return o;
 }
@@ -57,9 +52,9 @@ int OrderItem::count()
     return m_products.size();
 }
 
-QStringList OrderItem::products()
+QObjectList OrderItem::products() const
 {
-    return m_products.keys();
+    return m_products;
 }
 
 QVariantMap OrderItem::shipping()

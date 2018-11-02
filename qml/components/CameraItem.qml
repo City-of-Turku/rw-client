@@ -34,17 +34,21 @@ Item {
 
     signal scanFatalFailure(string error)
 
+    property bool hasOpticalZoom: false
+
     Camera {
         id: camera
-        deviceId: "/dev/video1" // XXX
+        deviceId: "/dev/video0"
         captureMode: scanOnly ? Camera.CaptureViewfinder : Camera.CaptureStillImage;
         onErrorStringChanged: console.debug("Error: "+errorString)
         onCameraStateChanged: {
-            console.debug("State: "+cameraState)
+            console.debug("Camera State: "+cameraState)
             switch (cameraState) {
             case Camera.ActiveState:
                 console.debug("DigitalZoom: "+maximumDigitalZoom)
                 console.debug("OpticalZoom: "+maximumOpticalZoom)
+                if (maximumOpticalZoom>1.0)
+                    hasOpticalZoom=true;
                 break;
             }
         }
@@ -74,13 +78,16 @@ Item {
             }
         }
 
+        onError: {
+            console.log("Camera reports error: "+errorString)
+            console.log("Error code: "+errorCode)
+        }
+
         flash.mode: cameraItem.flash ? Camera.FlashAuto : Camera.FlashOff
 
         Component.onCompleted: {
             console.debug("Camera is: "+deviceId)
-            console.debug("Camera orientation is: "+orientation)
-
-            // digitalZoom=1.0;
+            console.debug("Camera orientation is: "+orientation)            
         }
     }
 
@@ -225,7 +232,12 @@ Item {
                     id: cmlma
                     anchors.fill: parent
                     onClicked: {
+                        camera.stop();
                         camera.deviceId=modelData.deviceId
+                        console.debug(modelData.deviceId)
+                        console.debug(modelData.displayName)
+                        console.debug(modelData.position)
+                        camera.start();
                         cameraPopup.close();
                     }
                 }

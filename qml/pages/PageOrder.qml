@@ -25,6 +25,7 @@ Page {
     property alias model: orderProducts.model
 
     property Order order;
+    property OrderLineItemModel products;
 
     Keys.onReleased: {
         if (event.key === Qt.Key_Back) {
@@ -36,7 +37,7 @@ Page {
 
     Component.onCompleted: {
         orderPage.forceActiveFocus();
-        model=root.api.getCartModel();
+        model=products;
 
         console.debug("Cart contains: "+model.count)
     }
@@ -80,11 +81,15 @@ Page {
         }
         DetailItem {
             label: "Status:"
-            value: order.status
+            value: api.getOrderStatusString(order.status)
         }
         DetailItem {
             label: "Created:"
-            value: order.created
+            value: order.created.toLocaleDateString();
+        }
+        DetailItem {
+            label: "Products:"
+            value: model.count
         }
 
         ListView {
@@ -96,20 +101,16 @@ Page {
             ScrollIndicator.vertical: ScrollIndicator { }
 
             delegate: Component {
-                ProductItemDelegate {
+                OrderLineItemDelegate {
                     width: parent.width
                     height: childrenRect.height
-                    showImage: false
-                    compact: true
+
                     onClicked: {
                         openProductAtIndex(index)
                     }
 
-                    onClickedImage: {
-                        //openProductAtIndex(index)
-                    }
-
                     onPressandhold: {
+                        console.debug("PAH")
                         productMenu.open();
                     }
 
@@ -128,16 +129,20 @@ Page {
                     }
 
                     function openProductAtIndex(index) {
-                        var p=orderCart.model.get(index);
-                        orderCart.currentIndex=index;
-                        rootStack.push(productView, { "product": p })
-                    }
+                        orderProducts.currentIndex=index;
+                        var o=orderProducts.model.get(index)
 
-                    function openProductImageAtIndex(index) {
-                        var p=orderCart.model.get(index);
-                        orderCart.currentIndex=index;
-                        rootStack.push(imageDisplayPageComponent, { image: p.thumbnail })
-                    }
+                        if (o.type!="product")
+                            return;
+
+                        var p=api.getProduct(o.sku)
+                        if (p) {
+                            rootStack.push(productView, { "product": p })
+                        } else {
+                            console.debug("XXX: Not in cache, request loading... then what?")
+                            api.searchBarcode(o.sku)
+                        }
+                    }                    
                 }
             }
         }

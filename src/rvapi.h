@@ -30,6 +30,8 @@
 #include "locationmodel.h"
 #include "orderitem.h"
 #include "ordersmodel.h"
+#include "orderlineitem.h"
+#include "orderlineitemmodel.h"
 
 class RvAPI : public QObject
 {
@@ -372,7 +374,7 @@ private:
     ItemListModel m_cartmodel;
     CategoryModel m_categorymodel;
     LocationListModel m_locations;    
-    OrdersModel m_ordersmodel;
+    OrdersModel m_ordersmodel;    
 
     QStringList m_taxes;
     QStringListModel m_tax_model;

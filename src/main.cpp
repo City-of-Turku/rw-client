@@ -110,11 +110,13 @@ int main(int argc, char *argv[])
     qRegisterMetaType<ProductItem*>("ProductItem");
     qRegisterMetaType<LocationItem*>("LocationItem");
     qRegisterMetaType<OrderItem *>("OrderItem");
+    qRegisterMetaType<OrderLineItem *>("OrderLineItem");
 
     qRegisterMetaType<QStringListModel*>();
     qRegisterMetaType<CategoryModel*>();
     qRegisterMetaType<ItemListModel*>();
     qRegisterMetaType<OrdersModel*>();
+    qRegisterMetaType<OrderLineItemModel*>();
     qRegisterMetaType<LocationListModel*>();
 
     qmlRegisterType<BarcodeVideoFilter>("net.ekotuki", 1,0, "BarcodeScanner");
@@ -125,6 +127,7 @@ int main(int argc, char *argv[])
     qmlRegisterUncreatableType<CategoryModel>("net.ekotuki", 1, 0, "CategoryModel", "Used in C++ only");
     qmlRegisterUncreatableType<ItemListModel>("net.ekotuki", 1, 0, "ItemModel", "Used in C++ only");
     qmlRegisterUncreatableType<OrdersModel>("net.ekotuki", 1, 0, "OrderModel", "Used in C++ only");
+    qmlRegisterUncreatableType<OrderLineItemModel>("net.ekotuki", 1, 0, "OrderLineItemModel", "Used in C++ only");
 
 #ifdef Q_OS_ANDROID
     AndroidHelper android;
