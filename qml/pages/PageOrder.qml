@@ -42,6 +42,14 @@ Page {
         console.debug("Cart contains: "+model.count)
     }
 
+    header: ToolbarBasic {
+        id: toolbar
+        enableBackPop: true
+        enableMenuButton: false
+        visibleMenuButton: false
+        //onMenuButton: cameraMenu.open();
+    }
+
     footer: ToolBar {
         RowLayout {
 

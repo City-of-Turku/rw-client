@@ -38,9 +38,18 @@ Page {
         root.api.orders();
     }
 
+    header: ToolbarBasic {
+        id: toolbar
+        enableBackPop: true
+        enableMenuButton: false
+        visibleMenuButton: false
+        //onMenuButton: cameraMenu.open();
+    }
+
     footer: ToolBar {
         RowLayout {
             ToolButton {
+                // XXX: Icon
                 text: qsTr("Refresh")
                 enabled: !api.busy
                 onClicked: {
