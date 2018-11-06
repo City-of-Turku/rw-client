@@ -1090,12 +1090,7 @@ bool RvAPI::searchBarcode(const QString barcode, bool checkOnly)
     if (!m_authenticated)
         return false;
 
-    // XXX: Check properly that barcode is in valid format (AAA123123123)
-    if (barcode.isEmpty())
-        return false;
-
-    // Allow for old format (AAA123456) and new (AAA123456789)
-    if (barcode.size()!=9 && barcode.size()!=12)
+    if (!validateBarcode(barcode))
         return false;
 
     if (isRequestActive(op_product_barcode))
@@ -1117,10 +1112,6 @@ bool RvAPI::searchBarcode(const QString barcode, bool checkOnly)
     QNetworkRequest request;
 
     setAuthenticationHeaders(&request);
-
-    //query.addQueryItem("barcode", barcode);
-
-    //url.setQuery(query.query());
     request.setUrl(url);
 
     QNetworkReply *req;
@@ -1361,6 +1352,9 @@ bool RvAPI::requestCategories()
 bool RvAPI::validateBarcode(const QString barcode) const
 {
     QRegularExpression r("^[A-Z]{3}[0-9]{6,9}$");
+
+    if (barcode.isEmpty())
+        return false;
 
     if (!r.isValid()) {
         qWarning("Invalid barcode regular expression");
