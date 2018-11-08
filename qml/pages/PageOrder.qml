@@ -57,7 +57,17 @@ Page {
     }
 
     Connections {
-        target: api
+        target: api                
+
+        onProductFound: {
+            console.debug("PageOrder: Product found!")
+            rootStack.push(productView, { "product": product })
+        }
+
+        onProductNotFound: {
+            console.debug("PageOrder: Product NOT found")
+            messagePopup.show("Not found", "Product not found", 404);
+        }
     }
 
     MessagePopup {
@@ -129,9 +139,10 @@ Page {
                         dim: true
                         x: parent.width/3
                         MenuItem {
-                            text: qsTr("Details")
+                            text: qsTr("Set Picked")
                             onClicked: {
-                                openProductAtIndex(index)
+                                var o=orderProducts.model.get(index)
+                                o.status=OrderItem.OrderItemPicked
                             }
                         }
                     }
@@ -140,17 +151,15 @@ Page {
                         orderProducts.currentIndex=index;
                         var o=orderProducts.model.get(index)
 
-                        if (o.type!="product")
-                            return;
-
-                        var p=api.getProduct(o.sku)
-                        if (p) {
-                            rootStack.push(productView, { "product": p })
-                        } else {
-                            console.debug("XXX: Not in cache, request loading... then what?")
-                            api.searchBarcode(o.sku)
+                        console.debug(o.type)
+                        if (o.type=="product") {
+                            var p=api.getProduct(o.sku, true)
+                            if (!p)
+                                messagePopup.show("Error", "Failed to request product", 500);
+                        } else if (o.type=="shipping") {
+                            messagePopup.show("Shipping", o.title);
                         }
-                    }                    
+                    }
                 }
             }
         }

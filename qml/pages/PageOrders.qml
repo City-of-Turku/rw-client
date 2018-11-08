@@ -59,10 +59,6 @@ Page {
         }
     }
 
-    Connections {
-        target: api
-    }
-
     MessagePopup {
         id: messagePopup
     }

@@ -510,7 +510,7 @@ ApplicationWindow {
                     return;
                 }
 
-                var rs=api.add(tempProduct);
+                var rs=api.addProduct(tempProduct);
                 if (rs)
                     editPage.saveInProgress();
                 else
@@ -671,6 +671,15 @@ ApplicationWindow {
 
         onProductSaved: {
             console.debug("*** onProductSaved")
+        }
+
+        onProductNotFound: {
+            console.debug("*** onProductNotFound")
+        }
+
+        onProductFound: {
+            console.debug("*** onProductFound: "+product)
+            console.debug(product.barcode)
         }
 
         onProductFail: {
