@@ -40,7 +40,7 @@ ProductItem* ProductItem::fromVariantMap(QVariantMap &data, QObject *parent)
 
     p->m_id=data["id"].toString().toUInt();
     if (p->m_id==0)
-        qWarning("Failed to get product ID");
+        qWarning() << "Failed to get product ID, invalid data ? " << data;
 
     p->m_uid=data["uid"].toString().toUInt();
 

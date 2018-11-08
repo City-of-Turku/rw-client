@@ -16,6 +16,7 @@ OrderLineItem *OrderLineItem::fromVariantMap(QVariantMap &data, QObject *parent)
     o->m_sku=data.value("sku").toString();
     o->m_title=data.value("title").toString();
     o->m_type=data.value("type").toString();
+    o->m_status=OrderItemPending;
 
     return o;
 }

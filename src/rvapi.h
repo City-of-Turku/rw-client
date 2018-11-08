@@ -124,15 +124,15 @@ public:
     Q_INVOKABLE bool login();
     Q_INVOKABLE bool logout();
 
-    Q_INVOKABLE void setAppVersion(uint ver);
+    Q_INVOKABLE void setAppVersion(uint ver);    
 
-    Q_INVOKABLE bool searchBarcode(const QString barcode, bool checkonly=false);    
-
-    Q_INVOKABLE bool products(uint page=0, uint amount=50);
     Q_INVOKABLE bool searchCancel();
 
-    Q_INVOKABLE bool add(ProductItem *product);
-    Q_INVOKABLE bool update(ProductItem *product);
+    Q_INVOKABLE bool addProduct(ProductItem *product);
+    Q_INVOKABLE bool updateProduct(ProductItem *product);
+    Q_INVOKABLE bool getProduct(const QString &barcode, bool update=false);
+    Q_INVOKABLE bool products(uint page=0, uint amount=50);
+    Q_INVOKABLE bool searchBarcode(const QString barcode, bool checkonly=false);
 
     Q_INVOKABLE QUrl getImageUrl(const QString image);
 
@@ -164,8 +164,6 @@ public:
 
     Q_INVOKABLE bool getUserCart();
     Q_INVOKABLE bool clearUserCart();
-
-    Q_INVOKABLE ProductItem *getProduct(const QString &barcode) const;
 
     Q_INVOKABLE void clearProductStore();
 
@@ -200,11 +198,12 @@ signals:
     void updateDownloaded(QString file);
 
     void productFail(int error, QString msg);
-    void productSaved(bool wasAdd);
+    void productSaved(ProductItem *product, bool wasAdd);
     void productDeleted(QString barcode);
 
     void productsFail(int error, QString msg);
 
+    void productFound(ProductItem *product);
     void productNotFound(QString barcode);
 
     void requestFailure(int error, int code, const QString msg);
@@ -259,10 +258,6 @@ public slots:
         emit apikeyChanged(apikey);
     }
 
-protected:
-    void queueRequest(QNetworkReply *req, const QString op);
-    bool createSimpleAuthenticatedRequest(const QString op);
-
 protected slots:
     void onIgnoreSSLErrors(QNetworkReply *reply, QList<QSslError> error);
     void connectReply(QNetworkReply *reply);
@@ -278,14 +273,13 @@ private:
     enum RequestOps {
         UnknownOperation,
         AuthLogin, AuthLogout,
-        ProductSearch, ProductSearchBarcode, Product, Products,
+        ProductSearch, ProductSearchBarcode, ProductAdd, ProductUpdate, Product, Products,
         Order, Orders,
         Cart, ClearCart,
         Categories,
         Locations,
         DownloadAPK,
     };
-
 
     QNetworkAccessManager *m_NetManager;
 
@@ -308,7 +302,8 @@ private:
 
     // Search endpoints
     const QString op_product_barcode=QStringLiteral("product/barcode");
-    const QString op_products_search=QStringLiteral("products/search");    
+    const QString op_products_search=QStringLiteral("products/search");
+    const QString op_product_get=QStringLiteral("product/barcode");
 
     const QString op_locations=QStringLiteral("locations");
     const QString op_categories=QStringLiteral("categories");
@@ -379,34 +374,23 @@ private:
     QStringList m_taxes;
     QStringListModel m_tax_model;
 
-    QMap<QString, CategoryModel *>m_subcategorymodels;    
+    QMap<QString, CategoryModel *>m_subcategorymodels;
 
-    bool addFilePart(QHttpMultiPart *mp, QString prefix, QString fileName);
+    QMap<QNetworkReply *, RequestOps>m_requests;
+    QStringList m_attributes;
+
     QNetworkReply *post(QNetworkRequest &request, QHttpMultiPart *mp);
     QNetworkReply *put(QNetworkRequest &request, QHttpMultiPart *mp);
     QNetworkReply *get(QNetworkRequest &request);
     QNetworkReply *head(QNetworkRequest &request);
 
+    void queueRequest(QNetworkReply *req, RequestOps op);
+    bool createSimpleAuthenticatedRequest(const QString opurl, RequestOps op);
+
     QVariantMap parseJsonResponse(const QByteArray &data);
     void parseResponse(QNetworkReply *reply);
-    bool parseOKResponse(const QString op, const QByteArray &response, const QNetworkAccessManager::Operation method);
-    void parseErrorResponse(int code, QNetworkReply::NetworkError e, const QString op, const QByteArray &response);
-
-    bool isRequestActive(const QString &op) const;
-
-    void setBusy(bool busy);
-
-    const QUrl createRequestUrl(const QString &endpoint, const QString &detail=nullptr);
-    void setAuthenticationHeaders(QNetworkRequest *request);
-    void addParameter(QHttpMultiPart *mp, const QString key, const QVariant value);
-
-    QMap<QNetworkReply *, QString>m_requests;
-
-    QStringList m_attributes;
-
-    QString getRequestOp(QNetworkReply *rep);    
-
-    void setAuthentication(bool auth);
+    bool parseOKResponse(RequestOps op, const QByteArray &response, const QNetworkAccessManager::Operation method);
+    void parseErrorResponse(int code, QNetworkReply::NetworkError e, RequestOps op, const QByteArray &response);
     bool parseLocationData(QVariantMap &data);
     bool parseCategoryData(QVariantMap &data);
     bool parseProductData(QVariantMap &data, const QNetworkAccessManager::Operation method);
@@ -417,7 +401,20 @@ private:
     void parseCategoryMap(const QString key, CategoryModel &model, QVariantMap &tmp);
     bool parseOrderCreated(QVariantMap &data);
     bool parseOrders(QVariantMap &data);
+
+    void setBusy(bool busy);       
+
+    const QUrl createRequestUrl(const QString &endpoint, const QString &detail=nullptr);
+    void setAuthenticationHeaders(QNetworkRequest *request);
+    void addParameter(QHttpMultiPart *mp, const QString key, const QVariant value);
+    bool addFilePart(QHttpMultiPart *mp, QString prefix, QString fileName);
     void addCommonProductParameters(QHttpMultiPart *mp, ProductItem *product);
+
+    bool isRequestActive(RequestOps op) const;
+    RvAPI::RequestOps getRequestOp(QNetworkReply *rep);
+
+    void setAuthentication(bool auth);
+
     const QString getSortString(ItemSort is) const;
 };
 

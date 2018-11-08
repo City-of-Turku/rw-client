@@ -83,8 +83,9 @@ RvAPI::RvAPI(QObject *parent) :
     m_opmap.insert(op_auth_login, AuthLogin);
     m_opmap.insert(op_auth_logout, AuthLogout);
     m_opmap.insert(op_products_search, ProductSearch);
-    m_opmap.insert(op_product_barcode, ProductSearchBarcode);
+    m_opmap.insert(op_product_barcode, ProductSearchBarcode);    
     m_opmap.insert(op_product, Product);
+    m_opmap.insert(op_product_get, Products);
     m_opmap.insert(op_products, Products);
     m_opmap.insert(op_categories, Categories);
     m_opmap.insert(op_locations, Locations);
@@ -246,14 +247,6 @@ void RvAPI::clearProductFilters()
     emit searchSortChanged();
 }
 
-ProductItem *RvAPI::getProduct(const QString &barcode) const
-{
-    if (!m_product_store.contains(barcode))
-        return nullptr;
-
-    return m_product_store.value(barcode);
-}
-
 QVariantMap RvAPI::parseJsonResponse(const QByteArray &data)
 {
     QJsonDocument json=QJsonDocument::fromJson(data);
@@ -387,14 +380,14 @@ QNetworkReply *RvAPI::head(QNetworkRequest &request)
  * Check request list if operation is already in progress.
  *
  */
-bool RvAPI::isRequestActive(const QString &op) const
+bool RvAPI::isRequestActive(RequestOps op) const
 {
     return m_requests.values().contains(op);
 }
 
-QString RvAPI::getRequestOp(QNetworkReply *rep)
+RvAPI::RequestOps RvAPI::getRequestOp(QNetworkReply *rep)
 {
-    return m_requests.value(rep, "");
+    return m_requests.value(rep, UnknownOperation);
 }
 
 RvAPI::RequestOps RvAPI::getOperationIdentifier(const QString op)
@@ -426,7 +419,7 @@ void RvAPI::setBusy(bool busy)
  * Generic auth error in case of 401
  *
  */
-void RvAPI::parseErrorResponse(int code, QNetworkReply::NetworkError e, const QString op, const QByteArray &response)
+void RvAPI::parseErrorResponse(int code, QNetworkReply::NetworkError e, RequestOps op, const QByteArray &response)
 {
     QVariantMap v=parseJsonResponse(response);
     QVariantMap data=v.value("data").toMap();
@@ -436,25 +429,29 @@ void RvAPI::parseErrorResponse(int code, QNetworkReply::NetworkError e, const QS
     qDebug() << "ErrorDATA:\n" << data;
 #endif        
 
-    if (op==op_auth_login || code==403) {
+    if (op==AuthLogin || code==403) {
         setAuthentication(false);
         const QString error=data.value("error").toString();
         emit loginFailure(error, code==0 ? e+1000 : code);
         return;
     }
 
-    if (op==op_product_barcode && code==404) {
-        // XXX: Signal product not found        
+    if (op==ProductSearchBarcode && code==404) {
         emit productNotFound(v.value("message").toString());
         return;
     }
 
-    if (op==op_product) {
+    if (op==Product && code==404) {
+        emit productNotFound(v.value("message").toString());
+        return;
+    }
+
+    if (op==ProductAdd || op==ProductUpdate) {
         emit productFail(code, v.value("message").toString());
         return;
     }
 
-    if (op==op_products) {
+    if (op==Products) {
         emit productsFail(code, v.value("message").toString());
         return;
     }
@@ -606,30 +603,34 @@ bool RvAPI::parseProductData(QVariantMap &data, const QNetworkAccessManager::Ope
 {
     switch (method) {
     case QNetworkAccessManager::HeadOperation:
-        // emit productExists();
-        break;
-    case QNetworkAccessManager::GetOperation:
-        // emit productLoaded(true);
-        break;
-    case QNetworkAccessManager::PostOperation:
-        emit productSaved(true);
-        break;
-    case QNetworkAccessManager::PutOperation:
-        emit productSaved(false);
-        break;
+        emit productFound(nullptr);
+        return true;
     case QNetworkAccessManager::DeleteOperation:
-
         emit productDeleted(data["barcode"].toString());
         return true;
-    default:
-        qCritical("Unhandled product method!");
-        return false;        
+    case QNetworkAccessManager::GetOperation: {
+
+        ProductItem *p=ProductItem::fromVariantMap(data, this);
+        m_product_store.insert(p->barcode(), p);        
+        emit productFound(p);
     }
-
-    ProductItem *p=ProductItem::fromVariantMap(data, this);
-    m_product_store.insert(p->barcode(), p);
-
-    return true;
+        return true;
+    case QNetworkAccessManager::PostOperation: {
+        ProductItem *p=ProductItem::fromVariantMap(data, this);
+        m_product_store.insert(p->barcode(), p);
+        emit productSaved(p, true);
+    }
+        return true;
+    case QNetworkAccessManager::PutOperation: {
+        ProductItem *p=ProductItem::fromVariantMap(data, this);
+        m_product_store.insert(p->barcode(), p);
+        emit productSaved(p, false);
+    }
+        return true;
+    default:
+        qCritical("Unhandled product method!");        
+    }
+    return false;
 }
 
 bool RvAPI::parseProductsData(QVariantMap &data)
@@ -642,6 +643,7 @@ bool RvAPI::parseProductsData(QVariantMap &data)
     if (page==1) {        
         //m_itemsmodel.clear();
         clearProductStore();
+        m_itemsmodel.clear();
     }
 
     m_loadedAmount=amount;
@@ -744,7 +746,7 @@ bool RvAPI::parseFileDownload(const QByteArray &data)
  * @param op
  * @param response
  */
-bool RvAPI::parseOKResponse(const QString op, const QByteArray &response, const QNetworkAccessManager::Operation method)
+bool RvAPI::parseOKResponse(RequestOps op, const QByteArray &response, const QNetworkAccessManager::Operation method)
 {
     QVariantMap v=parseJsonResponse(response);
 
@@ -752,14 +754,10 @@ bool RvAPI::parseOKResponse(const QString op, const QByteArray &response, const 
     if (v.isEmpty())
         return false;
 
-    RequestOps ro=getOperationIdentifier(op);
     QVariantMap data=v.value("data").toMap();
-#ifdef DATA_DEBUG
-    qDebug() << method << ":" << op << ro;
-#endif
+    qDebug() << "parseOKResponse" << method << ":" << op << response;
 
-
-    switch (ro) {
+    switch (op) {
     case RvAPI::AuthLogin:
         return parseLogin(data);
     case RvAPI::AuthLogout:
@@ -771,6 +769,8 @@ bool RvAPI::parseOKResponse(const QString op, const QByteArray &response, const 
         return r;
     }
     case RvAPI::Product:
+    case RvAPI::ProductAdd:
+    case RvAPI::ProductUpdate:
         return parseProductData(data, method);
     case RvAPI::Products: {
         bool r=parseProductsData(data);
@@ -791,7 +791,7 @@ bool RvAPI::parseOKResponse(const QString op, const QByteArray &response, const 
     case RvAPI::DownloadAPK:
         return parseFileDownload(response);
     default:
-        qCritical() << "Unknown operation returned" << op << ro;
+        qCritical() << "Unknown operation returned" << op;
         break;
     }
 
@@ -817,15 +817,15 @@ void RvAPI::parseResponse(QNetworkReply *reply)
         return;
     }
 
-    const QString op=m_requests.value(reply, "");
+    RequestOps op=m_requests.value(reply, UnknownOperation);
     m_requests.remove(reply);
 
-    qDebug() << "parseResponse: " << e << hc << op;
+    qDebug() << "parseResponse: " << e << hc << op << reply->header(QNetworkRequest::ContentTypeHeader);
 
     switch (hc) {
     case 200:
     case 201:
-        if (reply->header(QNetworkRequest::ContentTypeHeader)=="application/octet-stream" && op==op_download) {
+        if (reply->header(QNetworkRequest::ContentTypeHeader)=="application/octet-stream" && op==DownloadAPK) {
             if (parseFileDownload(data)==false)
                 emit requestFailure(500, 0, "Failed to parse downloaded file");
         } else {
@@ -885,7 +885,7 @@ void RvAPI::setAuthenticationHeaders(QNetworkRequest *request)
         request->setRawHeader(QByteArray("X-Auth-Token"), m_authtoken.toUtf8());    
 }
 
-void RvAPI::queueRequest(QNetworkReply *req, const QString op)
+void RvAPI::queueRequest(QNetworkReply *req, RequestOps op)
 {
     m_requests.insert(req, op);
     setBusy(true);
@@ -899,7 +899,7 @@ void RvAPI::queueRequest(QNetworkReply *req, const QString op)
  * Create a basic operation request and queue it.
  *
  */
-bool RvAPI::createSimpleAuthenticatedRequest(const QString op)
+bool RvAPI::createSimpleAuthenticatedRequest(const QString opurl, RequestOps op)
 {
     if (!m_authenticated)
         return false;
@@ -907,7 +907,7 @@ bool RvAPI::createSimpleAuthenticatedRequest(const QString op)
     if (isRequestActive(op))
         return false;
 
-    QUrl url=createRequestUrl(op);
+    QUrl url=createRequestUrl(opurl);
     QNetworkRequest request;
     setAuthenticationHeaders(&request);
 
@@ -938,7 +938,10 @@ bool RvAPI::login()
         return false;
     }
 
-    if (isRequestActive(op_auth_login)) {
+    if (m_authenticated)
+        return false;
+
+    if (isRequestActive(AuthLogin)) {
         qDebug("Login request is already active");
         return false;
     }
@@ -952,7 +955,7 @@ bool RvAPI::login()
     addParameter(mp, QStringLiteral("apiversion"), m_apiversion);
     addParameter(mp, QStringLiteral("appversion"), m_appversion);
 
-    queueRequest(post(request, mp), op_auth_login);
+    queueRequest(post(request, mp), AuthLogin);
 
     return true;
 }
@@ -963,7 +966,7 @@ bool RvAPI::login()
  */
 bool RvAPI::logout()
 {
-    if (isRequestActive(op_auth_logout))
+    if (isRequestActive(AuthLogout))
         return false;
 
     if (m_authtoken.isEmpty())
@@ -974,7 +977,7 @@ bool RvAPI::logout()
 
     QHttpMultiPart *mp = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
-    queueRequest(post(request, mp), op_auth_logout);
+    queueRequest(post(request, mp), AuthLogout);
 
     return true;
 }
@@ -992,7 +995,7 @@ bool RvAPI::products(uint page, uint amount)
     if (amount>ITEMS_MAX || amount==0)
         amount=ITEMS_MAX;
 
-    if (isRequestActive(op_products))
+    if (isRequestActive(Products))
         return false;
 
     qDebug() << m_loadedPage;
@@ -1036,7 +1039,7 @@ bool RvAPI::products(uint page, uint amount)
 
     qDebug() << url;
 
-    queueRequest(get(request), op_products);
+    queueRequest(get(request), Products);
 
     return true;
 }
@@ -1070,56 +1073,10 @@ bool RvAPI::searchCancel()
     if (!m_authenticated)
         return false;
 
-    if (isRequestActive(op_products_search))
+    if (isRequestActive(ProductSearch))
         return false;
 
     return false;
-}
-
-/**
- * @brief RvAPI::searchBarcode
- * @param barcode
- * @param checkOnly
- * @return
- *
- * Search for specific product by barcode. Optionally just request check if product exists or not.
- *
- */
-bool RvAPI::searchBarcode(const QString barcode, bool checkOnly)
-{       
-    if (!m_authenticated)
-        return false;
-
-    if (!validateBarcode(barcode))
-        return false;
-
-    if (isRequestActive(op_product_barcode))
-        return false;
-
-    // Check if we already know about it
-    if (m_product_store.contains(barcode)) {
-        qDebug() << "Product for barcode " << barcode << "found in local storage";
-
-        ProductItem *item=m_product_store.value(barcode);
-        m_itemsmodel.clear();
-        m_itemsmodel.append(item);
-        emit searchCompleted(false, true);
-        return true;
-    }
-
-    QUrl url=createRequestUrl(op_product_barcode+"/"+barcode);
-    QUrlQuery query;
-    QNetworkRequest request;
-
-    setAuthenticationHeaders(&request);
-    request.setUrl(url);
-
-    QNetworkReply *req;
-
-    req=checkOnly ? head(request) : get(request);
-    queueRequest(req, op_product_barcode);
-
-    return true;
 }
 
 /**
@@ -1166,12 +1123,12 @@ void RvAPI::addCommonProductParameters(QHttpMultiPart *mp, ProductItem *product)
  * Add a new ProductItem
  *
  */
-bool RvAPI::add(ProductItem *product)
+bool RvAPI::addProduct(ProductItem *product)
 {    
     if (!m_authenticated)
         return false;
 
-    if (isRequestActive(op_product))
+    if (isRequestActive(ProductAdd))
         return false;
 
     QUrl url=createRequestUrl(op_product);
@@ -1211,7 +1168,7 @@ bool RvAPI::add(ProductItem *product)
 
     request.setUrl(url);
 
-    queueRequest(post(request, mp), op_product);
+    queueRequest(post(request, mp), ProductAdd);
 
     return true;
 }
@@ -1225,12 +1182,12 @@ bool RvAPI::add(ProductItem *product)
  * XXX: Untested at this time
  *
  */
-bool RvAPI::update(ProductItem *product)
+bool RvAPI::updateProduct(ProductItem *product)
 {
     if (!m_authenticated)
         return false;
 
-    if (isRequestActive(op_product))
+    if (isRequestActive(ProductUpdate))
         return false;
 
     QUrl url=createRequestUrl(op_product, product->getBarcode());
@@ -1245,7 +1202,86 @@ bool RvAPI::update(ProductItem *product)
     // XXX: How to handle images add/remove ?
 
     request.setUrl(url);
-    queueRequest(put(request, mp), op_product);
+    queueRequest(put(request, mp), ProductUpdate);
+
+    return true;
+}
+
+/**
+ * @brief RvAPI::getProduct
+ * @param barcode
+ * @return
+ *
+ * Request loading of product. If the product is cached it won't make a network request.
+ * Result is notified trough signals:
+ *
+ *
+ */
+bool RvAPI::getProduct(const QString &barcode, bool update)
+{
+    if (!validateBarcode(barcode))
+            return false;
+
+    if (m_product_store.contains(barcode) && !update) {
+        emit productFound(m_product_store.value(barcode));
+        return true;
+    }
+
+    QUrl url=createRequestUrl(op_product_get+"/"+barcode);
+    QUrlQuery query;
+    QNetworkRequest request;
+
+    setAuthenticationHeaders(&request);
+    request.setUrl(url);
+
+    QNetworkReply *req=get(request);
+    queueRequest(req, Product);
+
+    return true;
+}
+
+/**
+ * @brief RvAPI::searchBarcode
+ * @param barcode
+ * @param checkOnly
+ * @return
+ *
+ * Search for specific product by barcode. Optionally just request check if product exists or not.
+ *
+ */
+bool RvAPI::searchBarcode(const QString barcode, bool checkOnly)
+{
+    if (!m_authenticated)
+        return false;
+
+    if (!validateBarcode(barcode))
+        return false;
+
+    if (isRequestActive(ProductSearchBarcode))
+        return false;
+
+    // Check if we already know about it
+    if (m_product_store.contains(barcode)) {
+        qDebug() << "Product for barcode " << barcode << "found in local storage";
+
+        ProductItem *item=m_product_store.value(barcode);
+        m_itemsmodel.clear();
+        m_itemsmodel.append(item);
+        emit searchCompleted(false, true);
+        return true;
+    }
+
+    QUrl url=createRequestUrl(op_product_barcode+"/"+barcode);
+    QUrlQuery query;
+    QNetworkRequest request;
+
+    setAuthenticationHeaders(&request);
+    request.setUrl(url);
+
+    QNetworkReply *req;
+
+    req=checkOnly ? head(request) : get(request);
+    queueRequest(req, ProductSearchBarcode);
 
     return true;
 }
@@ -1262,7 +1298,7 @@ bool RvAPI::createOrder(bool done)
     if (!m_authenticated)
         return false;
 
-    if (isRequestActive(op_orders))
+    if (isRequestActive(Orders))
         return false;
 
     if (m_cartmodel.count()==0)
@@ -1303,24 +1339,53 @@ bool RvAPI::createOrder(bool done)
     }
 
     request.setUrl(url);
-    queueRequest(post(request, mp), op_orders);
+    queueRequest(post(request, mp), Orders);
 
     return true;
 }
 
 bool RvAPI::orders()
 {
-    return createSimpleAuthenticatedRequest(op_orders);
+    return createSimpleAuthenticatedRequest(op_orders, Orders);
 }
 
 bool RvAPI::getUserCart()
 {
-    return createSimpleAuthenticatedRequest(op_getcart);
+    return createSimpleAuthenticatedRequest(op_getcart, Cart);
 }
 
 bool RvAPI::clearUserCart()
 {
-    return createSimpleAuthenticatedRequest(op_clearcart);
+    return createSimpleAuthenticatedRequest(op_clearcart, ClearCart);
+}
+
+bool RvAPI::requestLocations()
+{
+    return createSimpleAuthenticatedRequest(op_locations, Locations);
+}
+
+bool RvAPI::requestCategories()
+{
+    return createSimpleAuthenticatedRequest(op_categories, Categories);
+}
+
+bool RvAPI::downloadUpdate()
+{
+    if (!m_authenticated)
+        return false;
+
+    if (isRequestActive(DownloadAPK))
+        return false;
+
+    QUrl url=createRequestUrl(op_download);
+    QNetworkRequest request;
+    setAuthenticationHeaders(&request);
+
+    request.setUrl(url);
+
+    queueRequest(get(request), DownloadAPK);
+
+    return true;
 }
 
 /**
@@ -1337,16 +1402,6 @@ QUrl RvAPI::getImageUrl(const QString image)
     QUrl u=QUrl(image);
 
     return u;
-}
-
-bool RvAPI::requestLocations()
-{
-    return createSimpleAuthenticatedRequest(op_locations);
-}
-
-bool RvAPI::requestCategories()
-{
-    return createSimpleAuthenticatedRequest(op_categories);
 }
 
 bool RvAPI::validateBarcode(const QString barcode) const
@@ -1416,25 +1471,6 @@ CategoryModel *RvAPI::getSubCategoryModel(const QString key)
 QStringListModel *RvAPI::getTaxModel()
 {
     return &m_tax_model;
-}
-
-bool RvAPI::downloadUpdate()
-{
-    if (!m_authenticated)
-        return false;
-
-    if (isRequestActive(op_download))
-        return false;
-
-    QUrl url=createRequestUrl(op_download);
-    QNetworkRequest request;
-    setAuthenticationHeaders(&request);
-
-    request.setUrl(url);
-
-    queueRequest(get(request), op_download);
-
-    return true;
 }
 
 bool RvAPI::authenticated() const
