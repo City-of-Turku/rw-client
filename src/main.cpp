@@ -46,6 +46,7 @@ QNetworkReply* MyNetworkAccessManager::createRequest(QNetworkAccessManager::Oper
     QNetworkRequest myReq(req);
 
     myReq.setRawHeader(QByteArray("X-AuthenticationKey"), API_KEY);
+    myReq.setAttribute(QNetworkRequest::HttpPipeliningAllowedAttribute, true);
     return QNetworkAccessManager::createRequest(op, myReq, device);
 }
 
