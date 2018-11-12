@@ -44,6 +44,8 @@ RvAPI::RvAPI(QObject *parent) :
 {
 
     connect(m_NetManager,SIGNAL(sslErrors(QNetworkReply*,QList<QSslError>)),this,SLOT(onIgnoreSSLErrors(QNetworkReply*,QList<QSslError>)));
+    //connect(m_NetManager,SIGNAL(authenticationRequired()), this, SLOT(authenticationRequired));
+    connect(m_NetManager, &QNetworkAccessManager::authenticationRequired, this, &RvAPI::authenticationRequired);
 
     QNetworkDiskCache *diskCache = new QNetworkDiskCache(this);
     diskCache->setCacheDirectory(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
@@ -152,6 +154,25 @@ void RvAPI::onIgnoreSSLErrors(QNetworkReply *reply, QList<QSslError> error)
     qWarning() << "SSL Error(s):" << error;
 
     emit secureConnectionFailure();
+}
+
+/**
+ * @brief RvAPI::authenticationRequired
+ * @param reply
+ * @param authenticator
+ *
+ * Set authentication credential in case API endpoint is behind extra layer of logins.
+ *
+ */
+void RvAPI::authenticationRequired(QNetworkReply *reply, QAuthenticator *authenticator)
+{
+    qDebug("authenticationRequired");
+#if defined(DEVEL_SANDBOX_AUTH_USERNAME) && defined(DEVEL_SANDBOX_AUTH_PASSWORD)
+    authenticator->setUser(DEVEL_SANDBOX_AUTH_USERNAME);
+    authenticator->setPassword(DEVEL_SANDBOX_AUTH_PASSWORD);
+#else
+    qWarning("Extra authentication not set");
+#endif
 }
 
 void RvAPI::requestError(QNetworkReply::NetworkError code)

@@ -21,6 +21,7 @@
 
 #include <QCache>
 #include <QNetworkDiskCache>
+#include <QAuthenticator>
 
 #include <QStringListModel>
 
@@ -260,6 +261,8 @@ public slots:
 
 protected slots:
     void onIgnoreSSLErrors(QNetworkReply *reply, QList<QSslError> error);
+    void authenticationRequired(QNetworkReply *reply, QAuthenticator *authenticator);
+
     void connectReply(QNetworkReply *reply);
     void setHasMore(bool hasmore);
 
