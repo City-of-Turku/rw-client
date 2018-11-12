@@ -75,10 +75,35 @@ Page {
     }
 
     Keys.onReleased: {
-        if (event.key === Qt.Key_Back) {
-            console.log("*** Back button")
-            event.accepted = true;
+        switch (event.key) {
+        case Qt.Key_Back:
+            event.accepted=true;
             rootStack.pop()
+            break;
+        case Qt.Key_Home:
+            orderCart.positionViewAtBeginning()
+            event.accepted=true;
+            break;
+        case Qt.Key_End:
+            orderCart.positionViewAtEnd()
+            event.accepted=true;
+            break;
+        case Qt.Key_Space:
+            orderCart.flick(0, -orderCart.maximumFlickVelocity)
+            event.accepted=true;
+            break;
+        case Qt.Key_PageDown:
+            orderCart.flick(0, -orderCart.maximumFlickVelocity)
+            event.accepted=true;
+            break;
+        case Qt.Key_PageUp:
+            orderCart.flick(0, orderCart.maximumFlickVelocity)
+            event.accepted=true;
+            break;
+        case Qt.Key_B:
+            scanBarcode();
+            event.accepted=true;
+            break;
         }
     }
 
@@ -119,13 +144,17 @@ Page {
         }
     }
 
+    function scanBarcode() {
+        rootStack.push(cameraScanner);
+    }
+
     footer: ToolBar {
         RowLayout {
             ToolButton {
                 text: qsTr("Scan")
                 enabled: !searchActive && searchString==''
                 onClicked: {
-                    rootStack.push(cameraScanner);
+                    scanBarcode();
                 }
             }
 
@@ -165,15 +194,6 @@ Page {
             onDecodeDone: {
                 searchBarcode(searchString)
             }
-        }
-    }
-
-    Connections {
-        target: api
-
-        onSearchCompleted: {
-            console.debug("SEARCH DONE")
-            setSearchActive(false);
         }
     }
 

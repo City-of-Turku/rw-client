@@ -25,10 +25,31 @@ Page {
     property alias model: orders.model
 
     Keys.onReleased: {
-        if (event.key === Qt.Key_Back) {
-            console.log("*** Back button")
-            event.accepted = true;
+        switch (event.key) {
+        case Qt.Key_Back:
+            event.accepted=true;
             rootStack.pop()
+            break;
+        case Qt.Key_Home:
+            orders.positionViewAtBeginning()
+            event.accepted=true;
+            break;
+        case Qt.Key_End:
+            orders.positionViewAtEnd()
+            event.accepted=true;
+            break;
+        case Qt.Key_Space:
+            orders.flick(0, -orders.maximumFlickVelocity)
+            event.accepted=true;
+            break;
+        case Qt.Key_PageDown:
+            orders.flick(0, -orders.maximumFlickVelocity)
+            event.accepted=true;
+            break;
+        case Qt.Key_PageUp:
+            orders.flick(0, orders.maximumFlickVelocity)
+            event.accepted=true;
+            break;
         }
     }
 

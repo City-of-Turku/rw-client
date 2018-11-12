@@ -90,19 +90,16 @@ Page {
             searchResults.maybeTriggerLoadMore();
             event.accepted=true;
             break;
-        case Qt.Key_Space:
-            //searchResults.moveCurrentIndexDown()
+        case Qt.Key_Space:            
             searchResults.flick(0, -searchResults.maximumFlickVelocity)
             event.accepted=true;
             break;
-        case Qt.Key_PageDown:
-            //searchResults.moveCurrentIndexDown()
-            searchResults.flick(0, -searchResults.maximumFlickVelocity/2)
+        case Qt.Key_PageDown:            
+            searchResults.flick(0, -searchResults.maximumFlickVelocity)
             event.accepted=true;
             break;
-        case Qt.Key_PageUp:
-            //searchResults.moveCurrentIndexUp()
-            searchResults.flick(0, searchResults.maximumFlickVelocity/2)
+        case Qt.Key_PageUp:            
+            searchResults.flick(0, searchResults.maximumFlickVelocity)
             event.accepted=true;
             break;
         case Qt.Key_S:
