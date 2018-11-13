@@ -737,13 +737,13 @@ ApplicationWindow {
 
         function getOrderStatusString(s) {
             switch (s) {
-            case Order.Pending:
+            case OrderItem.Pending:
                 return qsTr("Pending");
-            case Order.Shipped:
+            case OrderItem.Shipped:
                 return qsTr("Shipped");
-            case Order.Cart:
+            case OrderItem.Cart:
                 return qsTr("Cart");
-            case Order.Unknown:
+            case OrderItem.Unknown:
                 return qsTr("Unknown");
             }
         }

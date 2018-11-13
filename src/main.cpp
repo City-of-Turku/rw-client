@@ -122,8 +122,8 @@ int main(int argc, char *argv[])
 
     qmlRegisterType<BarcodeVideoFilter>("net.ekotuki", 1,0, "BarcodeScanner");
     qmlRegisterType<ProductItem>("net.ekotuki", 1,0, "Product");
-    qmlRegisterType<OrderItem>("net.ekotuki", 1,0, "Order");
-    qmlRegisterType<OrderLineItem>("net.ekotuki", 1,0, "OrderItem");
+    qmlRegisterType<OrderItem>("net.ekotuki", 1,0, "OrderItem");
+    qmlRegisterType<OrderLineItem>("net.ekotuki", 1,0, "OrderLineItem");
     qmlRegisterType<RvAPI>("net.ekotuki", 1,0, "ServerApi");
 
     qmlRegisterUncreatableType<CategoryModel>("net.ekotuki", 1, 0, "CategoryModel", "Used in C++ only");

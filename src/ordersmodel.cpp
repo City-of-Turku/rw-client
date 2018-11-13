@@ -6,7 +6,7 @@ OrdersModel::OrdersModel(QObject *parent)
     : Cute::AbstractObjectModel(QMetaType::type("OrderItem"), parent),
       m_lineitems(this)
 {    
-
+    m_key_name="id";
 }
 
 OrdersModel::~OrdersModel()

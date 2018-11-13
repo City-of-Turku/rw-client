@@ -32,6 +32,8 @@ OrderItem *OrderItem::fromVariantMap(QVariantMap &data, QObject *parent)
         o->m_status=OrderStatus::Shipped;
     else if (s=="pending")
         o->m_status=OrderStatus::Pending;
+    else if (s=="processing")
+        o->m_status=OrderStatus::Processing;
     else
         o->m_status=OrderStatus::Unknown;
 

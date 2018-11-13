@@ -159,9 +159,12 @@ public:
 
     Q_INVOKABLE bool haveLocations();
 
-    Q_INVOKABLE bool isOrderEmpty();  
+    Q_INVOKABLE bool isOrderEmpty();
     Q_INVOKABLE bool createOrder(bool done);
     Q_INVOKABLE bool orders();
+
+    // Should be, but QtQuick does not like enums in Q_INVOKABLE bool updateOrderStatus(OrderItem *order, OrderItem::OrderStatus status);
+    Q_INVOKABLE bool updateOrderStatus(OrderItem *order, int status);
 
     Q_INVOKABLE bool getUserCart();
     Q_INVOKABLE bool clearUserCart();
@@ -277,7 +280,7 @@ private:
         UnknownOperation,
         AuthLogin, AuthLogout,
         ProductSearch, ProductSearchBarcode, ProductAdd, ProductUpdate, Product, Products,
-        Order, Orders,
+        Order, Orders, OrderStatus,
         Cart, ClearCart,
         Categories,
         Locations,
@@ -376,6 +379,8 @@ private:
 
     QStringList m_taxes;
     QStringListModel m_tax_model;
+
+    QMap<OrderItem::OrderStatus, QString>m_order_status_str;
 
     QMap<QString, CategoryModel *>m_subcategorymodels;
 

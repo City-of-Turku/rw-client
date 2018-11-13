@@ -24,7 +24,7 @@ Page {
     property bool showTotalPrice: false;
     property alias model: orderProducts.model
 
-    property Order order;
+    property OrderItem order;
     property OrderLineItemModel products;
 
     Keys.onReleased: {
@@ -46,8 +46,18 @@ Page {
         id: toolbar
         enableBackPop: true
         enableMenuButton: false
-        visibleMenuButton: false
-        //onMenuButton: cameraMenu.open();
+        visibleMenuButton: true
+        onMenuButton: orderMenu.open();
+    }
+
+    Menu {
+        id: orderMenu
+        MenuItem {
+            text: "Cancel order"
+            onClicked: {
+                api.updateOrderStatus(order, Order.Cancelled);
+            }
+        }
     }
 
     footer: ToolBar {
@@ -57,7 +67,7 @@ Page {
     }
 
     Connections {
-        target: api                
+        target: api
 
         onProductFound: {
             console.debug("PageOrder: Product found!")
@@ -94,7 +104,7 @@ Page {
         anchors.margins: 4
 
         DetailItem {
-            label: "ID:"
+            label: "Order:"
             value: order.orderID
         }
         DetailItem {
@@ -108,6 +118,31 @@ Page {
         DetailItem {
             label: "Products:"
             value: model.count
+        }
+
+        RowLayout {
+            Button {
+                visible: order.status==OrderItem.Pending
+                text: "Start processing order"
+                onClicked: {
+                    api.updateOrderStatus(order, OrderItem.Processing);
+                }
+            }
+            Button {
+                visible: order.status==OrderItem.Processing
+                text: "Back to pending"
+                onClicked: {
+                    api.updateOrderStatus(order, OrderItem.Pending);
+                }
+            }
+            Button {
+                visible: order.status==OrderItem.Processing
+                text: "Mark as shipped"
+//                enabled: order
+                onClicked: {
+                    api.updateOrderStatus(order, OrderItem.Shipped);
+                }
+            }
         }
 
         ListView {
@@ -140,9 +175,10 @@ Page {
                         x: parent.width/3
                         MenuItem {
                             text: qsTr("Set Picked")
+                            enabled: type=="product"
                             onClicked: {
-                                var o=orderProducts.model.get(index)
-                                o.status=OrderItem.OrderItemPicked
+                                //var o=orderProducts.model.get(index)
+                                status=OrderItem.OrderItemPicked
                             }
                         }
                     }

@@ -22,7 +22,7 @@ class OrderItem : public QObject
 
 public:
     explicit OrderItem(QObject *parent = nullptr);
-    enum OrderStatus { Unknown=0, Cart, Cancelled, Pending, Shipped };
+    enum OrderStatus { Unknown=0, Cart, Cancelled, Pending, Processing, Shipped };
 
     static OrderItem *fromVariantMap(QVariantMap &data, QObject *parent);
 

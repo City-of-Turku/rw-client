@@ -81,6 +81,11 @@ RvAPI::RvAPI(QObject *parent) :
     m_taxes << "0%" << "24%" << "14%" << "10%";
     m_tax_model.setStringList(m_taxes);
 
+    m_order_status_str.insert(OrderItem::Cancelled, "canceled");
+    m_order_status_str.insert(OrderItem::Pending, "pending");
+    m_order_status_str.insert(OrderItem::Processing, "processing");
+    m_order_status_str.insert(OrderItem::Cart, "cart");
+
     // String operator to ID map
     m_opmap.insert(op_auth_login, AuthLogin);
     m_opmap.insert(op_auth_logout, AuthLogout);
@@ -1368,6 +1373,23 @@ bool RvAPI::createOrder(bool done)
 bool RvAPI::orders()
 {
     return createSimpleAuthenticatedRequest(op_orders, Orders);
+}
+
+bool RvAPI::updateOrderStatus(OrderItem *order, int status)
+{
+    QUrl url=createRequestUrl(op_order+"/"+order->property("orderID").toString()+"/status");
+    QNetworkRequest request;
+    setAuthenticationHeaders(&request);
+
+    QHttpMultiPart *mp = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+
+    OrderItem::OrderStatus tmp=(OrderItem::OrderStatus)status;
+
+    addParameter(mp, "status", m_order_status_str.value(tmp));
+    request.setUrl(url);
+    queueRequest(post(request, mp), OrderStatus);
+
+    return true;
 }
 
 bool RvAPI::getUserCart()

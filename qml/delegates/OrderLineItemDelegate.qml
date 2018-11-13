@@ -51,12 +51,12 @@ Rectangle {
                 text: getPickedStatus(status)
                 function getPickedStatus(s) {
                     switch (s) {
-                    case OrderItem.OrderItemPending:
-                        return "Pending"
-                    case OrderItem.OrderItemPicked:
-                        return "Picked"
-                    case OrderItem.OrderItemNotFound:
-                        return "Not found"
+                    case OrderLineItem.OrderItemPending:
+                        return qsTr("Pending")
+                    case OrderLineItem.OrderItemPicked:
+                        return qsTr("Picked")
+                    case OrderLineItem.OrderItemNotFound:
+                        return qsTr("Not found")
                     }
                 }
             }
