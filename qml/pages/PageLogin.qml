@@ -76,8 +76,7 @@ Page {
             spacing: 8
             anchors.margins: 8
 
-            ColumnLayout {
-                anchors.horizontalCenter: parent.horizontalCenter
+            ColumnLayout {                
                 Layout.alignment: Qt.AlignTop
                 Layout.fillWidth: true
                 Layout.margins: 8
@@ -86,8 +85,7 @@ Page {
                 ColumnLayout {
                     id: c
                     Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignTop
-                    anchors.horizontalCenter: parent.horizontalCenter
+                    Layout.alignment: Qt.AlignTop                    
                     spacing: 8
 
                     Label {
