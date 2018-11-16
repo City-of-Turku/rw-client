@@ -23,7 +23,7 @@ Rectangle {
             spacing: 4
             Layout.fillWidth: true
             Text {
-                text: orderID
+                text: model.id
                 font.pixelSize: 18
                 font.bold: true
             }

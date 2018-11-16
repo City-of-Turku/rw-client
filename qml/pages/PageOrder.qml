@@ -21,11 +21,15 @@ Page {
     title: qsTr("Order")
     objectName: "order"
 
-    property bool showTotalPrice: false;
+    property bool showTotalPrice: true;
     property alias model: orderProducts.model
 
     property OrderItem order;
     property OrderLineItemModel products;
+
+    function scanBarcode() {
+        rootStack.push(cameraScanner);
+    }
 
     Keys.onReleased: {
         if (event.key === Qt.Key_Back) {
@@ -45,24 +49,54 @@ Page {
     header: ToolbarBasic {
         id: toolbar
         enableBackPop: true
-        enableMenuButton: false
+        enableMenuButton: true
         visibleMenuButton: true
         onMenuButton: orderMenu.open();
     }
 
     Menu {
         id: orderMenu
+        x: toolbar.width - width
+        transformOrigin: Menu.TopRight
+        modal: true
         MenuItem {
-            text: "Cancel order"
+            text: qsTr("Cancel order")
+            enabled: order.status==OrderItem.Pending
             onClicked: {
-                api.updateOrderStatus(order, Order.Cancelled);
+                confirmCancelDialog.open();
             }
+        }
+    }
+
+    MessageDialog {
+        id: confirmCancelDialog
+        standardButtons: StandardButton.Ok | StandardButton.Cancel
+        icon: StandardIcon.Question
+        title: qsTr("Cancel Order ?")
+        text: qsTr("Are you sure ?")
+
+        onAccepted: {
+            api.updateOrderStatus(order, OrderItem.Cancelled);
         }
     }
 
     footer: ToolBar {
         RowLayout {
+            ToolButton {
+                text: qsTr("Scan")
+                onClicked: scanBarcode();
+            }
+        }
+    }
 
+    Connections {
+        target: products
+
+        onIsPicked: {
+            console.debug("Order "+isPicked)
+            if (isPicked) {
+
+            }
         }
     }
 
@@ -78,10 +112,14 @@ Page {
             console.debug("PageOrder: Product NOT found")
             messagePopup.show("Not found", "Product not found", 404);
         }
+
+        onOrderStatusUpdated: {
+            messagePopup.show("Order status", "Order status changed");
+        }
     }
 
     MessagePopup {
-        id: messagePopup
+        id: messagePopup        
     }
 
     Component {
@@ -98,6 +136,39 @@ Page {
         }
     }
 
+    Component {
+        id: cameraScanner
+        PageCamera {
+            id: scanCamera
+            oneShot: false
+            Component.onCompleted: {
+                scanCamera.startCamera();
+            }
+            onBarcodeFound: {
+                if (!setLineItemPickedByBarcode(barcode)) {
+                    messagePopup.show(barcode, "No such product in order");
+                } else {
+                    messagePopup.show(barcode, "Product marked as picked");
+                }
+            }
+            onDecodeDone: {
+
+            }
+        }
+    }
+
+    function setLineItemPickedByBarcode(barcode) {
+        for (var i=0;i<model.count;i++) {
+            var o=model.getItem(i);
+            if (o.sku==barcode) {
+                o.status=OrderLineItem.OrderItemPicked
+                model.refresh(i);
+                return true;
+            }
+        }
+        return false;
+    }
+
     ColumnLayout {
         id: mainContainer
         anchors.fill: parent
@@ -105,7 +176,7 @@ Page {
 
         DetailItem {
             label: "Order:"
-            value: order.orderID
+            value: order.id
         }
         DetailItem {
             label: "Status:"
@@ -116,34 +187,13 @@ Page {
             value: order.created.toLocaleDateString();
         }
         DetailItem {
+            label: "Changed:"
+            value: order.changed.toLocaleDateString();
+        }
+        DetailItem {
             label: "Products:"
             value: model.count
-        }
-
-        RowLayout {
-            Button {
-                visible: order.status==OrderItem.Pending
-                text: "Start processing order"
-                onClicked: {
-                    api.updateOrderStatus(order, OrderItem.Processing);
-                }
-            }
-            Button {
-                visible: order.status==OrderItem.Processing
-                text: "Back to pending"
-                onClicked: {
-                    api.updateOrderStatus(order, OrderItem.Pending);
-                }
-            }
-            Button {
-                visible: order.status==OrderItem.Processing
-                text: "Mark as shipped"
-//                enabled: order
-                onClicked: {
-                    api.updateOrderStatus(order, OrderItem.Shipped);
-                }
-            }
-        }
+        }       
 
         ListView {
             id: orderProducts
@@ -156,14 +206,20 @@ Page {
             delegate: Component {
                 OrderLineItemDelegate {
                     width: parent.width
-                    height: childrenRect.height
+                    height: childrenRect.height                    
 
-                    onClicked: {
+                    onClicked:  {
+                        if (orderProducts.currentIndex==index)
+                            openProductAtIndex(index)
+                        else
+                            orderProducts.currentIndex=index
+                    }
+
+                    onDoubleClicked: {
                         openProductAtIndex(index)
                     }
 
-                    onPressandhold: {
-                        console.debug("PAH")
+                    onPressAndHold: {
                         productMenu.open();
                     }
 
@@ -175,11 +231,14 @@ Page {
                         x: parent.width/3
                         MenuItem {
                             text: qsTr("Set Picked")
-                            enabled: type=="product"
-                            onClicked: {
-                                //var o=orderProducts.model.get(index)
-                                status=OrderItem.OrderItemPicked
+                            enabled: type=="product" && status!=OrderLineItem.OrderItemPicked
+                            onClicked: {                                
+                                status=OrderLineItem.OrderItemPicked
                             }
+                        }
+                        MenuItem {
+                            text: qsTr("View product")
+                            onClicked: openProductAtIndex(index)
                         }
                     }
 
@@ -200,17 +259,53 @@ Page {
             }
         }
 
+        RowLayout {
+            Layout.fillWidth: true
+            Button {
+                Layout.fillWidth: true
+                visible: order.status==OrderItem.Cancelled
+                text: "Redo cancelled order"
+                onClicked: {
+                    api.updateOrderStatus(order, OrderItem.Pending);
+                }
+            }
+            Button {
+                Layout.fillWidth: true
+                visible: order.status==OrderItem.Pending
+                text: "Start processing order"
+                onClicked: {
+                    api.updateOrderStatus(order, OrderItem.Processing);
+                }
+            }
+            Button {
+                Layout.fillWidth: true
+                visible: order.status==OrderItem.Processing
+                text: "Cancel order processing"
+                onClicked: {
+                    api.updateOrderStatus(order, OrderItem.Pending);
+                }
+            }
+            Button {
+                Layout.fillWidth: true
+                visible: order.status==OrderItem.Processing
+                text: "Mark order shipped"
+                onClicked: {
+                    api.updateOrderStatus(order, OrderItem.Shipped);
+                }
+            }
+        }
 
         RowLayout {
-            visible: showTotalPrice && orderCart.count>0
+            visible: showTotalPrice && products.count>0
             Layout.fillWidth: true
             Layout.fillHeight: false
             Label {
                 text: qsTr("Total:")
                 Layout.fillWidth: true
             }
-            Label {
+            Badge {
                 id: totalPrice
+                text: order.amount.toFixed(2) +" "+ order.currency
             }
         }
     }

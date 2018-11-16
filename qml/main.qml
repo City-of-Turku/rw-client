@@ -481,7 +481,9 @@ ApplicationWindow {
     Component {
         id: ordersView
         PageOrders {
+            StackView.onActivated: {
 
+            }
         }
     }
 
@@ -737,14 +739,35 @@ ApplicationWindow {
 
         function getOrderStatusString(s) {
             switch (s) {
+            case OrderItem.Cancelled:
+                return qsTr("Cancelled");
             case OrderItem.Pending:
                 return qsTr("Pending");
+            case OrderItem.Processing:
+                return qsTr("Processing");
             case OrderItem.Shipped:
                 return qsTr("Shipped");
             case OrderItem.Cart:
                 return qsTr("Cart");
             case OrderItem.Unknown:
                 return qsTr("Unknown");
+            }
+            console.debug("Unknown status: "+s)
+        }
+        function getOrderStatusBgColor(s) {
+            switch (s) {
+            case OrderItem.Cancelled:
+                return "#ff0000";
+            case OrderItem.Pending:
+                return "#00bfaf";
+            case OrderItem.Processing:
+                return "#00ffaf";
+            case OrderItem.Shipped:
+                return "#00ff00";
+            case OrderItem.Cart:
+                return "#f0f0f0";
+            case OrderItem.Unknown:
+                return "#f0f0f0";
             }
         }
 

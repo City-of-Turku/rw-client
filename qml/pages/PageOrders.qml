@@ -23,6 +23,15 @@ Page {
     objectName: "orders"
 
     property alias model: orders.model
+    property bool needsRefresh: false
+
+    onNeedsRefreshChanged: {
+        console.debug("NR: "+needsRefresh)
+        if (needsRefresh) {
+            root.api.orders();
+            needsRefresh=false;
+        }
+    }
 
     Keys.onReleased: {
         switch (event.key) {
@@ -50,6 +59,10 @@ Page {
             orders.flick(0, orders.maximumFlickVelocity)
             event.accepted=true;
             break;
+        case Qt.Key_F5:
+            root.api.orders();
+            event.accepted=true;
+            break;
         }
     }
 
@@ -69,9 +82,15 @@ Page {
 
     footer: ToolBar {
         RowLayout {
+            ToolButton {                
+                text: qsTr("Pending")
+                enabled: !api.busy
+                onClicked: {
+                    root.api.orders();
+                }
+            }
             ToolButton {
-                // XXX: Icon
-                text: qsTr("Refresh")
+                text: qsTr("In progress")
                 enabled: !api.busy
                 onClicked: {
                     root.api.orders();
