@@ -9,7 +9,7 @@ class OrderLineItem : public QObject
 {
     Q_OBJECT
     Q_ENUMS(OrderLineStatus)
-    Q_PROPERTY(int itemID MEMBER m_id)
+    Q_PROPERTY(int id MEMBER m_id)
     Q_PROPERTY(QString sku MEMBER m_sku NOTIFY skuChanged)
     Q_PROPERTY(QString title MEMBER m_title NOTIFY titleChanged)
     Q_PROPERTY(QString type MEMBER m_type NOTIFY typeChanged)

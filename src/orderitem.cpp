@@ -12,30 +12,19 @@ OrderItem *OrderItem::fromVariantMap(QVariantMap &data, QObject *parent)
 {
     OrderItem *o=new OrderItem(parent);
 
-    qDebug() << data;
+    qDebug() << "OrderItem" << data;
 
     o->m_id=data.value("id").toString().toUInt();
-    o->m_uid=data.value("user").toString().toUInt();
-
-    o->m_changed=QDateTime::fromSecsSinceEpoch(data.value("changed").toString().toUInt());
     o->m_created=QDateTime::fromSecsSinceEpoch(data.value("created").toString().toUInt());
-
     o->m_amount=data.value("amount").toString().toUInt();
+    o->m_currency=data.value("currency").toString();
+
+    o->updateFromVariantMap(data);
+
+    qDebug() << o->m_id << o->m_uid << o->m_amount << o->m_created << o->m_changed;
 
     o->m_billing=data.value("billing").toMap();
     o->m_shipping=data.value("shipping").toMap();
-
-    QString s=data.value("status").toString();
-    if (s=="cart")
-        o->m_status=OrderStatus::Cart;
-    else if (s=="shipped")
-        o->m_status=OrderStatus::Shipped;
-    else if (s=="pending")
-        o->m_status=OrderStatus::Pending;
-    else if (s=="processing")
-        o->m_status=OrderStatus::Processing;
-    else
-        o->m_status=OrderStatus::Unknown;
 
     QVariantList items=data.value("items").toList();
 
@@ -47,6 +36,18 @@ OrderItem *OrderItem::fromVariantMap(QVariantMap &data, QObject *parent)
     }
 
     return o;
+}
+
+void OrderItem::updateFromVariantMap(QVariantMap &data)
+{
+    m_uid=data.value("user").toString().toUInt();
+    m_changed=QDateTime::fromSecsSinceEpoch(data.value("changed").toString().toUInt());
+
+    m_amount=data.value("amount").toString().toUInt();
+    m_currency=data.value("currency").toString();
+
+    QString s=data.value("status").toString();
+    setStatusFromString(s);
 }
 
 int OrderItem::count()
@@ -67,5 +68,27 @@ QVariantMap OrderItem::shipping()
 QVariantMap OrderItem::billing()
 {
     return m_billing;
+}
+
+OrderItem::OrderStatus OrderItem::setStatusFromString(const QString &s)
+{
+    if (s=="cart")
+        m_status=OrderStatus::Cart;
+    else if (s=="completed")
+        m_status=OrderStatus::Shipped;
+    else if (s=="pending")
+        m_status=OrderStatus::Pending;
+    else if (s=="processing")
+        m_status=OrderStatus::Processing;
+    else if (s=="canceled")
+        m_status=OrderStatus::Cancelled;
+    else {
+        qWarning() << "Unknown order status " << s;
+        m_status=OrderStatus::Unknown;
+    }
+
+    emit statusChanged();
+
+    return m_status;
 }
 

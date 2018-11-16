@@ -47,9 +47,11 @@ RvAPI::RvAPI(QObject *parent) :
     //connect(m_NetManager,SIGNAL(authenticationRequired()), this, SLOT(authenticationRequired));
     connect(m_NetManager, &QNetworkAccessManager::authenticationRequired, this, &RvAPI::authenticationRequired);
 
+#if 0
     QNetworkDiskCache *diskCache = new QNetworkDiskCache(this);
     diskCache->setCacheDirectory(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
     m_NetManager->setCache(diskCache);
+#endif
 
     // Create network request application header string
     m_hversion=QString("RW/%1").arg(QCoreApplication::applicationVersion());
@@ -81,9 +83,11 @@ RvAPI::RvAPI(QObject *parent) :
     m_taxes << "0%" << "24%" << "14%" << "10%";
     m_tax_model.setStringList(m_taxes);
 
+    // Order status Enum to API text map
     m_order_status_str.insert(OrderItem::Cancelled, "canceled");
     m_order_status_str.insert(OrderItem::Pending, "pending");
     m_order_status_str.insert(OrderItem::Processing, "processing");
+    m_order_status_str.insert(OrderItem::Shipped, "completed");
     m_order_status_str.insert(OrderItem::Cart, "cart");
 
     // String operator to ID map
@@ -542,6 +546,25 @@ bool RvAPI::parseOrderCreated(QVariantMap &data)
     return true;
 }
 
+bool RvAPI::parseOrderStatusUpdate(QVariantMap &data)
+{    
+    int id=data["id"].toInt();
+
+    qDebug() << "Order" << id << data;
+
+    OrderItem *oi=dynamic_cast<OrderItem *>(m_ordersmodel.getId(id));
+    if (!oi) {
+        qWarning("Updated order not found in our orders list");
+        return false;
+    }
+
+    oi->updateFromVariantMap(data);
+
+    emit orderStatusUpdated();
+
+    return true;
+}
+
 bool RvAPI::parseOrders(QVariantMap &data)
 {
     QVariantList orders=data.value("orders").toList();
@@ -814,6 +837,10 @@ bool RvAPI::parseOKResponse(RequestOps op, const QByteArray &response, const QNe
             return parseOrders(data);
         else
             return false;
+    case RvAPI::OrderStatus:
+        if (method==QNetworkAccessManager::PostOperation)
+            return parseOrderStatusUpdate(data);
+        break;
     case RvAPI::DownloadAPK:
         return parseFileDownload(response);
     default:
@@ -830,12 +857,6 @@ void RvAPI::parseResponse(QNetworkReply *reply)
     const QByteArray data = reply->readAll();
     int hc=reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
-#ifdef DATA_DEBUG
-    qDebug() << "API request response:";
-    qDebug() << "OP: " << reply->operation() << " Code: " << hc;
-    qDebug() << "Data:\n" << data;
-#endif
-
     if (!m_requests.contains(reply)) {
         qWarning("Request missing from queue, this should not happen");
         // XXX: Not much we can do if we don't know what happened, anyway this should not happen.
@@ -846,7 +867,8 @@ void RvAPI::parseResponse(QNetworkReply *reply)
     RequestOps op=m_requests.value(reply, UnknownOperation);
     m_requests.remove(reply);
 
-    qDebug() << "parseResponse: " << e << hc << op << reply->header(QNetworkRequest::ContentTypeHeader);
+    qDebug() << "parseResponse: " << e << hc << op << reply->header(QNetworkRequest::ContentTypeHeader) << reply->url();
+    //qDebug() << "Data:\n" << data;
 
     switch (hc) {
     case 200:
@@ -862,7 +884,7 @@ void RvAPI::parseResponse(QNetworkReply *reply)
         break;
     case 400: // HTTP error codes
     case 401:
-    case 403:        
+    case 403:
     case 404:
     case 500:
         parseErrorResponse(hc, e, op, data);
@@ -1377,7 +1399,7 @@ bool RvAPI::orders()
 
 bool RvAPI::updateOrderStatus(OrderItem *order, int status)
 {
-    QUrl url=createRequestUrl(op_order+"/"+order->property("orderID").toString()+"/status");
+    QUrl url=createRequestUrl(op_order+"/"+order->property("id").toString()+"/status");
     QNetworkRequest request;
     setAuthenticationHeaders(&request);
 

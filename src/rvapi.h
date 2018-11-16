@@ -216,6 +216,7 @@ signals:
     void searchCompleted(bool hasMore, bool success);
 
     void orderCreated();
+    void orderStatusUpdated();
 
     void uploading(quint8 progress);
     void downloading(quint8 progress);
@@ -409,6 +410,7 @@ private:
     void parseCategoryMap(const QString key, CategoryModel &model, QVariantMap &tmp);
     bool parseOrderCreated(QVariantMap &data);
     bool parseOrders(QVariantMap &data);
+    bool parseOrderStatusUpdate(QVariantMap &data);
 
     void setBusy(bool busy);       
 
