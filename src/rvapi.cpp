@@ -725,8 +725,8 @@ bool RvAPI::parseLogin(QVariantMap &data)
 
     m_lastlogin=QDateTime::fromSecsSinceEpoch(data["access"].toString().toLong());
 
-    // XXX: Do care about they keys even ? Clenup in proxy API
-    m_roles=data.value("roles").toMap().values();
+    // We only care about the string values
+    m_roles=data.value("roles").toList();
 
     setAuthentication(true);
     emit loginSuccesfull();
@@ -1010,6 +1010,11 @@ bool RvAPI::logout()
     queueRequest(post(request, mp), AuthLogout);
 
     return true;
+}
+
+bool RvAPI::hasRole(const QString &role)
+{
+    return m_roles.contains(role);
 }
 
 void RvAPI::setAppVersion(uint ver)

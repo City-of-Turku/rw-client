@@ -177,6 +177,7 @@ public:
 
     Q_INVOKABLE void clearCache();
 
+    Q_INVOKABLE bool hasRole(const QString &role);
 signals:
 
     void urlChanged(QUrl url);
