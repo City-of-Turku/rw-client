@@ -10,10 +10,9 @@ Popup {
     x: Math.round((parent.width - width) / 2)
     y: Math.round((parent.height - height) / 2)
     width: parent.width-64
-    height: parent.height-32
-    closePolicy: Popup.OnPressOutside | Popup.OnEscape
-    bottomMargin: 16
-    topMargin: 16
+    height: parent.height-32    
+    bottomMargin: 32
+    topMargin: 32
     leftMargin: 32
     rightMargin: 32
 
@@ -22,6 +21,11 @@ Popup {
 
     property int locationID;
     property string locationDetail;
+
+    onOpened: {
+        // Make sure we get keyboard events
+        forceActiveFocus();
+    }
 
     ColumnLayout {
         id: warehouse
