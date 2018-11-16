@@ -317,12 +317,6 @@ private:
 
     const QString op_download=QStringLiteral("download/apk");
 
-    // OP id to base string
-    //QMap<RequestOps, const QString *>m_opmap;
-    QMap<QString, RequestOps>m_opmap;
-
-    RequestOps getOperationIdentifier(const QString op);
-
     // Active requests
     QMap<RequestOps, QString>m_ops;
 

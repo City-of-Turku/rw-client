@@ -89,19 +89,6 @@ RvAPI::RvAPI(QObject *parent) :
     m_order_status_str.insert(OrderItem::Processing, "processing");
     m_order_status_str.insert(OrderItem::Shipped, "completed");
     m_order_status_str.insert(OrderItem::Cart, "cart");
-
-    // String operator to ID map
-    m_opmap.insert(op_auth_login, AuthLogin);
-    m_opmap.insert(op_auth_logout, AuthLogout);
-    m_opmap.insert(op_products_search, ProductSearch);
-    m_opmap.insert(op_product_barcode, ProductSearchBarcode);    
-    m_opmap.insert(op_product, Product);
-    m_opmap.insert(op_product_get, Products);
-    m_opmap.insert(op_products, Products);
-    m_opmap.insert(op_categories, Categories);
-    m_opmap.insert(op_locations, Locations);
-    m_opmap.insert(op_orders, Orders);
-    m_opmap.insert(op_download, DownloadAPK);
 }
 
 RvAPI::~RvAPI()
@@ -418,11 +405,6 @@ bool RvAPI::isRequestActive(RequestOps op) const
 RvAPI::RequestOps RvAPI::getRequestOp(QNetworkReply *rep)
 {
     return m_requests.value(rep, UnknownOperation);
-}
-
-RvAPI::RequestOps RvAPI::getOperationIdentifier(const QString op)
-{    
-    return m_opmap.value(op, UnknownOperation);
 }
 
 void RvAPI::setBusy(bool busy)
