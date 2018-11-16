@@ -23,6 +23,9 @@
 //#define SECURE_DEBUG 1
 //#define DUMMY_CATEGORIES 1
 
+// We disable network cache as there seem to be some issues with stale data when network errors happen
+//#define ENABLE_CACHE 1
+
 // Keep this at what proxy API enforces, currently set to 100
 #define ITEMS_MAX (100)
 
@@ -47,7 +50,7 @@ RvAPI::RvAPI(QObject *parent) :
     //connect(m_NetManager,SIGNAL(authenticationRequired()), this, SLOT(authenticationRequired));
     connect(m_NetManager, &QNetworkAccessManager::authenticationRequired, this, &RvAPI::authenticationRequired);
 
-#if 0
+#ifdef ENABLE_CACHE
     QNetworkDiskCache *diskCache = new QNetworkDiskCache(this);
     diskCache->setCacheDirectory(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
     m_NetManager->setCache(diskCache);
@@ -99,7 +102,9 @@ RvAPI::~RvAPI()
 
 void RvAPI::clearCache()
 {
+#ifdef ENABLE_CACHE
     m_NetManager->cache()->clear();
+#endif
 }
 
 void RvAPI::setUrl(QUrl url)
