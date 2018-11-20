@@ -21,6 +21,8 @@ class OrderItem : public QObject
     Q_PROPERTY(int count READ count)
     Q_PROPERTY(double amount READ amount NOTIFY amountChanged)
     Q_PROPERTY(QString currency READ currency NOTIFY currencyChanged)
+    Q_PROPERTY(QVariantMap shipping READ shipping NOTIFY shippingChanged)
+    Q_PROPERTY(QVariantMap billing READ billing NOTIFY billingChanged)
 
 public:
     explicit OrderItem(QObject *parent = nullptr);
@@ -47,8 +49,11 @@ signals:
     void createdChanged();
     void changedChanged();
     void statusChanged();
-    void amountChanged(uint amount);
+    void amountChanged(double amount);
     void currencyChanged();
+
+    void billingChanged();
+    void shippingChanged();
 
 private:
     uint m_id;

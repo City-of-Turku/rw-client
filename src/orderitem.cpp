@@ -43,7 +43,11 @@ void OrderItem::updateFromVariantMap(QVariantMap &data)
     m_uid=data.value("user").toString().toUInt();
     m_changed=QDateTime::fromSecsSinceEpoch(data.value("changed").toString().toUInt());
 
+    emit changedChanged();
+
     m_amount=data.value("amount").toString().toUInt();
+    emit amountChanged(amount());
+
     m_currency=data.value("currency").toString();
 
     QString s=data.value("status").toString();
