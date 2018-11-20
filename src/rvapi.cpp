@@ -47,7 +47,7 @@ RvAPI::RvAPI(QObject *parent) :
     m_loadedPage(0),
     m_itemsmodel(&m_product_store, this),
     m_cartmodel(&m_product_store, this),
-    m_categorymodel(nullptr, this),    
+    m_categorymodel(nullptr, this),
     m_locations(this),
     m_ordersmodel(this),
     m_tax_model(this)
@@ -614,7 +614,7 @@ bool RvAPI::parseLocationData(QVariantMap &data)
         l->street=tmp.value("street").toString();
         l->city=tmp.value("city").toString();
         if (tmp.contains("geo")) {
-            QVariantList loc=tmp.value("geo").toList();            
+            QVariantList loc=tmp.value("geo").toList();
             if (loc.size()==2) {
                 l->geo.setLongitude(loc.at(0).toDouble());
                 l->geo.setLatitude(loc.at(1).toDouble());
@@ -654,7 +654,7 @@ bool RvAPI::parseProductData(QVariantMap &data, const QNetworkAccessManager::Ope
     case QNetworkAccessManager::GetOperation: {
 
         ProductItem *p=ProductItem::fromVariantMap(data, this);
-        m_product_store.insert(p->barcode(), p);        
+        m_product_store.insert(p->barcode(), p);
         emit productFound(p);
     }
         return true;
@@ -671,7 +671,7 @@ bool RvAPI::parseProductData(QVariantMap &data, const QNetworkAccessManager::Ope
     }
         return true;
     default:
-        qCritical("Unhandled product method!");        
+        qCritical("Unhandled product method!");
     }
     return false;
 }
@@ -680,17 +680,17 @@ bool RvAPI::parseProductsData(QVariantMap &data)
 {
     uint page=qRound(data["page"].toDouble());
     uint amount=qRound(data["amount"].toDouble());
-    uint requested=qRound(data["ramount"].toDouble());    
+    uint requested=qRound(data["ramount"].toDouble());
     QVariantList products=data["products"].toList();
 
-    if (page==1) {        
+    if (page==1) {
         //m_itemsmodel.clear();
         clearProductStore();
         m_itemsmodel.clear();
     }
 
     m_loadedAmount=amount;
-    m_loadedPage=page;    
+    m_loadedPage=page;
 
     QListIterator<QVariant> i(products);
     while (i.hasNext()) {
@@ -831,7 +831,7 @@ bool RvAPI::parseOKResponse(RequestOps op, const QByteArray &response, const QNe
             return parseOrders(data);
         else
             return false;
-    case RvAPI::OrderStatus:
+    case RvAPI::OrderUpdateStatus:
         if (method==QNetworkAccessManager::PostOperation)
             return parseOrderStatusUpdate(data);
         break;
@@ -885,7 +885,7 @@ void RvAPI::parseResponse(QNetworkReply *reply)
         break;
     case 0: // Network error
         parseErrorResponse(hc, e, op, data);
-        break;        
+        break;
     default: {
         qWarning() << "Unexpected and unhandled response code: " << hc;
         emit requestFailure(hc, e, reply->errorString());
@@ -924,7 +924,7 @@ void RvAPI::setAuthenticationHeaders(QNetworkRequest *request)
     else
         qWarning("API Key is not set! This won't work at all.");
     if (!m_authtoken.isEmpty())
-        request->setRawHeader(QByteArray("X-Auth-Token"), m_authtoken.toUtf8());    
+        request->setRawHeader(QByteArray("X-Auth-Token"), m_authtoken.toUtf8());
 }
 
 void RvAPI::queueRequest(QNetworkReply *req, RequestOps op)
@@ -938,10 +938,10 @@ void RvAPI::queueRequest(QNetworkReply *req, RequestOps op)
  * @param op
  * @return false if not authenticated or operation is already in progress
  *
- * Create a basic operation request and queue it.
+ * Create a GET operation request with auth headers and queue it.
  *
  */
-bool RvAPI::createSimpleAuthenticatedRequest(const QString opurl, RequestOps op)
+bool RvAPI::createSimpleAuthenticatedRequest(const QString opurl, RequestOps op, QVariantMap *params)
 {
     if (!m_authenticated)
         return false;
@@ -950,9 +950,19 @@ bool RvAPI::createSimpleAuthenticatedRequest(const QString opurl, RequestOps op)
         return false;
 
     QUrl url=createRequestUrl(opurl);
+    QUrlQuery query;
     QNetworkRequest request;
     setAuthenticationHeaders(&request);
 
+    if (params) {
+        QMapIterator<QString, QVariant> i(*params);
+        while (i.hasNext()) {
+            i.next();
+            query.addQueryItem(i.key(), i.value().toString());
+        }
+    }
+
+    url.setQuery(query);
     request.setUrl(url);
     queueRequest(get(request), op);
 
@@ -1048,12 +1058,12 @@ bool RvAPI::products(uint page, uint amount)
     qDebug() << m_loadedPage;
 
     if (page==0 && m_loadedPage>0 && m_hasMore) {// Load next page
-        page=m_loadedPage+1;        
+        page=m_loadedPage+1;
     } else if (page==0) {
         qWarning() << "Initial page not loaded yet";
         return false;
     } else {
-        m_loadedPage=page;       
+        m_loadedPage=page;
     }
 
     qDebug() << "Loading products: " << page << "of" << amount << m_searchcategory << m_searchstring << m_searchsort;
@@ -1074,8 +1084,6 @@ bool RvAPI::products(uint page, uint amount)
     }
     if (!m_searchstring.isEmpty()) {
         query.addQueryItem("q", m_searchstring);
-        // XXX: Remove when API fixed
-        query.addQueryItem("string", m_searchstring);
     }
     if (m_searchsort!=SortNotSet) {
         query.addQueryItem("s", getSortString(m_searchsort));
@@ -1267,7 +1275,7 @@ bool RvAPI::updateProduct(ProductItem *product)
 bool RvAPI::getProduct(const QString &barcode, bool update)
 {
     if (!validateBarcode(barcode))
-            return false;
+        return false;
 
     if (m_product_store.contains(barcode) && !update) {
         emit productFound(m_product_store.value(barcode));
@@ -1391,9 +1399,25 @@ bool RvAPI::createOrder(bool done)
     return true;
 }
 
-bool RvAPI::orders()
+bool RvAPI::orders(OrderStatus status)
 {
-    return createSimpleAuthenticatedRequest(op_orders, Orders);
+    QVariantMap q;
+
+    switch (status) {
+    case OrderComplete:
+        q.insert("status", "completed");
+        break;
+    case OrderPending:
+        q.insert("status", "pending");
+        break;
+    case OrderProcessing:
+        q.insert("status", "processing");
+        break;
+    }
+
+    qDebug() << status << q;
+
+    return createSimpleAuthenticatedRequest(op_orders, Orders, &q);
 }
 
 bool RvAPI::updateOrderStatus(OrderItem *order, int status)
@@ -1408,7 +1432,7 @@ bool RvAPI::updateOrderStatus(OrderItem *order, int status)
 
     addParameter(mp, "status", m_order_status_str.value(tmp));
     request.setUrl(url);
-    queueRequest(post(request, mp), OrderStatus);
+    queueRequest(post(request, mp), OrderUpdateStatus);
 
     return true;
 }

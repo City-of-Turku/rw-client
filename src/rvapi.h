@@ -89,10 +89,24 @@ public:
         SortPriceAsc,
         SortPriceDesc,
         SortSKUAsc,
-        SortSKUDesc,
+        SortSKUDesc
     };
+    Q_ENUM(ItemSort)
 
-    Q_ENUMS(ItemSort)
+    enum OrderSort {
+        SortCreatedAsc,
+        SortCreatedDesc,
+        SortStatusAsc,
+        SortStatusDesc
+    };
+    Q_ENUM(OrderSort)
+
+    enum OrderStatus {
+        OrderPending,
+        OrderProcessing,
+        OrderComplete
+    };
+    Q_ENUM(OrderStatus)
 
     QUrl url() const
     {
@@ -161,7 +175,7 @@ public:
 
     Q_INVOKABLE bool isOrderEmpty();
     Q_INVOKABLE bool createOrder(bool done);
-    Q_INVOKABLE bool orders();
+    Q_INVOKABLE bool orders(OrderStatus status=OrderPending);
 
     // Should be, but QtQuick does not like enums in Q_INVOKABLE bool updateOrderStatus(OrderItem *order, OrderItem::OrderStatus status);
     Q_INVOKABLE bool updateOrderStatus(OrderItem *order, int status);
@@ -282,8 +296,8 @@ private:
         UnknownOperation,
         AuthLogin, AuthLogout,
         ProductSearch, ProductSearchBarcode, ProductAdd, ProductUpdate, Product, Products,
-        Order, Orders, OrderStatus,
-        Cart, ClearCart,
+        Order, Orders, OrderUpdateStatus,
+        Cart, ClearCart, CheckoutCart,
         Categories,
         Locations,
         DownloadAPK,
@@ -389,7 +403,7 @@ private:
     QNetworkReply *head(QNetworkRequest &request);
 
     void queueRequest(QNetworkReply *req, RequestOps op);
-    bool createSimpleAuthenticatedRequest(const QString opurl, RequestOps op);
+    bool createSimpleAuthenticatedRequest(const QString opurl, RequestOps op, QVariantMap *params=nullptr);
 
     QVariantMap parseJsonResponse(const QByteArray &data);
     void parseResponse(QNetworkReply *reply);
