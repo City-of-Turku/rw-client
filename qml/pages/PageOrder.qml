@@ -119,7 +119,7 @@ Page {
     }
 
     MessagePopup {
-        id: messagePopup        
+        id: messagePopup
     }
 
     Component {
@@ -178,22 +178,56 @@ Page {
             label: "Order:"
             value: order.id
         }
-        DetailItem {
-            label: "Status:"
-            value: api.getOrderStatusString(order.status)
+
+        SwipeView {
+            id: orderSwipe
+            Layout.fillWidth: true
+            Layout.preferredHeight: orderPage.height/4
+            Layout.maximumHeight: orderPage.height/2
+            Layout.minimumHeight: orderPage.height/5
+
+            ColumnLayout {
+                DetailItem {
+                    label: "Status:"
+                    value: api.getOrderStatusString(order.status)
+                }
+                DetailItem {
+                    label: "Created:"
+                    value: order.created.toLocaleDateString();
+                }
+                DetailItem {
+                    label: "Changed:"
+                    value: order.changed.toLocaleDateString();
+                }
+                DetailItem {
+                    label: "Products:"
+                    value: model.count
+                }
+            }
+
+            ColumnLayout {
+                DetailItem {
+                    label: "Name:"
+                    value: order.shipping["name"];
+                }
+                DetailItem {
+                    label: "Address:"
+                    value: order.shipping["address"]+"\n"+order.shipping["postal_code"]+" "+order.shipping["city"];
+                }
+                DetailItem {
+                    label: "Phone"
+                    value: ""
+                }
+            }
         }
-        DetailItem {
-            label: "Created:"
-            value: order.created.toLocaleDateString();
+
+        PageIndicator {
+            id: swipeIndicator
+            count: orderSwipe.count
+            currentIndex: orderSwipe.currentIndex
+            //anchors.horizontalCenter: orderSwipe.horizontalCenter
+            Layout.alignment: Qt.AlignHCenter
         }
-        DetailItem {
-            label: "Changed:"
-            value: order.changed.toLocaleDateString();
-        }
-        DetailItem {
-            label: "Products:"
-            value: model.count
-        }       
 
         ListView {
             id: orderProducts
@@ -206,7 +240,7 @@ Page {
             delegate: Component {
                 OrderLineItemDelegate {
                     width: parent.width
-                    height: childrenRect.height                    
+                    height: childrenRect.height
 
                     onClicked:  {
                         if (orderProducts.currentIndex==index)
@@ -232,7 +266,7 @@ Page {
                         MenuItem {
                             text: qsTr("Set Picked")
                             enabled: type=="product" && status!=OrderLineItem.OrderItemPicked
-                            onClicked: {                                
+                            onClicked: {
                                 status=OrderLineItem.OrderItemPicked
                             }
                         }
