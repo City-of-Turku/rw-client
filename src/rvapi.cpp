@@ -26,6 +26,13 @@
 // We disable network cache as there seem to be some issues with stale data when network errors happen
 //#define ENABLE_CACHE 1
 
+// Should Barcode/SKU follow a strict pattern or not
+#ifndef BARCODE_REGEXP
+#define BARCODE_REGEXP "^[A-Z]{3}[0-9]{6,9}$"
+#define STRICT_BARCODE_FORMAT 1
+#endif
+
+
 // Keep this at what proxy API enforces, currently set to 100
 #define ITEMS_MAX (100)
 
@@ -1462,11 +1469,11 @@ QUrl RvAPI::getImageUrl(const QString image)
 }
 
 bool RvAPI::validateBarcode(const QString barcode) const
-{
-    QRegularExpression r("^[A-Z]{3}[0-9]{6,9}$");
-
+{   
     if (barcode.isEmpty())
         return false;
+#if STRICT_BARCODE_FORMAT
+    QRegularExpression r(BARCODE_REGEXP);
 
     if (!r.isValid()) {
         qWarning("Invalid barcode regular expression");
@@ -1474,6 +1481,9 @@ bool RvAPI::validateBarcode(const QString barcode) const
     }
     QRegularExpressionMatch match = r.match(barcode);
     return match.hasMatch();
+#else
+    return true;
+#endif
 }
 
 bool RvAPI::validateBarcodeEAN(const QString code) const
