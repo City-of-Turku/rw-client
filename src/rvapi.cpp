@@ -32,6 +32,7 @@
 #define STRICT_BARCODE_FORMAT 1
 #endif
 
+#define REQUIRED_API_VERSION (4)
 
 // Keep this at what proxy API enforces, currently set to 100
 #define ITEMS_MAX (100)
@@ -276,23 +277,32 @@ void RvAPI::clearProductFilters()
     emit searchSortChanged();
 }
 
-QVariantMap RvAPI::parseJsonResponse(const QByteArray &data)
+bool RvAPI::parseJsonResponse(const QByteArray &data, QVariantMap &map)
 {
     QJsonDocument json=QJsonDocument::fromJson(data);
-#ifdef JSON_DEBUG
-    qDebug() << data;
-    qDebug() << json.toJson();
-    qDebug() << "json object " << json.isObject();
-#endif
+    QVariantMap vm;
 
     if (json.isEmpty() || json.isNull() || !json.isObject()) {
-        qWarning("API gave invalid JSON!");
-        qDebug() << data;
-        QVariantMap dummy;
-        return dummy;
+        qWarning() << "API gave invalid response, unable to parse as JSON!" << data;
+        return false;
     }
 
-    return json.object().toVariantMap();
+    vm=json.object().toVariantMap();
+
+    // Make sure the response has the fields we use, and that they are what they should be
+    if (vm.value("version").toInt()!=REQUIRED_API_VERSION) {
+        qWarning() << "Unknown API response version, need" << REQUIRED_API_VERSION << "got" << vm.value("version").toInt();
+        return false;
+    }
+
+    if (vm.contains("code")==false) {
+        qWarning("Missing response result code");
+        return false;
+    }
+
+    map=vm;
+
+    return true;
 }
 
 bool RvAPI::addFilePart(QHttpMultiPart *mp, QString prefix, QString fileName) {
@@ -445,13 +455,12 @@ void RvAPI::setBusy(bool busy)
  */
 void RvAPI::parseErrorResponse(int code, QNetworkReply::NetworkError e, RequestOps op, const QByteArray &response)
 {
-    QVariantMap v=parseJsonResponse(response);
-    QVariantMap data=v.value("data").toMap();
-    // QVariantMap meta=data.value("meta").toMap();
-
-#ifdef DATA_DEBUG
-    qDebug() << "ErrorDATA:\n" << data;
-#endif        
+    QVariantMap v;
+    if (parseJsonResponse(response, v)==false) {
+        emit requestFailure(500, QNetworkReply::UnknownServerError, "Invalid server response");
+        return;
+    }
+    QVariantMap data=v.value("data").toMap();    
 
     if (op==AuthLogin || code==403) {
         setAuthentication(false);
@@ -791,11 +800,11 @@ bool RvAPI::parseFileDownload(const QByteArray &data)
  */
 bool RvAPI::parseOKResponse(RequestOps op, const QByteArray &response, const QNetworkAccessManager::Operation method)
 {
-    QVariantMap v=parseJsonResponse(response);
+    QVariantMap v;
 
-    // JSON failed to parse so bail
-    if (v.isEmpty())
+    if (parseJsonResponse(response, v)==false) {
         return false;
+    }
 
     QVariantMap data=v.value("data").toMap();
     qDebug() << "parseOKResponse" << method << ":" << op << response;
@@ -872,7 +881,7 @@ void RvAPI::parseResponse(QNetworkReply *reply)
                 emit requestFailure(500, 0, "Failed to parse downloaded file");
         } else {
             if (parseOKResponse(op, data, reply->operation())==false) {
-                emit requestFailure(500, 0, "Error in response");
+                emit requestFailure(500, QNetworkReply::UnknownServerError, "Error in response");
             }
         }
         break;

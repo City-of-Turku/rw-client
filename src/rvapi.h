@@ -405,7 +405,7 @@ private:
     void queueRequest(QNetworkReply *req, RequestOps op);
     bool createSimpleAuthenticatedRequest(const QString opurl, RequestOps op, QVariantMap *params=nullptr);
 
-    QVariantMap parseJsonResponse(const QByteArray &data);
+    bool parseJsonResponse(const QByteArray &data, QVariantMap &map);
     void parseResponse(QNetworkReply *reply);
     bool parseOKResponse(RequestOps op, const QByteArray &response, const QNetworkAccessManager::Operation method);
     void parseErrorResponse(int code, QNetworkReply::NetworkError e, RequestOps op, const QByteArray &response);
