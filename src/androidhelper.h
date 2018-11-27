@@ -14,6 +14,7 @@ public:
 
     void handleActivityResult(int receiverRequestCode, int resultCode, const QAndroidJniObject &data);
 
+    Q_INVOKABLE void KeepScreenOn();
 signals:
     void imagePicked(QString src);
     void imagePickError();

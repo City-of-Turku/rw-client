@@ -8,6 +8,18 @@ AndroidHelper::AndroidHelper(QObject *parent) : QObject(parent)
     resCANCEL = QAndroidJniObject::getStaticField<jint>("android/app/Activity", "RESULT_CANCELED");
 }
 
+void AndroidHelper::KeepScreenOn()
+{
+QAndroidJniObject activity = QAndroidJniObject::callStaticObjectMethod("org/qtproject/qt5/android/QtNative", "activity", "()Landroid/app/Activity;");
+if (activity.isValid()) {
+    QAndroidJniObject window = activity.callObjectMethod("getWindow", "()Landroid/view/Window;");
+    if (window.isValid()) {
+        const int FLAG_KEEP_SCREEN_ON = 128;
+        window.callMethod<void>("addFlags", "(I)V", FLAG_KEEP_SCREEN_ON);
+    }
+}
+}
+
 bool AndroidHelper::imagePicker()
 {
     QAndroidJniObject ACTION_PICK=QAndroidJniObject::getStaticObjectField("android/content/Intent", "ACTION_PICK", "Ljava/lang/String;");
