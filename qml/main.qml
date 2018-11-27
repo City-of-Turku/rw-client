@@ -740,6 +740,17 @@ ApplicationWindow {
             setAppVersion(appVersionCode);
         }
 
+        function getOrderFilterStatusString(s) {
+            switch (s) {
+            case ServerApi.OrderPending:
+                return qsTr("Pending");
+            case ServerApi.OrderComplete:
+                return qsTr("Complete");
+            case ServerApi.OrderProcessing:
+                return qsTr("Processing");
+            }
+        }
+
         function getOrderStatusString(s) {
             switch (s) {
             case OrderItem.Cancelled:
@@ -757,6 +768,7 @@ ApplicationWindow {
             }
             console.debug("Unknown status: "+s)
         }
+
         function getOrderStatusBgColor(s) {
             switch (s) {
             case OrderItem.Cancelled:

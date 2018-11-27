@@ -23,14 +23,16 @@ Page {
     objectName: "orders"
 
     property alias model: orders.model
-    property bool needsRefresh: false
+    property int orderStatus: ServerApi.OrderPending
 
-    onNeedsRefreshChanged: {
-        console.debug("NR: "+needsRefresh)
-        if (needsRefresh) {
-            root.api.orders();
-            needsRefresh=false;
-        }
+    // Refresh Orders list when it gets activated
+    StackView.onActivated: {
+        refreshOrders(orderStatus);
+    }
+
+    function refreshOrders(f) {
+        orderStatus=f;
+        root.api.orders(f);
     }
 
     Keys.onReleased: {
@@ -66,10 +68,9 @@ Page {
         }
     }
 
-    Component.onCompleted: {
+    Component.onCompleted: {        
         ordersPage.forceActiveFocus();
-        model=root.api.getOrderModel();
-        root.api.orders();
+        model=root.api.getOrderModel();        
     }
 
     header: ToolbarBasic {
@@ -86,14 +87,14 @@ Page {
                 text: qsTr("Pending")
                 enabled: !api.busy
                 onClicked: {
-                    root.api.orders(ServerApi.OrderPending);
+                    refreshOrders(ServerApi.OrderPending);
                 }
             }
             ToolButton {
                 text: qsTr("In progress")
                 enabled: !api.busy
                 onClicked: {                    
-                    root.api.orders(ServerApi.OrderProcessing);
+                    refreshOrders(ServerApi.OrderProcessing);
                 }
             }
         }
@@ -122,6 +123,15 @@ Page {
             Layout.fillHeight: true
 
             ScrollIndicator.vertical: ScrollIndicator { }
+
+            header: Component {
+                Text {
+                    id: name
+                    width: parent.width
+                    text: api.getOrderFilterStatusString(orderStatus)
+                    horizontalAlignment: Text.AlignHCenter
+                }
+            }
 
             delegate: Component {
                 OrderItemDelegate {
