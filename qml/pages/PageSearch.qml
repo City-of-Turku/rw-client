@@ -423,6 +423,11 @@ Page {
         interactive: visible
         height: searchDrawerContainer.height //parent.height/2
         width: parent.width
+
+        onOpened: {
+            searchText.forceActiveFocus();
+        }
+
         ColumnLayout {
             id: searchDrawerContainer
             //anchors.fill: parent
@@ -599,8 +604,10 @@ Page {
                     }
                 }
 
+                // XXX: Not really needed this
                 RoundButton {
                     icon.source: "qrc:/images/icon_cancel.png"
+                    visible: false
                     Layout.alignment: Qt.AlignRight
                     onClicked: {
                         searchDrawer.close()
