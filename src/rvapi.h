@@ -310,12 +310,10 @@ private:
     const QString op_auth_login=QStringLiteral("auth/login");
     const QString op_auth_logout=QStringLiteral("auth/logout");
 
-    // Product endpoints
-    const QString op_product=QStringLiteral("product");
+    // Product endpoint
     const QString op_products=QStringLiteral("products");
 
-    // Orders
-    const QString op_order=QStringLiteral("order");
+    // Orders    
     const QString op_orders=QStringLiteral("orders");
 
     // Cart
@@ -323,9 +321,9 @@ private:
     const QString op_clearcart=QStringLiteral("cart");
 
     // Search endpoints
-    const QString op_product_barcode=QStringLiteral("product/barcode");
+    const QString op_product_barcode=QStringLiteral("products/barcode");
     const QString op_products_search=QStringLiteral("products/search");
-    const QString op_product_get=QStringLiteral("product/barcode");
+    const QString op_product_get=QStringLiteral("products/barcode");
 
     const QString op_locations=QStringLiteral("locations");
     const QString op_categories=QStringLiteral("categories");

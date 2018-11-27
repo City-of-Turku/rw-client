@@ -282,8 +282,13 @@ bool RvAPI::parseJsonResponse(const QByteArray &data, QVariantMap &map)
     QJsonDocument json=QJsonDocument::fromJson(data);
     QVariantMap vm;
 
-    if (json.isEmpty() || json.isNull() || !json.isObject()) {
+    if (json.isEmpty() || json.isNull()) {
         qWarning() << "API gave invalid response, unable to parse as JSON!" << data;
+        return false;
+    }
+
+    if (!json.isObject()) {
+        qWarning() << "API gave invalid response, not an object" << data;
         return false;
     }
 
@@ -297,6 +302,11 @@ bool RvAPI::parseJsonResponse(const QByteArray &data, QVariantMap &map)
 
     if (vm.contains("code")==false) {
         qWarning("Missing response result code");
+        return false;
+    }
+
+    if (vm.contains("data")==false) {
+        qWarning("Missing response data");
         return false;
     }
 
@@ -856,7 +866,7 @@ bool RvAPI::parseOKResponse(RequestOps op, const QByteArray &response, const QNe
 
 void RvAPI::parseResponse(QNetworkReply *reply)
 {       
-    QNetworkReply::NetworkError e = reply->error();
+    const QNetworkReply::NetworkError e = reply->error();
     const QByteArray data = reply->readAll();
     int hc=reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
 
@@ -870,8 +880,10 @@ void RvAPI::parseResponse(QNetworkReply *reply)
     RequestOps op=m_requests.value(reply, UnknownOperation);
     m_requests.remove(reply);
 
+#if 0
     qDebug() << "parseResponse: " << e << hc << op << reply->header(QNetworkRequest::ContentTypeHeader) << reply->url();
-    //qDebug() << "Data:\n" << data;
+    qDebug() << "Data:\n" << data;
+#endif
 
     switch (hc) {
     case 200:
@@ -1195,7 +1207,7 @@ bool RvAPI::addProduct(ProductItem *product)
     if (isRequestActive(ProductAdd))
         return false;
 
-    QUrl url=createRequestUrl(op_product);
+    QUrl url=createRequestUrl(op_products);
     QNetworkRequest request;
     setAuthenticationHeaders(&request);
 
@@ -1254,7 +1266,7 @@ bool RvAPI::updateProduct(ProductItem *product)
     if (isRequestActive(ProductUpdate))
         return false;
 
-    QUrl url=createRequestUrl(op_product, product->getBarcode());
+    QUrl url=createRequestUrl(op_products, product->getBarcode());
     QNetworkRequest request;
     setAuthenticationHeaders(&request);
 
@@ -1431,7 +1443,7 @@ bool RvAPI::orders(OrderStatus status)
 
 bool RvAPI::updateOrderStatus(OrderItem *order, int status)
 {
-    QUrl url=createRequestUrl(op_order+"/"+order->property("id").toString()+"/status");
+    QUrl url=createRequestUrl(op_orders+"/"+order->property("id").toString()+"/status");
     QNetworkRequest request;
     setAuthenticationHeaders(&request);
 
