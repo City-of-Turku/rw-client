@@ -86,14 +86,14 @@ Page {
                 text: qsTr("Pending")
                 enabled: !api.busy
                 onClicked: {
-                    root.api.orders();
+                    root.api.orders(ServerApi.OrderPending);
                 }
             }
             ToolButton {
                 text: qsTr("In progress")
                 enabled: !api.busy
-                onClicked: {
-                    root.api.orders();
+                onClicked: {                    
+                    root.api.orders(ServerApi.OrderProcessing);
                 }
             }
         }
