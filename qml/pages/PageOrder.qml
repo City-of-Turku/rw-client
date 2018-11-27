@@ -18,7 +18,7 @@ import "../components"
 
 Page {
     id: orderPage
-    title: qsTr("Order")
+    title: qsTr("Order")+" ("+order.id+")"
     objectName: "order"
 
     property bool showTotalPrice: true;
@@ -172,18 +172,13 @@ Page {
     ColumnLayout {
         id: mainContainer
         anchors.fill: parent
-        anchors.margins: 4
-
-        DetailItem {
-            label: "Order:"
-            value: order.id
-        }
+        spacing: 4
 
         SwipeView {
             id: orderSwipe
             Layout.fillWidth: true
             Layout.preferredHeight: orderPage.height/4
-            Layout.maximumHeight: orderPage.height/2
+            Layout.maximumHeight: orderPage.height/3
             Layout.minimumHeight: orderPage.height/5
 
             ColumnLayout {
@@ -206,17 +201,29 @@ Page {
             }
 
             ColumnLayout {
+                Text {
+                    text: "Shipping"
+                    font.bold: true
+                }
                 DetailItem {
                     label: "Name:"
                     value: order.shipping["name"];
                 }
                 DetailItem {
+                    label: "Organisation:"
+                    value: order.shipping["org"];
+                }
+                DetailItem {
                     label: "Address:"
-                    value: order.shipping["address"]+"\n"+order.shipping["postal_code"]+" "+order.shipping["city"];
+                    value: order.shipping["address"]+"\n"+order.shipping["postal_code"]+" "+order.shipping["city"] + "\n" +order.shipping["country"];
                 }
                 DetailItem {
                     label: "Phone"
-                    value: ""
+                    value: order.shipping["phone"];
+                }
+                DetailItem {
+                    label: "E-Mail"
+                    value: order.shipping["email"];
                 }
             }
         }
