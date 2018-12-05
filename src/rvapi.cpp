@@ -103,8 +103,7 @@ RvAPI::RvAPI(QObject *parent) :
 }
 
 RvAPI::~RvAPI()
-{
-    qDebug("*** API going away");
+{    
     clearProductStore();
 }
 
@@ -120,8 +119,6 @@ void RvAPI::setUrl(QUrl url)
     if (m_url == url)
         return;
 
-    qDebug() << "API url " << url;
-
     m_url = url;
     emit urlChanged(url);
 }
@@ -134,8 +131,6 @@ void RvAPI::setHasMore(bool hasmore)
 {
     if (m_hasMore==hasmore)
         return;
-
-    qDebug() << "HasMore " << hasmore;
 
     m_hasMore=hasmore;
     emit hasMoreChanged(hasmore);
@@ -203,8 +198,7 @@ void RvAPI::requestError(QNetworkReply::NetworkError code)
 void RvAPI::uploadProgress(qint64 bytes, qint64 total)
 {
     quint8 p;
-    //QNetworkReply * reply = qobject_cast<QNetworkReply*>(sender());
-    qDebug() << "Uploading: " << bytes << " / " << total;
+    //QNetworkReply * reply = qobject_cast<QNetworkReply*>(sender());    
 
     if (total==0 || bytes==0)
         p=0;
@@ -220,7 +214,6 @@ void RvAPI::uploadProgress(qint64 bytes, qint64 total)
 void RvAPI::downloadProgress(qint64 bytes, qint64 total)
 {
     quint8 p;
-    qDebug() << "Downloading: " << bytes << " / " << total;
 
     if (total==0 || bytes==0)
         p=0;
@@ -243,8 +236,7 @@ void RvAPI::requestFinished() {
 }
 
 void RvAPI::clearProductStore()
-{
-    qDebug("Clearing product models and storage");
+{    
     m_itemsmodel.clear();
     m_cartmodel.clear();
     qDeleteAll(m_product_store);
@@ -283,7 +275,7 @@ bool RvAPI::parseJsonResponse(const QByteArray &data, QVariantMap &map)
     QVariantMap vm;
 
     if (json.isEmpty() || json.isNull()) {
-        qWarning() << "API gave invalid response, unable to parse as JSON!" << data;
+        qWarning() << "API gave invalid response, unable to parse as JSON!" << data << json.isEmpty() << json.isNull();
         return false;
     }
 
@@ -326,8 +318,6 @@ bool RvAPI::addFilePart(QHttpMultiPart *mp, QString prefix, QString fileName) {
     QVariant cth("image/jpeg");
     QVariant cdh("form-data; name=\"images[]\"; filename=\""+prefix+fi.fileName()+"\"");
 
-    qDebug() << cdh;
-
     p.setHeader(QNetworkRequest::ContentTypeHeader, cth);
     p.setHeader(QNetworkRequest::ContentDispositionHeader, cdh);
     p.setBodyDevice(file);
@@ -340,9 +330,6 @@ bool RvAPI::addFilePart(QHttpMultiPart *mp, QString prefix, QString fileName) {
 void RvAPI::addParameter(QHttpMultiPart *mp, const QString key, const QVariant value)
 {
     QHttpPart requestPart;
-#ifdef DATA_DEBUG
-    qDebug() << "KEY: " << key << "\nVALUE:\n" << value;
-#endif
 
     requestPart.setHeader(QNetworkRequest::ContentDispositionHeader, QVariant("form-data; name=\""+key+"\""));
     requestPart.setBody(value.toString().toUtf8());
@@ -563,8 +550,6 @@ bool RvAPI::parseOrderStatusUpdate(QVariantMap &data)
 {    
     int id=data["id"].toInt();
 
-    qDebug() << "Order" << id << data;
-
     OrderItem *oi=dynamic_cast<OrderItem *>(m_ordersmodel.getId(id));
     if (!oi) {
         qWarning("Updated order not found in our orders list");
@@ -594,8 +579,6 @@ bool RvAPI::parseOrders(QVariantMap &data)
     }
 
     m_ordersmodel.setList(m_orders);
-
-    qDebug() << "Orders loaded: " << m_ordersmodel.rowCount();
 
     return true;
 }
@@ -719,8 +702,6 @@ bool RvAPI::parseProductsData(QVariantMap &data)
         m_itemsmodel.append(p);
     }
 
-    qDebug() << "Loaded items: " << m_itemsmodel.rowCount();
-
     // If we get less than what we ask for then we assume that we are at the end of data.
     //XXX
     setHasMore((amount<requested) ? false : true);
@@ -739,10 +720,6 @@ bool RvAPI::parseProductsData(QVariantMap &data)
 bool RvAPI::parseLogin(QVariantMap &data)
 {
     m_authtoken=data.value("apitoken").toString();
-
-#ifdef LOGIN_DEBUG
-    qDebug() << "AuthData: " << data;
-#endif
 
     // Check that token is valid
     if (m_authtoken.isEmpty()) {
@@ -767,7 +744,6 @@ bool RvAPI::parseLogin(QVariantMap &data)
         m_cappversion=data.value("app").toMap().value("version").toInt();
         m_apk=data.value("app").toMap().value("apkg").toString();
 
-        qDebug() << m_apk << m_cappversion << m_appversion;
         if (m_cappversion>m_appversion)
             emit updateAvailable();
     }
@@ -817,7 +793,10 @@ bool RvAPI::parseOKResponse(RequestOps op, const QByteArray &response, const QNe
     }
 
     QVariantMap data=v.value("data").toMap();
+
+#ifdef QT_DEBUG
     qDebug() << "parseOKResponse" << method << ":" << op << response;
+#endif
 
     switch (op) {
     case RvAPI::AuthLogin:
@@ -880,7 +859,7 @@ void RvAPI::parseResponse(QNetworkReply *reply)
     RequestOps op=m_requests.value(reply, UnknownOperation);
     m_requests.remove(reply);
 
-#if 0
+#ifdef QT_DEBUG
     qDebug() << "parseResponse: " << e << hc << op << reply->header(QNetworkRequest::ContentTypeHeader) << reply->url();
     qDebug() << "Data:\n" << data;
 #endif
@@ -1015,7 +994,7 @@ bool RvAPI::login()
         return false;
 
     if (isRequestActive(AuthLogin)) {
-        qDebug("Login request is already active");
+        qWarning("Login request is already active");
         return false;
     }
 
@@ -1076,8 +1055,6 @@ bool RvAPI::products(uint page, uint amount)
     if (isRequestActive(Products))
         return false;
 
-    qDebug() << m_loadedPage;
-
     if (page==0 && m_loadedPage>0 && m_hasMore) {// Load next page
         page=m_loadedPage+1;
     } else if (page==0) {
@@ -1086,8 +1063,6 @@ bool RvAPI::products(uint page, uint amount)
     } else {
         m_loadedPage=page;
     }
-
-    qDebug() << "Loading products: " << page << "of" << amount << m_searchcategory << m_searchstring << m_searchsort;
 
     QUrl url=createRequestUrl(op_products);
     QUrlQuery query;
@@ -1112,8 +1087,6 @@ bool RvAPI::products(uint page, uint amount)
 
     url.setQuery(query);
     request.setUrl(url);
-
-    qDebug() << url;
 
     queueRequest(get(request), Products);
 
@@ -1221,14 +1194,11 @@ bool RvAPI::addProduct(ProductItem *product)
     // Add images
     QVariantList imf=product->images();
 
-    qDebug() << "Images are: " << imf;
-
     for (int i = 0; i < imf.size(); i++) {
         bool r;
         QString f=imf.at(i).toString();
         QUrl fu(f);
 
-        qDebug() << fu;
         if (!fu.isLocalFile()) {
             qWarning("File is not local, can not use!");
             continue;
@@ -1435,8 +1405,6 @@ bool RvAPI::orders(OrderStatus status)
         q.insert("status", "processing");
         break;
     }
-
-    qDebug() << status << q;
 
     return createSimpleAuthenticatedRequest(op_orders, Orders, &q);
 }
