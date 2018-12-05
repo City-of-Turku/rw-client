@@ -136,7 +136,7 @@ Rectangle {
                 minimumPixelSize: 12
             }
             Text {
-                visible: stock>1 && !compact
+                // visible: stock>1 && !compact
                 font.pixelSize: 12
                 minimumPixelSize: 10
                 fontSizeMode: Text.HorizontalFit
