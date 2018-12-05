@@ -220,6 +220,15 @@ Page {
         anchors.fill: parent
         anchors.margins: 4
 
+        Text {
+            Layout.fillWidth: true
+            visible: orderCart.model.count===0
+            text: qsTr("Cart is empty")
+            horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.Wrap
+            font.pixelSize: 32
+        }
+
         ListView {
             id: orderCart
             enabled: !searchActive
@@ -281,13 +290,6 @@ Page {
                     }
                 }
             }
-        }
-
-        Label {
-            visible: orderCart.model.count===0
-            text: qsTr("Cart is empty")
-            wrapMode: Text.Wrap
-            font.pixelSize: 32
         }
 
         RowLayout {
