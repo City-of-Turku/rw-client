@@ -7,15 +7,23 @@ RowLayout {
     property alias label: dil.text
     property alias value: div.text
 
-    Label {
+    signal clicked();
+
+    Label {        
         id: dil
         font.pixelSize: 18
         font.bold: true
+        Layout.alignment: Qt.AlignTop
     }
     Label {
         id: div
         font.pixelSize: 18
         Layout.fillWidth: true
+        Layout.alignment: Qt.AlignTop
+        MouseArea {
+            anchors.fill: parent
+            onClicked: di.clicked();
+        }
     }
 }
 
