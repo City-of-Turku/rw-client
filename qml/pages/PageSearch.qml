@@ -231,18 +231,15 @@ Page {
                 ProductItemDelegate {
                     width: searchResults.cellWidth
                     height: searchResults.cellHeight
-                    onClicked: {
-                        openProductAtIndex(index)
+                    onClicked: {                        
+                        productMenu.popup();
                     }
 
                     onClickedImage: {
                         openProductAtIndex(index)
                     }
 
-                    onPressandhold: {
-                        //openProductImageAtIndex(index)
-                        //searchResults.currentIndex=index;
-                        //productMenu.open();
+                    onPressandhold: {                        
                         popupProductImageAtIndex(index);
                     }
 
@@ -255,14 +252,18 @@ Page {
                         title: qsTr("Product")
                         modal: true
                         dim: true
-                        x: parent.width/3
                         MenuItem {
-                            text: qsTr("View images")
+                            text: qsTr("View image")
                             onClicked: {
                                 openProductImageAtIndex(index)
                             }
                         }
-
+                        MenuItem {
+                            text: qsTr("View product")
+                            onClicked: {
+                                openProductAtIndex(index)
+                            }
+                        }
                         MenuItem {
                             text: qsTr("Add to cart")
                             onClicked: {
@@ -273,7 +274,9 @@ Page {
 
                     function addProductAtIndexToCart(index) {
                         var p=searchPage.model.get(index);
-                        cartModel.appendProduct(p.barcode);
+                        // XXX: Use proper Cart API for this
+                        cartModel.append(p.barcode);
+                        root.showCart();
                     }
 
                     function openProductAtIndex(index) {
@@ -297,7 +300,6 @@ Page {
                         imagePopup.close();
                         imagePopup.source='';
                     }
-
                 }
             }
 
@@ -360,6 +362,7 @@ Page {
         property alias source: popupImage.source
 
         function showPopupImage(s) {
+            console.debug("PopupImage: "+s)
             popupImage.source=s;
             imagePopup.open();
         }
@@ -374,6 +377,14 @@ Page {
         x: Math.round((parent.width - width) / 2)
         y: Math.round((parent.height - height) / 2)
 
+        /* Text {
+            id: name
+            text: qsTr("Problem loading image")
+            font.pixelSize: 26
+            anchors.centerIn: parent
+            visible: popupImage.status==Image.Error
+        }*/
+
         Image {
             id: popupImage            
             anchors.fill: parent
@@ -386,20 +397,30 @@ Page {
             property double ratio: width/height
 
             onStatusChanged: {
-                if (popupImage.status==Image.Ready) {
+                console.debug("popupImage:"+status)
+                switch (status) {
+                case Image.Ready:
+                    console.debug("Loaded")
                     imagePopup.y=searchPage.height/2-imagePopup.height/2
-//                    imagePopup.open();
-                } else if (popupImage.status==Image.Error) {
+                    break;
+                case Image.Error:
                     console.debug("Failed to load")
-                    imagePopup.close();
+                    //imagePopup.close();
+                    break;
+                case Image.Loading:
+                    console.debug("Loading")
+                    break;
                 }
+
             }
+
             MouseArea {
                 anchors.fill: parent
                 onReleased: imagePopup.close()
             }
             ProgressBar {
                 width: popupImage.width/2
+                height: 64
                 anchors.centerIn: parent
                 visible: popupImage.status==Image.Loading
                 value: popupImage.progress
