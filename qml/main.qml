@@ -85,7 +85,7 @@ ApplicationWindow {
         onTriggered: {
             var r=api.login();
             if (r===false) {
-                messagePopup.show("Login", "Invalid login credentials");
+                messagePopup.show(qsTr("Login"), "Invalid login credentials");
             }
         }
     }
@@ -284,18 +284,13 @@ ApplicationWindow {
         }
     }
 
-    // XXX: Check user level and return true if allowed, false otherwise
-    function checkUserRole(role) {
-        return true;
-    }
-
     // Main views when logged in
     ListModel {
         id: actionModel1
         ListElement { title: qsTr("Products"); viewId: 4; role: "product"; image: "qrc:/images/icon_browse.png" }
         ListElement { title: qsTr("Add product"); viewId: 3; role: "products"; image: "qrc:/images/icon_add.png"; }
 
-        ListElement { title: qsTr("Cart"); viewId: 8; role: "cart"; image: "qrc:/images/icon_cart.png"; }
+        ListElement { title: qsTr("Cart"); viewId: 8; role: "order"; image: "qrc:/images/icon_cart.png"; }
         ListElement { title: qsTr("Orders"); viewId: 9; role: "orders"; image: "qrc:/images/icon_orders.png"; }
 
         ListElement { title: qsTr("Messages"); viewId: 10; role: ""; image: "qrc:/images/icon_news.png";  }
@@ -363,6 +358,10 @@ ApplicationWindow {
     // XXX
     function showProduct(sku) {
         rootStack.push(searchView, { "searchString": sku }, StackView.Immediate)
+    }
+
+    function showCart() {
+        rootStack.push(cartView)
     }
 
     Component {
@@ -726,6 +725,10 @@ ApplicationWindow {
             // XXX: This should not be required
             if (rootStack.currentItem.objectName=="productEdit")
                 rootStack.currentItem.confirmProductSave(false, 0, msg);
+
+            if (rootStack.currentItem.objectName=="login") {
+                rootStack.currentItem.reportLoginFailed();
+            }
         }
 
         onSecureConnectionFailure: {
