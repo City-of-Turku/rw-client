@@ -17,6 +17,13 @@ Page {
 
     signal loginCanceled()
 
+    header: ToolbarBasic {
+        id: toolbar
+        enableBackPop: true
+        enableMenuButton: false
+        visibleMenuButton: false
+    }
+
     Keys.onReleased: {
         if (event.key === Qt.Key_Back) {
             console.log("*** Back button")
@@ -85,7 +92,7 @@ Page {
                 ColumnLayout {
                     id: c
                     Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignTop                    
+                    Layout.alignment: Qt.AlignTop | Qt.AlignHCenter
                     spacing: 8
 
                     Label {
@@ -96,15 +103,17 @@ Page {
                     }
                     Label {
                         text: qsTr("Username")
+                        Layout.alignment: Qt.AlignHCenter
                     }
                     TextField {
                         id: textUsername
+                        Layout.alignment: Qt.AlignHCenter
                         enabled: !loginActive
                         placeholderText: qsTr("Your username")
                         focus: true
                         inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText | Qt.ImhEmailCharactersOnly
                         maximumLength: 64
-                        Layout.fillWidth: true
+                        Layout.fillWidth: false
                         Layout.fillHeight: false;
                         validator: RegExpValidator {
                             regExp: /.+/
@@ -116,13 +125,15 @@ Page {
                     }
                     Label {
                         text: qsTr("Password")
+                        Layout.alignment: Qt.AlignHCenter
                     }
                     TextField {
                         id: textPassword
                         enabled: !loginActive
                         maximumLength: 32
                         placeholderText: qsTr("Your Password")
-                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignHCenter
+                        Layout.fillWidth: false
                         Layout.fillHeight: false;
                         echoMode: TextInput.Password
                         validator: RegExpValidator {
@@ -134,7 +145,8 @@ Page {
                         }
                     }
                     ColumnLayout {
-                        Layout.fillWidth: true;
+                        Layout.fillWidth: false;
+                        Layout.alignment: Qt.AlignHCenter
                         Button {
                             text: qsTr("Login")
                             Layout.fillWidth: true;
