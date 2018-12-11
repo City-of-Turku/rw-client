@@ -3,6 +3,7 @@ import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.3
 
 import "../delegates"
+import "../components"
 
 Page {
     id: pageMessages
@@ -13,6 +14,13 @@ Page {
     signal productClicked(string sku);
 
     title: qsTr("Messages")
+
+    header: ToolbarBasic {
+        id: toolbar
+        enableBackPop: true
+        enableMenuButton: false
+        visibleMenuButton: false
+    }
 
     Rectangle {
         color: "#e8e8e8"
