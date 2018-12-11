@@ -22,6 +22,8 @@ Popup {
     property int locationID;
     property string locationDetail;
 
+    signal refresh();
+
     onOpened: {
         // Make sure we get keyboard events
         forceActiveFocus();
@@ -49,6 +51,13 @@ Popup {
                 onClicked: {
                     productWarehouseSearch.text='';
                     productWarehouse.model.clearFilter();
+                }
+            }
+
+            RoundButton {
+                text: qsTr("Refresh")
+                onClicked: {
+                    locationPopup.refresh();
                 }
             }
         }
