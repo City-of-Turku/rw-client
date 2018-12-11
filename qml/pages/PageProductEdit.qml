@@ -309,49 +309,52 @@ Page {
                 id: bar
                 Layout.fillWidth: true
                 currentIndex: editorSwipeView.currentIndex
+                topPadding: 4
+                bottomPadding: 4
 
                 // Basedata
                 TabButton {
                     background: Rectangle {
-                        color: validBaseEntry ? "green" : "red"
-                        border.width: 1
+                        color: validBaseEntry ? "#19e600" : "red"
+                        border.width: 2
+                        radius: 4
                     }
-                    icon.source: "qrc:/images/icon_home.png"
+                    icon.source: "qrc:/images/icon_home.png"                    
                 }
                 // Images
                 TabButton {
                     background: Rectangle {
-                        color: hasImages ? "green" : "red"
+                        color: hasImages ? "#19e600" : "red"
                         border.color: "#000"
                         border.width: 1
+                        radius: 4
                     }
-                    icon.source: "qrc:/images/icon_camera.png"
+                    icon.source: "qrc:/images/icon_camera.png"                    
                     onClicked: {
-                        console.debug("Camera clicked: "+editorSwipeView.currentIndex)
-                        //if (bar.currentIndex==1)
-                        //    rootStack.push(pictureCamera)
+                        console.debug("Camera clicked: "+editorSwipeView.currentIndex)                        
                     }
 
                 }                
                 // Attributes
                 TabButton {
                     background: Rectangle {
-                        color: validAttributes ? "green" : "#d9e006"
+                        color: validAttributes ? "#19e600" : "#d9e006"
                         border.color: "#000"
                         border.width: 1
+                        radius: 4
                     }
-                    icon.source: "qrc:/images/icon_tag.png"
+                    icon.source: "qrc:/images/icon_tag.png"                    
                 }
                 // Extras
                 TabButton {
                     background: Rectangle {
-                        color: "green"
+                        color: "#19e600"
                         border.color: "#000"
                         border.width: 1
+                        radius: 4
                     }
-                    icon.source: "qrc:/images/icon_plus.png"
+                    icon.source: "qrc:/images/icon_plus.png"                    
                 }
-
             }
 
             SwipeView {
@@ -586,11 +589,14 @@ Page {
                                 ScrollBar.horizontal.interactive: true
                                 Layout.minimumHeight: productTitle.height*2
                                 Layout.maximumHeight: productTitle.height*4
+                                ScrollBar.vertical.policy: ScrollBar.AlwaysOn
+                                ScrollBar.vertical.interactive: true
                                 clip: true
                                 TextArea {
                                     id: productDescription
                                     textFormat: TextEdit.PlainText
                                     wrapMode: TextEdit.Wrap
+                                    width: parent.width
                                     placeholderText: qsTr("Enter product description")
                                 }
                             }
@@ -837,13 +843,11 @@ Page {
                         TextField {
                             id: productMake
                             Layout.fillWidth: true
-                            enabled: false
                             placeholderText: qsTr("Product manufacturer")
                         }
                         TextField {
                             id: productModel
                             Layout.fillWidth: true
-                            enabled: false
                             placeholderText: qsTr("Product model")
                         }
                     }
@@ -965,6 +969,7 @@ Page {
         id: locationPopup        
         onLocationDetailChanged: productEditPage.locationDetail=locationDetail;
         onLocationIDChanged: productEditPage.locationID=locationID
+        onRefresh: api.requestLocations();
     }
 
     function createProduct() {
