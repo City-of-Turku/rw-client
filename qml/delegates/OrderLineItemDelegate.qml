@@ -68,6 +68,7 @@ Rectangle {
                     case OrderLineItem.OrderItemNotFound:
                         return qsTr("Not found")
                     }
+                    return ""
                 }
             }
         }

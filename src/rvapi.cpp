@@ -47,7 +47,7 @@ RvAPI::RvAPI(QObject *parent) :
     m_hasMore(false),
     m_loadedPage(0),
     m_itemsmodel(&m_product_store, this),
-    m_cartmodel(&m_product_store, this),
+    m_cartmodel(this),
     m_categorymodel(nullptr, this),
     m_locations(this),
     m_ordersmodel(this),
@@ -546,6 +546,13 @@ bool RvAPI::parseOrderCreated(QVariantMap &data)
     return true;
 }
 
+bool RvAPI::parseCartCheckout(QVariantMap &data)
+{
+    emit cartCheckout();
+
+    return true;
+}
+
 bool RvAPI::parseOrderStatusUpdate(QVariantMap &data)
 {    
     int id=data["id"].toInt();
@@ -579,6 +586,25 @@ bool RvAPI::parseOrders(QVariantMap &data)
     }
 
     m_ordersmodel.setList(m_orders);
+
+    return true;
+}
+
+bool RvAPI::parseCart(QVariantMap &data)
+{
+    QVariantList cart=data.value("items").toList();
+
+    m_cartmodel.clear();
+
+    QListIterator<QVariant> i(cart);
+    while (i.hasNext()) {
+        auto om=i.next().toMap();
+
+        qDebug() << om;
+
+        OrderLineItem *o=OrderLineItem::fromVariantMap(om, this);
+        m_cartmodel.append(o);
+    }
 
     return true;
 }
@@ -833,6 +859,23 @@ bool RvAPI::parseOKResponse(RequestOps op, const QByteArray &response, const QNe
         if (method==QNetworkAccessManager::PostOperation)
             return parseOrderStatusUpdate(data);
         break;
+    case RvAPI::Cart:
+        return parseCart(data);
+        break;
+    case RvAPI::AddToCart:
+        if (method==QNetworkAccessManager::PostOperation) {
+            emit productAddedToCart();
+            return true; //xxx
+        }
+        break;
+    case RvAPI::CheckoutCart:
+        if (method==QNetworkAccessManager::PostOperation)
+            return parseCartCheckout(data);
+        break;
+    case RvAPI::ClearCart:
+        if (method==QNetworkAccessManager::PostOperation)
+            return true;
+        break;
     case RvAPI::DownloadAPK:
         return parseFileDownload(response);
     default:
@@ -968,6 +1011,61 @@ bool RvAPI::createSimpleAuthenticatedRequest(const QString opurl, RequestOps op,
 
     return true;
 }
+
+bool RvAPI::createSimpleAuthenticatedPostRequest(const QString opurl, RequestOps op, QVariantMap *params)
+{
+    if (!m_authenticated)
+        return false;
+
+    if (isRequestActive(op))
+        return false;
+
+    QUrl url=createRequestUrl(opurl);
+    QNetworkRequest request;
+    setAuthenticationHeaders(&request);
+    QHttpMultiPart *mp = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+
+    if (params) {
+        QMapIterator<QString, QVariant> i(*params);
+        while (i.hasNext()) {
+            i.next();
+            addParameter(mp, i.key(), i.value().toString());
+        }
+    }
+
+    request.setUrl(url);
+    queueRequest(post(request, mp), op);
+
+    return true;
+}
+
+bool RvAPI::createSimpleAuthenticatedPutRequest(const QString opurl, RequestOps op, QVariantMap *params)
+{
+    if (!m_authenticated)
+        return false;
+
+    if (isRequestActive(op))
+        return false;
+
+    QUrl url=createRequestUrl(opurl);
+    QNetworkRequest request;
+    setAuthenticationHeaders(&request);
+    QHttpMultiPart *mp = new QHttpMultiPart(QHttpMultiPart::FormDataType);
+
+    if (params) {
+        QMapIterator<QString, QVariant> i(*params);
+        while (i.hasNext()) {
+            i.next();
+            addParameter(mp, i.key(), i.value().toString());
+        }
+    }
+
+    request.setUrl(url);
+    queueRequest(put(request, mp), op);
+
+    return true;
+}
+
 
 /**
  * @brief RvAPI::login
@@ -1351,21 +1449,21 @@ bool RvAPI::createOrder(bool done)
         return false;
 
     QVariantMap prods;
-    uint pc=m_cartmodel.count();
+    int pc=m_cartmodel.count();
 
     // Collect and count the products barcodes
-    for (uint i=0;i<pc;i++) {
-        ProductItem *pi=m_cartmodel.get(i);
+    for (int i=0;i<pc;i++) {
+        OrderLineItem *pi=m_cartmodel.getItem(i);
         if (!pi) {
             qWarning("Failed to find product!");
             return false;
         }
-        if (prods.contains(pi->barcode())) {
-            uint i=prods.value(pi->barcode()).toUInt();
+        if (prods.contains(pi->sku())) {
+            uint i=prods.value(pi->sku()).toUInt();
             i++;
-            prods.insert(pi->barcode(), i);
+            prods.insert(pi->sku(), i);
         } else {
-            prods.insert(pi->barcode(), 1);
+            prods.insert(pi->sku(), 1);
         }
     }
 
@@ -1388,6 +1486,48 @@ bool RvAPI::createOrder(bool done)
     queueRequest(post(request, mp), Orders);
 
     return true;
+}
+
+
+bool RvAPI::addToCart(const QString sku, int quantity)
+{
+    if (!m_authenticated)
+        return false;
+
+    if (isRequestActive(AddToCart))
+        return false;
+
+    QVariantMap r;
+    r.insert("sku", sku);
+    r.insert("quantity", quantity);
+
+    return createSimpleAuthenticatedPostRequest(op_addtocart, AddToCart, &r);
+}
+
+bool RvAPI::removeFromCart(const QString sku)
+{
+    return false;
+}
+
+/**
+ * @brief RvAPI::sendCart
+ * @return
+ *
+ * Checkout shopping cart on server.
+ *
+ */
+bool RvAPI::checkoutCart()
+{
+    if (!m_authenticated)
+        return false;
+
+    if (isRequestActive(CheckoutCart))
+        return false;
+
+    if (m_cartmodel.count()==0)
+        return false;
+
+    return createSimpleAuthenticatedPostRequest(op_checkoutcart, CheckoutCart);
 }
 
 bool RvAPI::orders(OrderStatus status)
@@ -1433,7 +1573,7 @@ bool RvAPI::getUserCart()
 
 bool RvAPI::clearUserCart()
 {
-    return createSimpleAuthenticatedRequest(op_clearcart, ClearCart);
+    return createSimpleAuthenticatedPostRequest(op_clearcart, ClearCart);
 }
 
 bool RvAPI::requestLocations()
@@ -1523,7 +1663,7 @@ ItemListModel *RvAPI::getItemModel()
     return &m_itemsmodel;
 }
 
-ItemListModel *RvAPI::getCartModel()
+OrderLineItemModel *RvAPI::getCartModel()
 {
     return &m_cartmodel;
 }

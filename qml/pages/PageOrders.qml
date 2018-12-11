@@ -110,7 +110,7 @@ Page {
         anchors.margins: 4
 
         Label {            
-            visible: orders.model.count===0
+            visible: orders.model.count===0 && !api.busy
             text: qsTr("No orders")
             wrapMode: Text.Wrap
             font.pixelSize: 32
@@ -121,6 +121,7 @@ Page {
             clip: true
             Layout.fillWidth: true
             Layout.fillHeight: true
+            enabled: !api.busy
 
             ScrollIndicator.vertical: ScrollIndicator { }
 

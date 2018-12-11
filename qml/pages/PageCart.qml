@@ -33,6 +33,19 @@ Page {
     signal searchBarcodeRequested(string barcode);
     signal searchCancel();
 
+    StackView.onActivated: {
+        refreshCart();
+    }
+
+    function refreshCart() {
+        api.getUserCart();
+    }
+
+    function cartCheckedOut() {
+        messagePopup.show(qsTr("Cart"), qsTr("Cart succesfully checked out!"));
+        refreshCart();
+    }
+
     // searchRequested handler should call this
     function setSearchActive(a) {
         searchActive=a;
@@ -69,8 +82,7 @@ Page {
         orderCart.forceActiveFocus();
     }
 
-    function orderCreated() {
-        api.clearProductStore();
+    function orderCreated() {        
         rootStack.pop();
     }
 
@@ -107,7 +119,6 @@ Page {
         }
     }
 
-
     Component.onCompleted: {
         orderPage.forceActiveFocus();
         model=root.api.getCartModel();
@@ -115,19 +126,39 @@ Page {
         console.debug("Cart contains: "+model.count)
     }
 
+    header: ToolbarBasic {
+        id: toolbar
+        enableBackPop: true
+        enableMenuButton: !api.busy
+        visibleMenuButton: true
+        onMenuButton: cartMenu.open()
+    }
+
+    Menu {
+        id: cartMenu
+        x: toolbar.width - width
+        transformOrigin: Menu.TopRight
+        modal: true
+        MenuItem {
+            text: qsTr("Refresh")
+            onTriggered: api.getUserCart()
+        }
+        MenuItem {
+            text: qsTr("Clear")
+            onTriggered: confirmClearDialog.open();
+        }
+    }
+
     MessageDialog {
         id: confirmDialog
         standardButtons: StandardButton.Ok | StandardButton.Cancel
-        title: qsTr("Confirm order")
-        text: qsTr("Commit product order ?")
+        title: qsTr("Cart")
+        text: qsTr("Checkout cart ?")
 
         onAccepted: {
             confirmDialog.close();
-            var r=api.createOrder(true);
-            if (!r) {
-                messagePopup.show("Order", "Failed to create order");
-            } else {
-
+            if (!api.checkoutCart()) {
+                messagePopup.show(qsTr("Cart"), qsTr("Failed to request cart checkout"));
             }
         }
     }
@@ -135,12 +166,12 @@ Page {
     MessageDialog {
         id: confirmClearDialog
         standardButtons: StandardButton.Ok | StandardButton.Cancel
-        title: qsTr("Clear order")
-        text: qsTr("Clear product order ?")
+        title: qsTr("Cart")
+        text: qsTr("Clear shopping cart ?")
 
         onAccepted: {
             confirmDialog.close();
-            orderPage.model.clear();
+            api.clearUserCart()
         }
     }
 
@@ -158,9 +189,13 @@ Page {
                 }
             }
 
+            ToolSeparator {
+
+            }
+
             ToolButton {
-                text: qsTr("Send order")
-                enabled: orderCart.count>0 && !api.busy
+                text: qsTr("Checkout")
+                enabled: orderCart.count>0 && !api.busy                
                 onClicked: {
                     confirmDialog.open();
                 }
@@ -239,20 +274,14 @@ Page {
             ScrollIndicator.vertical: ScrollIndicator { }
 
             delegate: Component {
-                ProductItemDelegate {
+                OrderLineItemDelegate {
                     width: parent.width
                     height: childrenRect.height
-                    showImage: false
-                    compact: true
                     onClicked: {
                         openProductAtIndex(index)
                     }
 
-                    onClickedImage: {
-                        //openProductAtIndex(index)
-                    }
-
-                    onPressandhold: {
+                    onPressAndHold: {
                         productMenu.open();
                     }
 
@@ -271,6 +300,7 @@ Page {
 
                         MenuItem {
                             text: qsTr("Remove")
+                            enabled: false
                             onClicked: {
                                 orderCart.model.remove(index);
                             }

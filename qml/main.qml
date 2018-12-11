@@ -692,6 +692,15 @@ ApplicationWindow {
                 rootStack.currentItem.confirmProductSave(false, 0, msg);
         }
 
+        onProductAddedToCart: {
+            root.showCart();
+        }
+
+        onCartCheckout: {
+            if (rootStack.currentItem.objectName=="cart")
+                rootStack.currentItem.cartCheckedOut();
+        }
+
         onProductsFail: {
             console.debug("*** onProductsFail "+error)
             messagePopup.show(qsTr("Failure"), qsTr("Failed to load products"))

@@ -20,6 +20,9 @@ public:
 
     enum OrderLineStatus { OrderItemPending=0, OrderItemPicked, OrderItemNotFound };
 
+    Q_INVOKABLE int amount() const { return m_amount; }
+    Q_INVOKABLE QString sku() const { return m_sku; }
+
     static OrderLineItem *fromVariantMap(QVariantMap &data, QObject *parent);
 signals:
     void skuChanged();

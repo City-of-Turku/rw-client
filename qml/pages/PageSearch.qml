@@ -275,8 +275,11 @@ Page {
                     function addProductAtIndexToCart(index) {
                         var p=searchPage.model.get(index);
                         // XXX: Use proper Cart API for this
-                        cartModel.append(p.barcode);
-                        root.showCart();
+                        //cartModel.append(p.barcode);
+                        //root.showCart();
+                        if (!api.addToCart(p.barcode, 1)) {
+
+                        }
                     }
 
                     function openProductAtIndex(index) {

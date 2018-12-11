@@ -158,7 +158,7 @@ public:
     Q_INVOKABLE bool validateBarcodeEAN(const QString code) const;
 
     Q_INVOKABLE ItemListModel *getItemModel();
-    Q_INVOKABLE ItemListModel *getCartModel();
+    Q_INVOKABLE OrderLineItemModel *getCartModel();
     Q_INVOKABLE OrdersModel *getOrderModel();
     Q_INVOKABLE LocationListModel *getLocationsModel();
     Q_INVOKABLE CategoryModel *getCategoryModel();    
@@ -182,6 +182,9 @@ public:
 
     Q_INVOKABLE bool getUserCart();
     Q_INVOKABLE bool clearUserCart();
+    Q_INVOKABLE bool checkoutCart();
+    Q_INVOKABLE bool addToCart(const QString sku, int quantity);
+    Q_INVOKABLE bool removeFromCart(const QString sku);
 
     Q_INVOKABLE void clearProductStore();
 
@@ -232,6 +235,9 @@ signals:
 
     void orderCreated();
     void orderStatusUpdated();
+    void cartCheckout();
+
+    void productAddedToCart();
 
     void uploading(quint8 progress);
     void downloading(quint8 progress);
@@ -297,7 +303,7 @@ private:
         AuthLogin, AuthLogout,
         ProductSearch, ProductSearchBarcode, ProductAdd, ProductUpdate, Product, Products,
         Order, Orders, OrderUpdateStatus,
-        Cart, ClearCart, CheckoutCart,
+        Cart, ClearCart, AddToCart, CheckoutCart,
         Categories,
         Locations,
         DownloadAPK,
@@ -319,6 +325,8 @@ private:
     // Cart
     const QString op_getcart=QStringLiteral("cart");
     const QString op_clearcart=QStringLiteral("cart");
+    const QString op_checkoutcart=QStringLiteral("cart/checkout");
+    const QString op_addtocart=QStringLiteral("cart/item");
 
     // Search endpoints
     const QString op_product_barcode=QStringLiteral("products/barcode");
@@ -380,7 +388,7 @@ private:
     QObjectList m_orders;
 
     ItemListModel m_itemsmodel;
-    ItemListModel m_cartmodel;
+    OrderLineItemModel m_cartmodel;
     CategoryModel m_categorymodel;
     LocationListModel m_locations;    
     OrdersModel m_ordersmodel;    
@@ -402,6 +410,8 @@ private:
 
     void queueRequest(QNetworkReply *req, RequestOps op);
     bool createSimpleAuthenticatedRequest(const QString opurl, RequestOps op, QVariantMap *params=nullptr);
+    bool createSimpleAuthenticatedPostRequest(const QString opurl, RequestOps op, QVariantMap *params=nullptr);
+    bool createSimpleAuthenticatedPutRequest(const QString opurl, RequestOps op, QVariantMap *params=nullptr);
 
     bool parseJsonResponse(const QByteArray &data, QVariantMap &map);
     void parseResponse(QNetworkReply *reply);
@@ -416,8 +426,10 @@ private:
     bool parseFileDownload(const QByteArray &data);
     void parseCategoryMap(const QString key, CategoryModel &model, QVariantMap &tmp);
     bool parseOrderCreated(QVariantMap &data);
-    bool parseOrders(QVariantMap &data);
+    bool parseOrders(QVariantMap &data);    
     bool parseOrderStatusUpdate(QVariantMap &data);
+    bool parseCart(QVariantMap &data);
+    bool parseCartCheckout(QVariantMap &data);
 
     void setBusy(bool busy);       
 

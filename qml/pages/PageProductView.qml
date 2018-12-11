@@ -13,7 +13,7 @@ Page {
     property Product product: null;
     property bool landscape: height<width
 
-    property bool toolsEnabled: false
+    property bool toolsEnabled: true
     property bool editEnabled: false
     property bool cartEnabled: false
 
@@ -26,7 +26,7 @@ Page {
     }
 
     header: ToolbarBasic {
-
+        enableMenuButton: false
     }
 
     footer: ToolBar {
@@ -34,6 +34,7 @@ Page {
         RowLayout {
             ToolButton {
                 text: qsTr("Edit")
+                visible: enabled
                 enabled: editEnabled
                 onClicked: {
                     rootStack.push(productEdit)
@@ -41,9 +42,12 @@ Page {
             }
             ToolButton {
                 text: qsTr("Add to cart")
+                visible: enabled
                 enabled: cartEnabled
                 onClicked: {
+                    if (!api.addToCart(product.sku, 1)) {
 
+                    }
                 }
             }
         }
@@ -195,12 +199,13 @@ Page {
 
                                     }
                                 }
+                                onProgressChanged: console.debug("Loading... "+progress)
                             }
                             ProgressBar {
                                 anchors.centerIn: parent
                                 width: parent.width/2
                                 value: thumbnail.progress
-                                visible: thumbnail.progress<1 && thumbnail.status==Image.Loading
+                                visible: thumbnail.status==Image.Loading
                             }
                         }
                     }
