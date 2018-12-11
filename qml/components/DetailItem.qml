@@ -18,6 +18,7 @@ RowLayout {
     Label {
         id: div
         font.pixelSize: 18
+        wrapMode: Text.Wrap
         Layout.fillWidth: true
         Layout.alignment: Qt.AlignTop
         MouseArea {
