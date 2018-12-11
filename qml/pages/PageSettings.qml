@@ -2,6 +2,8 @@ import QtQuick 2.9
 import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.3
 
+import "../components"
+
 Page {
     id: settingsPage
     title: qsTr("Settings")
@@ -10,6 +12,13 @@ Page {
     property alias developmentMode: checkDevelopment.checked
     property alias keepImages: checkKeepImages.checked
     property alias askMultiple: checkMultiAdd.checked
+
+    header: ToolbarBasic {
+        id: toolbar
+        enableBackPop: true
+        enableMenuButton: false
+        visibleMenuButton: false
+    }
 
     Keys.onReleased: {
         if (event.key === Qt.Key_Back) {
@@ -47,6 +56,8 @@ Page {
             }
 
             Button {
+                // XXX: Cache causes issues so it is disabled for now and this is not needed
+                visible: false
                 text: qsTr("Clear network cache")
                 onClicked: root.api.clearCache();
             }
