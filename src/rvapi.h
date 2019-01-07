@@ -238,6 +238,9 @@ signals:
     void cartCheckout();
 
     void productAddedToCart();
+    void productOutOfStock();
+    void cartCleared();
+    void cartProductOutOfStock();
 
     void uploading(quint8 progress);
     void downloading(quint8 progress);

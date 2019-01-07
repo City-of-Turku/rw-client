@@ -486,6 +486,16 @@ void RvAPI::parseErrorResponse(int code, QNetworkReply::NetworkError e, RequestO
         return;
     }
 
+    if (op==CheckoutCart && code==409) {
+        emit cartProductOutOfStock();
+        return;
+    }
+
+    if (op==AddToCart && code==409) {
+        emit productOutOfStock();
+        return;
+    }
+
     // Catch all auth failure, op does not matter if we get an auth error at this point
     if (code==401) {
         emit requestFailure(code, e, v.value("message").toString());
@@ -873,8 +883,10 @@ bool RvAPI::parseOKResponse(RequestOps op, const QByteArray &response, const QNe
             return parseCartCheckout(data);
         break;
     case RvAPI::ClearCart:
-        if (method==QNetworkAccessManager::PostOperation)
+        if (method==QNetworkAccessManager::PostOperation) {
+            emit cartCleared();
             return true;
+        }
         break;
     case RvAPI::DownloadAPK:
         return parseFileDownload(response);
@@ -920,10 +932,11 @@ void RvAPI::parseResponse(QNetworkReply *reply)
         }
         break;
     case 400: // HTTP error codes
-    case 401:
-    case 403:
-    case 404:
-    case 500:
+    case 401: // Unauthorized
+    case 403: // Forbidden
+    case 404: // Not found
+    case 409: // Conflict
+    case 500: // Internal error
         parseErrorResponse(hc, e, op, data);
         break;
     case 0: // Network error

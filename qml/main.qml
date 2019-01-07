@@ -696,9 +696,24 @@ ApplicationWindow {
             root.showCart();
         }
 
+        onProductOutOfStock: {
+            //xxx
+            messagePopup.show(qsTr("Unable to add product to cart"), qsTr("Product is out of stock"))
+        }
+
+        onCartProductOutOfStock: {
+            //xxx
+            messagePopup.show(qsTr("Unable to checkout"), qsTr("Cart contains products out of stock"))
+        }
+
         onCartCheckout: {
             if (rootStack.currentItem.objectName=="cart")
                 rootStack.currentItem.cartCheckedOut();
+        }
+
+        onCartCleared: {
+            if (rootStack.currentItem.objectName=="cart")
+                rootStack.currentItem.refreshCart();
         }
 
         onProductsFail: {

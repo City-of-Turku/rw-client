@@ -18,7 +18,7 @@ import "../components"
 
 Page {
     id: orderPage
-    title: qsTr("Cart")
+    title: orderCart.model && orderCart.model.count>0 ? qsTr("Cart")+" ("+orderCart.model.count+")" : qsTr("Cart")
 
     objectName: "cart"
 
@@ -112,10 +112,10 @@ Page {
             orderCart.flick(0, orderCart.maximumFlickVelocity)
             event.accepted=true;
             break;
-        case Qt.Key_B:
-            scanBarcode();
-            event.accepted=true;
-            break;
+        //case Qt.Key_B:
+        //    scanBarcode();
+        //    event.accepted=true;
+        //    break;
         }
     }
 
@@ -145,6 +145,7 @@ Page {
         }
         MenuItem {
             text: qsTr("Clear")
+            enabled: orderCart.model.count>0
             onTriggered: confirmClearDialog.open();
         }
     }
@@ -199,19 +200,7 @@ Page {
                 onClicked: {
                     confirmDialog.open();
                 }
-            }
-
-            ToolSeparator {
-
-            }
-
-            ToolButton {
-                text: qsTr("Clear")
-                enabled: orderCart.count>0 && !api.busy
-                onClicked: {
-                    confirmClearDialog.open();
-                }
-            }
+            }           
         }
     }
 

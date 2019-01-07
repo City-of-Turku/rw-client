@@ -15,7 +15,7 @@ Page {
 
     property bool toolsEnabled: true
     property bool editEnabled: false
-    property bool cartEnabled: false
+    property bool cartEnabled: api.hasRole("order")
 
     Keys.onReleased: {
         if (event.key === Qt.Key_Back) {
@@ -45,7 +45,9 @@ Page {
                 visible: enabled
                 enabled: cartEnabled
                 onClicked: {
-                    if (!api.addToCart(product.sku, 1)) {
+                    if (!api.addToCart(product.barcode, 1)) {
+                        messagePopup.show(qsTr("Cart error"), qsTr("Failed to add product to cart"))
+                    } else {
 
                     }
                 }

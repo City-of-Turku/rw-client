@@ -64,6 +64,8 @@ QNetworkAccessManager *MyNetworkAccessManagerFactory::create(QObject *parent)
     diskCache->setCacheDirectory(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
     nam->setCache(diskCache);
 
+    qDebug() << "Cache is " << diskCache->cacheSize() << diskCache->maximumCacheSize() << diskCache->cacheDirectory();
+
     return nam;
 }
 
