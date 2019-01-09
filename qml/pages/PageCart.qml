@@ -239,6 +239,20 @@ Page {
         }
     }
 
+    Connections {
+        target: api
+
+        onProductFound: {
+            console.debug("PageCart: Product found!")
+            rootStack.push(productView, { "product": product, "cartDisabled": true })
+        }
+
+        onProductNotFound: {
+            console.debug("PageCart: Product NOT found")
+            messagePopup.show("Not found", "Product not found", 404);
+        }
+    }
+
     ColumnLayout {
         id: mainContainer
         anchors.fill: parent
@@ -297,9 +311,10 @@ Page {
                     }
 
                     function openProductAtIndex(index) {
-                        var p=orderCart.model.get(index);
+                        var o=orderCart.model.getItem(index);
                         orderCart.currentIndex=index;
-                        rootStack.push(productView, { "product": p, "cartDisabled": true })
+                        var p=api.getProduct(o.sku, true)
+                        // XXX: Check return value
                     }
 
                     function openProductImageAtIndex(index) {

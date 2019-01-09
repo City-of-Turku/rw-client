@@ -13,7 +13,7 @@ class OrderLineItemModel : public Cute::AbstractObjectModel
 public:
     explicit OrderLineItemModel(QObject *parent = nullptr);
 
-    OrderLineItem *getItem(int index) const;
+    Q_INVOKABLE OrderLineItem *getItem(int index) const;
 
     Q_INVOKABLE bool isPicked() const;
 
