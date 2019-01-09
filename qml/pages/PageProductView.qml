@@ -15,7 +15,8 @@ Page {
 
     property bool toolsEnabled: true
     property bool editEnabled: false
-    property bool cartEnabled: api.hasRole("order")
+    property bool cartDisabled: false
+    property bool cartEnabled: api.hasRole("order") && !cartDisabled
 
     Keys.onReleased: {
         if (event.key === Qt.Key_Back) {

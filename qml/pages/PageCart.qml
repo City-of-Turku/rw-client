@@ -299,7 +299,7 @@ Page {
                     function openProductAtIndex(index) {
                         var p=orderCart.model.get(index);
                         orderCart.currentIndex=index;
-                        rootStack.push(productView, { "product": p })
+                        rootStack.push(productView, { "product": p, "cartDisabled": true })
                     }
 
                     function openProductImageAtIndex(index) {
