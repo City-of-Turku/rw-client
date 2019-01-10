@@ -82,6 +82,11 @@ Page {
     property string categorySubID: ""
     property int purposeID: 0
     property string colorID: ""
+
+    property string colorsIdentifiers: productColor.colorID+";"+productColor2.colorID+";"+productColor3.colorID
+
+    onColorsIdentifiersChanged: console.debug(colorsIdentifiers)
+
     property int locationID;
     property string locationDetail: ""   
 
@@ -818,6 +823,16 @@ Page {
                         visible: categoryHasColor
                         model: root.colorModel
                     }
+                    ColorSelector {
+                        id: productColor2
+                        visible: categoryHasColor && productColor.colorIndex>0
+                        model: root.colorModel
+                    }
+                    ColorSelector {
+                        id: productColor3
+                        visible: categoryHasColor && productColor2.colorIndex>0
+                        model: root.colorModel
+                    }
 
                     SizeField {
                         id: productSize
@@ -996,8 +1011,18 @@ Page {
                 p.setAttribute("locationdetail", locationDetail)
         }
 
-        if (categoryHasColor && colorID!='')
-            p.setAttribute("color", colorID)
+        if (categoryHasColor) {
+            var c;
+            if (productColor.colorID!='') {
+                c=productColor.colorID;
+                if (productColor2.colorID!='')
+                    c+=";"+productColor2.colorID;
+                if (productColor2.colorID!='' && productColor3colorID!='')
+                    c+=";"+productColor3.colorID;
+
+            }
+            p.setAttribute("color", c)
+        }
 
         if (categoryHasEAN && productEAN.text!='')
             p.setAttribute("ean", productEAN.text)

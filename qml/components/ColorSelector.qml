@@ -9,6 +9,7 @@ RowLayout {
 
     property alias model: productColor.model
     property string colorID;
+    property alias colorIndex: productColor.currentIndex
 
     Rectangle {
         id: colorIndicator
@@ -26,6 +27,7 @@ RowLayout {
             onClicked: productColor.popup.open();
         }
     }
+
     ComboBox {
         id: productColor
         Layout.fillWidth: true
