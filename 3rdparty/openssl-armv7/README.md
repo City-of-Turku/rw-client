@@ -1,4 +1,4 @@
-# Pre-build OpenSSL OpenSSL 1.0.2k for Android armv7
+# Pre-build OpenSSL OpenSSL 1.0.2q for Android armv7
 
 # How to upgrade/build your own
 
