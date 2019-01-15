@@ -77,11 +77,11 @@ Page {
         id: toolbar
         enableBackPop: true
         enableMenuButton: false
-        visibleMenuButton: false
-        //onMenuButton: cameraMenu.open();
+        visibleMenuButton: false        
     }
 
     footer: ToolBar {
+        visible: false
         RowLayout {
             ToolButton {                
                 text: qsTr("Pending")
@@ -109,11 +109,21 @@ Page {
         anchors.fill: parent
         anchors.margins: 4
 
-        Label {            
-            visible: orders.model.count===0 && !api.busy
-            text: qsTr("No orders")
-            wrapMode: Text.Wrap
-            font.pixelSize: 32
+        TabBar {
+            Layout.fillWidth: true
+            enabled: !api.busy
+            TabButton {
+                text: qsTr("Pending")
+                onClicked: {
+                    refreshOrders(ServerApi.OrderPending);
+                }
+            }
+            TabButton {
+                text: qsTr("In progress")
+                onClicked: {
+                    refreshOrders(ServerApi.OrderProcessing);
+                }
+            }
         }
 
         ListView {
@@ -150,6 +160,17 @@ Page {
                 }
             }
         }
+
+        Label {
+            visible: orders.model.count===0 && !api.busy
+            text: qsTr("No orders")
+            wrapMode: Text.Wrap
+            font.pixelSize: 32
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.alignment: Qt.AlignCenter
+        }
+
     }
 
     BusyIndicator {
