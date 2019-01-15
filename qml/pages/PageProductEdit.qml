@@ -320,33 +320,21 @@ Page {
                 // Basedata
                 TabButton {
                     background: Rectangle {
-                        color: validBaseEntry ? "#19e600" : "red"
-                        border.width: 2
-                        radius: 4
+                        color: validBaseEntry ? "#19e600" : "#b92929"
                     }
-                    icon.source: "qrc:/images/icon_home.png"                    
+                    icon.source: "qrc:/images/icon_home.png"
                 }
                 // Images
                 TabButton {
                     background: Rectangle {
-                        color: hasImages ? "#19e600" : "red"
-                        border.color: "#000"
-                        border.width: 1
-                        radius: 4
+                        color: hasImages ? "#19e600" : "#b92929"
                     }
-                    icon.source: "qrc:/images/icon_camera.png"                    
-                    onClicked: {
-                        console.debug("Camera clicked: "+editorSwipeView.currentIndex)                        
-                    }
-
+                    icon.source: "qrc:/images/icon_camera.png"
                 }                
                 // Attributes
                 TabButton {
                     background: Rectangle {
                         color: validAttributes ? "#19e600" : "#d9e006"
-                        border.color: "#000"
-                        border.width: 1
-                        radius: 4
                     }
                     icon.source: "qrc:/images/icon_tag.png"                    
                 }
@@ -354,9 +342,6 @@ Page {
                 TabButton {
                     background: Rectangle {
                         color: "#19e600"
-                        border.color: "#000"
-                        border.width: 1
-                        radius: 4
                     }
                     icon.source: "qrc:/images/icon_plus.png"                    
                 }
