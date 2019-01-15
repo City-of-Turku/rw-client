@@ -146,7 +146,18 @@ Page {
             ToolButton {
                 id: tbSortOrder
                 visible: searchResults.model.count>1
-
+                text: qsTr("Sort")
+                onClicked: {
+                    sortOrder=sortOrder==ServerApi.SortDateDesc ? ServerApi.SortDateAsc : ServerApi.SortDateDesc;
+                    searchRequested('', '', sortOrder);
+                }
+            }
+            ToolButton {
+                id: tbRefresh
+                text: qsTr("Refresh")
+                onClicked: {
+                    searchRequested('', '', sortOrder);
+                }
             }
         }
     }
@@ -273,10 +284,7 @@ Page {
                     }
 
                     function addProductAtIndexToCart(index) {
-                        var p=searchPage.model.get(index);
-                        // XXX: Use proper Cart API for this
-                        //cartModel.append(p.barcode);
-                        //root.showCart();
+                        var p=searchPage.model.get(index);                        
                         if (!api.addToCart(p.barcode, 1)) {
 
                         }
