@@ -119,9 +119,15 @@ Page {
                 }
             }
             TabButton {
-                text: qsTr("In progress")
+                text: qsTr("Processings")
                 onClicked: {
                     refreshOrders(ServerApi.OrderProcessing);
+                }
+            }
+            TabButton {
+                text: qsTr("Complete")
+                onClicked: {
+                    refreshOrders(ServerApi.OrderComplete);
                 }
             }
         }
