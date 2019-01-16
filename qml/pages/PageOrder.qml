@@ -249,6 +249,8 @@ Page {
                     width: parent.width
                     height: childrenRect.height
 
+                    enablePickStatus: order.status!=OrderItem.Shipped
+
                     onClicked:  {
                         if (orderProducts.currentIndex==index)
                             openProductAtIndex(index)
@@ -272,7 +274,7 @@ Page {
                         x: parent.width/3
                         MenuItem {
                             text: qsTr("Set Picked")
-                            enabled: type=="product" && status!=OrderLineItem.OrderItemPicked
+                            enabled: type=="product" && status!=OrderLineItem.OrderItemPicked && order.status!=OrderItem.Shipped
                             onClicked: {
                                 status=OrderLineItem.OrderItemPicked
                             }

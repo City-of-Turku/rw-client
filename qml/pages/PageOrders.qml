@@ -99,7 +99,7 @@ Page {
                 }
             }
             TabButton {
-                text: qsTr("Processings")
+                text: qsTr("Processing")
                 onClicked: {
                     refreshOrders(ServerApi.OrderProcessing);
                 }

@@ -12,6 +12,8 @@ Rectangle {
     signal doubleClicked(variant index)
     signal pressAndHold(variant index)
 
+    property bool enablePickStatus: true
+
     height: c.height
 
     function getColor(ci, index, type, status) {
@@ -57,7 +59,7 @@ Rectangle {
                 text: amount
             }
             Badge {
-                visible: type=="product"
+                visible: type=="product" && enablePickStatus
                 text: getPickedStatus(status)
                 function getPickedStatus(s) {
                     switch (s) {
