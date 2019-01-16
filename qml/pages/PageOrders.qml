@@ -78,27 +78,7 @@ Page {
         enableBackPop: true
         enableMenuButton: false
         visibleMenuButton: false        
-    }
-
-    footer: ToolBar {
-        visible: false
-        RowLayout {
-            ToolButton {                
-                text: qsTr("Pending")
-                enabled: !api.busy
-                onClicked: {
-                    refreshOrders(ServerApi.OrderPending);
-                }
-            }
-            ToolButton {
-                text: qsTr("In progress")
-                enabled: !api.busy
-                onClicked: {                    
-                    refreshOrders(ServerApi.OrderProcessing);
-                }
-            }
-        }
-    }
+    }    
 
     MessagePopup {
         id: messagePopup
