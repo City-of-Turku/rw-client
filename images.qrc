@@ -62,5 +62,11 @@
         <file>images/icon_cancel.png</file>
         <file>images/icon_up.png</file>
         <file>images/icon_down.png</file>
+        <file>images/icon_messages.png</file>
+        <file>images/icon_refresh.png</file>
+        <file>images/icon_bag.png</file>
+        <file>images/icon_cart.png</file>
+        <file>images/icon_delete.png</file>
+        <file>images/icon_login.png</file>
     </qresource>
 </RCC>
