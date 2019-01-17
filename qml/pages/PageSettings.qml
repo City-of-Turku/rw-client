@@ -32,10 +32,11 @@ Page {
         anchors.fill: parent
         anchors.margins: 16
         contentHeight: c.height
+        boundsBehavior: Flickable.StopAtBounds
 
         ColumnLayout {
             id: c
-            anchors.fill: parent
+            width: parent.width
             spacing: 8
 
             GroupBox {
