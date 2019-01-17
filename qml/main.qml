@@ -287,24 +287,24 @@ ApplicationWindow {
     // Main views when logged in
     ListModel {
         id: actionModel1
-        ListElement { title: qsTr("Products"); viewId: 4; role: "product"; image: "qrc:/images/icon_browse.png" }
-        ListElement { title: qsTr("Add product"); viewId: 3; role: "products"; image: "qrc:/images/icon_add.png"; }
+        ListElement { title: qsTr("Products"); viewId: 4; role: "product"; image: "qrc:/images/icon_gallery.png" }
+        ListElement { title: qsTr("Add product"); viewId: 3; role: "products"; image: "qrc:/images/icon_plus.png"; }
 
         ListElement { title: qsTr("Cart"); viewId: 8; role: "order"; image: "qrc:/images/icon_cart.png"; }
-        ListElement { title: qsTr("Orders"); viewId: 9; role: "orders"; image: "qrc:/images/icon_orders.png"; }
+        ListElement { title: qsTr("Orders"); viewId: 9; role: "orders"; image: "qrc:/images/icon_bag.png"; }
 
-        ListElement { title: qsTr("Messages"); viewId: 10; role: ""; image: "qrc:/images/icon_news.png";  }
+        ListElement { title: qsTr("Messages"); viewId: 10; role: ""; image: "qrc:/images/icon_messages.png";  }
 
         //ListElement { title: qsTr("Help"); viewId: 6; role: ""; image: "qrc:/images/icon_help.png" }
-        ListElement { title: qsTr("About"); viewId: 7; role: ""; image: "qrc:/images/icon_about.png";  }
+        ListElement { title: qsTr("About"); viewId: 7; role: ""; image: "qrc:/images/icon_at.png";  }
     }
 
     // Main views when logged out
     ListModel {
         id: actionModel2
         ListElement { title: qsTr("Login"); viewId: 1; role: ""; image: "qrc:/images/icon_login.png"; }
-        ListElement { title: qsTr("Messages"); viewId: 10; role: ""; image: "qrc:/images/icon_news.png"; }
-        ListElement { title: qsTr("About"); viewId: 7; role: ""; image: "qrc:/images/icon_about.png"; }
+        ListElement { title: qsTr("Messages"); viewId: 10; role: ""; image: "qrc:/images/icon_messages.png"; }
+        ListElement { title: qsTr("About"); viewId: 7; role: ""; image: "qrc:/images/icon_at.png"; }
     }
 
     // Our root navigation element
