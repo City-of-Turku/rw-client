@@ -46,5 +46,6 @@
         <file>qml/pages/PageCart.qml</file>
         <file>qml/delegates/OrderLineItemDelegate.qml</file>
         <file>qml/components/Badge.qml</file>
+        <file>qml/components/ListViewRefresh.qml</file>
     </qresource>
 </RCC>
