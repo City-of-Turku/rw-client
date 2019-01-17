@@ -267,7 +267,7 @@ Page {
             font.pixelSize: 32
         }
 
-        ListView {
+        ListViewRefresh {
             id: orderCart
             enabled: !searchActive
             clip: true
@@ -275,6 +275,10 @@ Page {
             Layout.fillHeight: true
 
             ScrollIndicator.vertical: ScrollIndicator { }
+
+            onRefreshTriggered: {
+                api.getUserCart();
+            }
 
             delegate: Component {
                 OrderLineItemDelegate {

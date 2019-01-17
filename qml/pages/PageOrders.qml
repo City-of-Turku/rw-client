@@ -112,7 +112,16 @@ Page {
             }
         }
 
-        ListView {
+        Text {
+            visible: orders.model.count===0 && !api.busy
+            text: qsTr("No orders")
+            wrapMode: Text.Wrap
+            horizontalAlignment: Text.AlignHCenter
+            font.pixelSize: 32
+            Layout.fillWidth: true
+        }
+
+        ListViewRefresh {
             id: orders            
             clip: true
             Layout.fillWidth: true
@@ -121,6 +130,7 @@ Page {
 
             ScrollIndicator.vertical: ScrollIndicator { }
 
+            /*
             header: Component {
                 Text {
                     id: name
@@ -129,6 +139,7 @@ Page {
                     horizontalAlignment: Text.AlignHCenter
                 }
             }
+            */
 
             delegate: Component {
                 OrderItemDelegate {
@@ -145,18 +156,8 @@ Page {
                     }
                 }
             }
-        }
-
-        Label {
-            visible: orders.model.count===0 && !api.busy
-            text: qsTr("No orders")
-            wrapMode: Text.Wrap
-            font.pixelSize: 32
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.alignment: Qt.AlignCenter
-        }
-
+            onRefreshTriggered: refreshOrders(orderStatus)
+        }                
     }
 
     BusyIndicator {
