@@ -155,6 +155,7 @@ Page {
             ToolButton {
                 id: tbRefresh
                 text: qsTr("Refresh")
+                icon.source: "qrc:/images/icon_refresh.png"
                 onClicked: {
                     searchRequested('', '', sortOrder);
                 }
