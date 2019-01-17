@@ -46,6 +46,7 @@ Page {
                     CheckBox {
                         id: checkKeepImages
                         text: qsTr("Keep uploaded images on device")
+                        visible: false
                         checked: true
                     }
                     CheckBox {
@@ -83,11 +84,12 @@ Page {
                     }
                     ComboBox {
                         id: comboLanguageSelection
-                        visible: !checkDeviceLanguage.checked
+                        enabled: !checkDeviceLanguage.checked
                         textRole: "value"
                         model: ListModel {
                             ListElement { key: "en_US"; value: "English"; }
                             ListElement { key: "fi_FI"; value: "Suomi"; }
+                            ListElement { key: "fi_SV"; value: "Svenska"; }
                         }
                     }
                 }
