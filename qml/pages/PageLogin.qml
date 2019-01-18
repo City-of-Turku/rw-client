@@ -42,7 +42,7 @@ Page {
         loginActive=false;
     }
 
-    function reportLoginFailed(msg) {        
+    function reportLoginFailed(msg) {
         loginStopped();
     }
 
@@ -69,7 +69,7 @@ Page {
 
     MessagePopup {
         id: messagePopup
-    }       
+    }
 
     Flickable {
         anchors.fill: parent
@@ -83,7 +83,7 @@ Page {
             spacing: 8
             anchors.margins: 8
 
-            ColumnLayout {                
+            ColumnLayout {
                 Layout.alignment: Qt.AlignTop
                 Layout.fillWidth: true
                 Layout.margins: 8
@@ -113,7 +113,8 @@ Page {
                         focus: true
                         inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText | Qt.ImhEmailCharactersOnly
                         maximumLength: 64
-                        Layout.fillWidth: false
+                        padding: 4
+                        Layout.fillWidth: true
                         Layout.fillHeight: false;
                         validator: RegExpValidator {
                             regExp: /.+/
@@ -121,6 +122,11 @@ Page {
 
                         onAccepted: {
                             textPassword.forceActiveFocus();
+                        }
+                        background: Rectangle {
+                            color: parent.enabled ? "#ffffff" : "#353535"
+                            border.color: parent.focus ? "#20ae20" : "#000000"
+                            border.width: 1
                         }
                     }
                     Label {
@@ -133,8 +139,9 @@ Page {
                         maximumLength: 32
                         placeholderText: qsTr("Your Password")
                         Layout.alignment: Qt.AlignHCenter
-                        Layout.fillWidth: false
+                        Layout.fillWidth: true
                         Layout.fillHeight: false;
+                        padding: 4
                         echoMode: TextInput.Password
                         validator: RegExpValidator {
                             regExp: /.+/
@@ -143,9 +150,14 @@ Page {
                         onAccepted: {
                             doLogin();
                         }
+                        background: Rectangle {
+                            color: parent.enabled ? "#ffffff" : "#353535"
+                            border.color: parent.focus ? "#20ae20" : "#000000"
+                            border.width: 1
+                        }
                     }
                     ColumnLayout {
-                        Layout.fillWidth: false;
+                        Layout.fillWidth: true;
                         Layout.alignment: Qt.AlignHCenter
                         Button {
                             text: qsTr("Login")
