@@ -68,5 +68,8 @@
         <file>images/icon_cart.png</file>
         <file>images/icon_delete.png</file>
         <file>images/icon_login.png</file>
+        <file>images/icon_add@4x.png</file>
+        <file>images/icon_at@4x.png</file>
+        <file>images/icon_attachment@4x.png</file>
     </qresource>
 </RCC>
