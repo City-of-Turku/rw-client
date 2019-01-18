@@ -4,7 +4,7 @@
  * Displays a list of products in order
  *
  */
-import QtQuick 2.9
+import QtQuick 2.10
 import QtQml 2.2
 import QtQuick.Controls 2.4
 import QtQuick.Dialogs 1.2

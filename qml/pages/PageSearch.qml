@@ -4,7 +4,7 @@
  * Displays a list of products, can be used for both searching and browsing
  *
  */
-import QtQuick 2.9
+import QtQuick 2.10
 import QtQml 2.2
 import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.3
