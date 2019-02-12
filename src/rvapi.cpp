@@ -408,6 +408,26 @@ QNetworkReply *RvAPI::head(QNetworkRequest &request)
     return reply;
 }
 
+bool RvAPI::cancelOperation(RequestOps op)
+{
+    auto v=m_requests.values();
+    auto k=m_requests.keys();
+
+    if (!v.contains(op)) {
+        return false;
+    }
+    int i=v.indexOf(op);
+    if (i==-1)
+        return false;
+
+    QNetworkReply *r=k.at(i);
+    Q_ASSERT(r);
+
+    r->abort();
+
+    return true;
+}
+
 /**
  * @brief RvAPI::isRequestActive
  * @param op
@@ -1121,6 +1141,11 @@ bool RvAPI::login()
     queueRequest(post(request, mp), AuthLogin);
 
     return true;
+}
+
+bool RvAPI::loginCancel()
+{
+    return cancelOperation(AuthLogin);
 }
 
 /**

@@ -137,6 +137,7 @@ public:
     quint8 downloadProgress() const { return m_downloadProgress; }
 
     Q_INVOKABLE bool login();
+    Q_INVOKABLE bool loginCancel();
     Q_INVOKABLE bool logout();
 
     Q_INVOKABLE void setAppVersion(uint ver);    
@@ -195,6 +196,7 @@ public:
     Q_INVOKABLE void clearCache();
 
     Q_INVOKABLE bool hasRole(const QString &role);
+
 signals:
 
     void urlChanged(QUrl url);
@@ -410,6 +412,8 @@ private:
     QNetworkReply *put(QNetworkRequest &request, QHttpMultiPart *mp);
     QNetworkReply *get(QNetworkRequest &request);
     QNetworkReply *head(QNetworkRequest &request);
+
+    bool cancelOperation(RequestOps op);
 
     void queueRequest(QNetworkReply *req, RequestOps op);
     bool createSimpleAuthenticatedRequest(const QString opurl, RequestOps op, QVariantMap *params=nullptr);
