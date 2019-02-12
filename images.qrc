@@ -71,5 +71,7 @@
         <file>images/icon_add@4x.png</file>
         <file>images/icon_at@4x.png</file>
         <file>images/icon_attachment@4x.png</file>
+        <file>images/icon_login@4.png</file>
+        <file>images/icon_messages@4.png</file>
     </qresource>
 </RCC>
