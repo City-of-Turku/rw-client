@@ -1,6 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>translations/rvtku_fi.qm</file>
-        <file>translations/rvtku_sv.qm</file>
+        <file>translations/rw-client_fi.qm</file>
+        <file>translations/rw-client_sv.qm</file>
     </qresource>
 </RCC>

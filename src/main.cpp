@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
 
     qDebug() << "Locale is: " << locale;
 
-    if (translator.load(QLocale(), QLatin1String("rvtku"), QLatin1String("_"), QLatin1String(":/translations")))
+    if (translator.load(QLocale(), QLatin1String("rw-client"), QLatin1String("_"), QLatin1String(":/translations")))
         app.installTranslator(&translator);
     else
         qDebug() << "Translation not available for locale " << locale;
