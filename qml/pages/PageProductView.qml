@@ -43,6 +43,7 @@ Page {
             }
             ToolButton {
                 text: qsTr("Add to cart")
+                icon.source: "qrc:/images/icon_cart.png"
                 visible: enabled
                 enabled: cartEnabled
                 onClicked: {
@@ -250,7 +251,7 @@ Page {
                         DetailItem {
                             label: qsTr("Added")
                             //visible: product.price>0
-                            value: product.getCreated();
+                            value: product.getCreated().toLocaleDateString();
                         }
                         DetailItem {
                             label: qsTr("Stock")
