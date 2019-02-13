@@ -35,6 +35,13 @@ Page {
         root.api.orders(f);
     }
 
+    function doListRefreshOrBeginning(op) {
+        if (orders.atYBeginning)
+            refreshOrders(op);
+        else
+            orders.positionViewAtBeginning();
+    }
+
     Keys.onReleased: {
         switch (event.key) {
         case Qt.Key_Back:
@@ -87,7 +94,7 @@ Page {
     ColumnLayout {
         id: mainContainer
         anchors.fill: parent
-        anchors.margins: 4
+        anchors.margins: 4                
 
         TabBar {
             Layout.fillWidth: true
@@ -95,19 +102,19 @@ Page {
             TabButton {
                 text: qsTr("Pending")
                 onClicked: {
-                    refreshOrders(ServerApi.OrderPending);
+                    doListRefreshOrBeginning(ServerApi.OrderPending);
                 }
             }
             TabButton {
                 text: qsTr("Processing")
                 onClicked: {
-                    refreshOrders(ServerApi.OrderProcessing);
+                    doListRefreshOrBeginning(ServerApi.OrderProcessing);
                 }
             }
             TabButton {
                 text: qsTr("Complete")
                 onClicked: {
-                    refreshOrders(ServerApi.OrderComplete);
+                    doListRefreshOrBeginning(ServerApi.OrderComplete);
                 }
             }
         }
