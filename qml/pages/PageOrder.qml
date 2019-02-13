@@ -177,6 +177,7 @@ Page {
         SwipeView {
             id: orderSwipe
             Layout.fillWidth: true
+            Layout.fillHeight: true
             Layout.preferredHeight: orderPage.height/4
             Layout.maximumHeight: orderPage.height/3
             Layout.minimumHeight: orderPage.height/5
@@ -241,6 +242,7 @@ Page {
             clip: true
             Layout.fillWidth: true
             Layout.fillHeight: true
+            Layout.minimumHeight: orderPage.height/3
 
             ScrollIndicator.vertical: ScrollIndicator { }
 
@@ -307,7 +309,7 @@ Page {
             Button {
                 Layout.fillWidth: true
                 visible: order.status==OrderItem.Cancelled
-                text: "Redo cancelled order"
+                text: qsTr("Redo cancelled order")
                 onClicked: {
                     api.updateOrderStatus(order, OrderItem.Pending);
                 }
@@ -315,7 +317,7 @@ Page {
             Button {
                 Layout.fillWidth: true
                 visible: order.status==OrderItem.Pending
-                text: "Start processing order"
+                text: qsTr("Start processing order")
                 onClicked: {
                     api.updateOrderStatus(order, OrderItem.Processing);
                 }
@@ -323,7 +325,7 @@ Page {
             Button {
                 Layout.fillWidth: true
                 visible: order.status==OrderItem.Processing
-                text: "Cancel order processing"
+                text: qsTr("Cancel order processing")
                 onClicked: {
                     api.updateOrderStatus(order, OrderItem.Pending);
                 }
@@ -331,7 +333,7 @@ Page {
             Button {
                 Layout.fillWidth: true
                 visible: order.status==OrderItem.Processing
-                text: "Mark order shipped"
+                text: qsTr("Mark order shipped")
                 onClicked: {
                     api.updateOrderStatus(order, OrderItem.Shipped);
                 }
