@@ -22,6 +22,14 @@ Page {
         visibleMenuButton: false
     }
 
+    Keys.onReleased: {
+        if (event.key === Qt.Key_Back) {
+            console.log("*** Back button")
+            event.accepted = true;
+            rootStack.pop()
+        }
+    }
+
     Rectangle {
         color: "#e8e8e8"
         anchors.fill: parent
