@@ -75,6 +75,11 @@ Page {
         searchDrawer.open()
     }
 
+    function resetSearch() {
+        searchDrawerContainer.resetSearch();
+        searchRequested('', '', sortOrder);
+    }
+
     Keys.onReleased: {
         switch (event.key) {
         case Qt.Key_Back:
@@ -154,7 +159,7 @@ Page {
             }
             ToolButton {
                 id: tbRefresh
-                text: qsTr("Refresh")
+                //text: qsTr("Refresh")
                 icon.source: "qrc:/images/icon_refresh.png"
                 onClicked: {
                     searchRequested('', '', sortOrder);
@@ -631,13 +636,12 @@ Page {
                     // XXX: Icon!
                     text: qsTr("Reset")
                     onClicked: {
-                        searchDrawerContainer.resetSearch();
-                        searchRequested('', '', sortOrder);
+                        resetSearch();
                         searchDrawer.close()
                     }
                 }
 
-                // XXX: Not really needed this
+                // XXX: Not really needed
                 RoundButton {
                     icon.source: "qrc:/images/icon_cancel.png"
                     visible: false
