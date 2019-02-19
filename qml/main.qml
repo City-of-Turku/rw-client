@@ -60,7 +60,7 @@ ApplicationWindow {
         isLogged=false;
         settings.setSettingsStr("password", "");
         rootStack.clear();
-        rootStack.push(messagesView);
+        rootStack.push(mainView);
     }
 
     Component.onCompleted: {
