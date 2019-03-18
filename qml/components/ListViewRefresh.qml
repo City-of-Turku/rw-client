@@ -17,7 +17,7 @@ ListView {
 
     onVerticalOvershootChanged: {
         //console.debug(verticalOvershoot)
-        if (Math.abs(verticalOvershoot)> r.height*2.3)
+        if (verticalOvershoot < -(r.height*2.3))
             triggerRefresh=true;
         else
             triggerRefresh=false;
