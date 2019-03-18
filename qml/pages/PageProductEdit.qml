@@ -172,10 +172,17 @@ Page {
             editorSwipeView.currentIndex=3;
             break;
         case Qt.Key_Escape:
+            console.log("*** ESC")
+            event.accepted = true;
+            confirmBackDialog.open();
+            break;
         case Qt.Key_Back:
             console.log("*** Back button")
             event.accepted = true;
-            confirmBackDialog.open();
+            if (editorSwipeView.currentIndex>0)
+                editorSwipeView.currentIndex--;
+            else
+                confirmBackDialog.open();
             break;
         case Qt.Key_Camera:
             event.accepted = true;
@@ -358,7 +365,6 @@ Page {
                     console.debug("CurrentViewIndex: "+currentIndex)
                     // bar.currentIndex=currentIndex
                 }
-
 
                 ScrollView {
                     id: basicDataSV
