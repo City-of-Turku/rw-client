@@ -98,6 +98,7 @@ Page {
 
         TabBar {
             Layout.fillWidth: true
+            Layout.alignment: Qt.AlignTop
             enabled: !api.busy
             TabButton {
                 text: qsTr("Pending")
@@ -134,6 +135,7 @@ Page {
             Layout.fillWidth: true
             Layout.fillHeight: true
             enabled: !api.busy
+            visible: orders.model.count>0 && !api.busy
 
             ScrollIndicator.vertical: ScrollIndicator { }
 
