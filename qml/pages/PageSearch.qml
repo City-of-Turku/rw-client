@@ -482,6 +482,7 @@ Page {
                     Layout.fillWidth: true
                     focus: true
                     enabled: !api.busy
+                    inputMethodHints: Qt.ImhNoPredictiveText;
 
                     property bool validInput: length>0 && text.trim()!='';
 
@@ -505,6 +506,7 @@ Page {
                     enabled: searchText.length>0
                     onClicked: {
                         searchDrawerContainer.resetSearch();
+                        searchText.forceActiveFocus();
                     }
                 }
             }
