@@ -139,8 +139,8 @@ Page {
                 // XXX: Icons!
                 id: tbViewType
                 visible: searchResults.model.count>1
-                text: searchResults.rowItems==1 ? qsTr("Grid") : qsTr("List")
-                icon.source: searchResults.rowItems==1 ? "qrc:/images/icon_grid.png" : "qrc:/images/icon_list.png"
+                //text: searchResults.rowItems==1 ? qsTr("Grid") : qsTr("List")
+                icon.source: searchResults.rowItems!=1 ? "qrc:/images/icon_grid.png" : "qrc:/images/icon_list.png"
                 onClicked: {
                     if (searchResults.rowItems==1)
                         searchResults.rowItems=itemsPerRow;
@@ -151,7 +151,8 @@ Page {
             ToolButton {
                 id: tbSortOrder
                 visible: searchResults.model.count>1
-                text: qsTr("Sort")
+                //text: qsTr("Sort")
+                icon.source: sortOrder==ServerApi.SortDateDesc ? "qrc:/images/icon_sort_asc.png" : "qrc:/images/icon_sort_desc.png"
                 onClicked: {
                     sortOrder=sortOrder==ServerApi.SortDateDesc ? ServerApi.SortDateAsc : ServerApi.SortDateDesc;
                     searchRequested('', '', sortOrder);
@@ -480,12 +481,13 @@ Page {
                     maximumLength: 64
                     Layout.fillWidth: true
                     focus: true
-                    enabled: !searchActive
+                    enabled: !api.busy
 
                     property bool validInput: length>0 && text.trim()!='';
 
                     onAccepted: {
-                        searchDrawerContainer.activateSearch();
+                        if (searchDrawerContainer.activateSearch())
+                            searchDrawer.close()
                     }
                     onLengthChanged: {
                         if (length==0)
@@ -499,7 +501,7 @@ Page {
                     }
                 }
                 RoundButton {
-                    text: "Clear"
+                    text: qsTr("Clear")
                     enabled: searchText.length>0
                     onClicked: {
                         searchDrawerContainer.resetSearch();
