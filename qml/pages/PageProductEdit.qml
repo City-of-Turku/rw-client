@@ -236,6 +236,29 @@ Page {
         }
     }
 
+    MessageDialog {
+        id: confirmDialog
+        icon: StandardIcon.Question
+        standardButtons: StandardButton.Save | StandardButton.Cancel
+        title: qsTr("Save product ?")
+        text: qsTr("Save product:")
+        informativeText: productTitle.text
+
+        onAccepted: {
+            console.debug("*** Save accepted");
+            confirmDialog.close();
+            requestProductSave();
+        }
+
+        onRejected: {
+            console.debug("*** Save canceled");
+        }
+    }
+
+    Component.onCompleted: {
+        barcodeText.forceActiveFocus();
+    }
+
     MessagePopup {
         id: messagePopup
     }
@@ -1061,28 +1084,6 @@ Page {
         }     
 
         return p;
-    }
-
-    MessageDialog {
-        id: confirmDialog
-        standardButtons: MessageDialog.Ok | MessageDialog.Cancel
-        title: qsTr("Save product ?")
-        text: qsTr("Save product:")
-        informativeText: productTitle.text
-
-        onAccepted: {
-            console.debug("*** Save accepted");
-            confirmDialog.close();
-            requestProductSave();
-        }
-
-        onRejected: {
-            console.debug("*** Save canceled");
-        }
-    }
-
-    Component.onCompleted: {
-        barcodeText.forceActiveFocus();
     }
 
 }
