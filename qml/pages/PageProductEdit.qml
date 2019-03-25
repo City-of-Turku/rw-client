@@ -131,7 +131,7 @@ Page {
 
         if (defaultWarehouse!=0) {
             var i=locationsModel.findLocationByID(defaultWarehouse);
-            console.debug(i)
+            console.debug("Location index is: "+i)
             if (i>-1) {
                 locationPopup.currentIndex=i;
                 locationID=defaultWarehouse;
@@ -553,7 +553,9 @@ Page {
                             }
 
                             RowLayout {
+                                Layout.alignment: Qt.AlignTop
                                 ColumnLayout  {
+                                    visible: validWarehouse
                                     Layout.fillWidth: true
                                     Label {
                                         id: locationName
@@ -563,6 +565,16 @@ Page {
                                         id: locationAddress
                                         font.pixelSize: 14
                                         Layout.fillWidth: true
+                                    }
+                                }
+                                ColumnLayout {
+                                    visible: !validWarehouse
+                                    Label {
+                                        text: qsTr("Select a location")
+                                        background: Rectangle {
+                                            color: "transparent"
+                                            border.color: "red"
+                                        }
                                     }
                                 }
 
@@ -1031,7 +1043,7 @@ Page {
                 c=productColor.colorID;
                 if (productColor2.colorID!='')
                     c+=";"+productColor2.colorID;
-                if (productColor2.colorID!='' && productColor3colorID!='')
+                if (productColor2.colorID!='' && productColor3.colorID!='')
                     c+=";"+productColor3.colorID;
 
             }
