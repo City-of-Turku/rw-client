@@ -76,5 +76,9 @@
         <file>images/icon_messages@4x.png</file>
         <file>images/icon_bag@4x.png</file>
         <file>images/icon_at.png</file>
+        <file>images/icon_sort_desc@4x.png</file>
+        <file>images/icon_sort_asc@4x.png</file>
+        <file>images/icon_sort_desc.png</file>
+        <file>images/icon_sort_asc.png</file>
     </qresource>
 </RCC>
