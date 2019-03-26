@@ -105,7 +105,7 @@ Page {
 
         onProductFound: {
             console.debug("PageOrder: Product found!")
-            rootStack.push(productView, { "product": product })
+            rootStack.push(productView, { "product": product, "cartDisabled": true })
         }
 
         onProductNotFound: {
