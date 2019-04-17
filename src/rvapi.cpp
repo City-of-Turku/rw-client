@@ -189,6 +189,8 @@ void RvAPI::requestError(QNetworkReply::NetworkError code)
         break;
     case QNetworkReply::HostNotFoundError:
         break;
+    case QNetworkReply::OperationCanceledError:
+        break;
     default:
         qWarning() << "Unhandled request error: " << code;
         break;
@@ -473,8 +475,25 @@ void RvAPI::setBusy(bool busy)
 void RvAPI::parseErrorResponse(int code, QNetworkReply::NetworkError e, RequestOps op, const QByteArray &response)
 {
     QVariantMap v;
+
+    // Is a network error ?
+    if (code==0) {
+        switch (e) {
+        case QNetworkReply::OperationCanceledError:
+            // XXX: How should we handle this ?
+            emit requestFailure(500, e, tr("Network operation was canceled"));
+            return;
+        case QNetworkReply::ConnectionRefusedError:
+            emit requestFailure(500, e, tr("Server connection error"));
+            return;
+        default:;
+        }
+        emit requestFailure(500, e, tr("Network error"));
+        return;
+    }
+
     if (parseJsonResponse(response, v)==false) {
-        emit requestFailure(500, QNetworkReply::UnknownServerError, "Invalid server response");
+        emit requestFailure(500, QNetworkReply::UnknownServerError, tr("Invalid server response"));
         return;
     }
     QVariantMap data=v.value("data").toMap();    
@@ -671,6 +690,8 @@ bool RvAPI::parseLocationData(QVariantMap &data)
         l->name=tmp.value("location").toString();
         l->street=tmp.value("street").toString();
         l->city=tmp.value("city").toString();
+
+        // Optional geo-location
         if (tmp.contains("geo")) {
             QVariantList loc=tmp.value("geo").toList();
             if (loc.size()==2) {
@@ -957,6 +978,7 @@ void RvAPI::parseResponse(QNetworkReply *reply)
     case 404: // Not found
     case 409: // Conflict
     case 500: // Internal error
+    case 504: // Timeout
         parseErrorResponse(hc, e, op, data);
         break;
     case 0: // Network error
