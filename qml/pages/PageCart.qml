@@ -196,11 +196,12 @@ Page {
 
             ToolButton {
                 text: qsTr("Checkout")
-                enabled: orderCart.count>0 && !api.busy                
+                visible: api.hasRole("checkout")
+                enabled: orderCart.count>0 && !api.busy
                 onClicked: {
                     confirmDialog.open();
                 }
-            }           
+            }
         }
     }
 
