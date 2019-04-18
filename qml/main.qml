@@ -742,6 +742,14 @@ ApplicationWindow {
             }
         }
 
+        onLoginCanceled: {
+            isLogged=false;
+            console.debug("*** onLoginCanceled")
+            if (rootStack.currentItem.objectName=="login") {
+                rootStack.currentItem.reportLoginFailed();
+            }
+        }
+
         onRequestFailure: {
             console.debug("*** onRequestFailure: "+error)
 
