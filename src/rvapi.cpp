@@ -481,7 +481,10 @@ void RvAPI::parseErrorResponse(int code, QNetworkReply::NetworkError e, RequestO
         switch (e) {
         case QNetworkReply::OperationCanceledError:
             // XXX: How should we handle this ?
-            emit requestFailure(500, e, tr("Network operation was canceled"));
+            if (op==AuthLogin)
+                emit loginCanceled();
+            else
+                emit requestFailure(500, e, tr("Network operation was canceled"));
             return;
         case QNetworkReply::ConnectionRefusedError:
             emit requestFailure(500, e, tr("Server connection error"));

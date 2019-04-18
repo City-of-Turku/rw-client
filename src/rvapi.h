@@ -213,6 +213,7 @@ signals:
 
     void loginSuccesfull();
     void loginFailure(const QString msg, int code);
+    void loginCanceled();
 
     void authenticationFailure();
 
