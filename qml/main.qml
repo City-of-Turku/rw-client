@@ -568,8 +568,7 @@ ApplicationWindow {
                 loginTimer.start();
             }
             onLoginCanceled: {
-                api.loginCancel();
-                rootStack.pop();
+                api.loginCancel();                
             }
             Component.onCompleted: {
                 // Fill in stored data
