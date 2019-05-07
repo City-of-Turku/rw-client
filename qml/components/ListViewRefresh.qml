@@ -41,16 +41,15 @@ ListView {
         color: "lightgrey"
         border.color: "grey"
         border.width: 2
-        visible: parent.verticalOvershoot<0 && parent.draggingVertically       
-        rotation: Math.min(Math.abs(parent.verticalOvershoot)*2, 360)
+        visible: parent.verticalOvershoot<0 && parent.draggingVertically               
 
         Image {
+            id: i
             anchors.fill: parent
             anchors.margins: 8
             fillMode: Image.PreserveAspectFit
             source: "qrc:/images/icon_refresh.png"
-            opacity: r.y>r.height ? 1 : 0
-            Behavior on opacity { NumberAnimation { } }
+            rotation: Math.min(Math.abs(lvr.verticalOvershoot)*1.5, 360)
         }
     }
 }
