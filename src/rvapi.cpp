@@ -476,7 +476,7 @@ void RvAPI::parseErrorResponse(int code, QNetworkReply::NetworkError e, RequestO
 {
     QVariantMap v;
 
-    // Is a network error ?
+    // Is it a network error ?
     if (code==0) {
         switch (e) {
         case QNetworkReply::OperationCanceledError:
@@ -486,12 +486,15 @@ void RvAPI::parseErrorResponse(int code, QNetworkReply::NetworkError e, RequestO
             else
                 emit requestFailure(500, e, tr("Network operation was canceled"));
             return;
+        case QNetworkReply::UnknownNetworkError:
+            emit requestFailure(500, e, tr("Unknown network error"));
+            return;
         case QNetworkReply::ConnectionRefusedError:
             emit requestFailure(500, e, tr("Server connection error"));
             return;
         default:;
         }
-        emit requestFailure(500, e, tr("Network error"));
+        emit requestFailure(500, e, tr("Generic network error"));
         return;
     }
 
@@ -1146,8 +1149,10 @@ bool RvAPI::login()
         return false;
     }
 
-    if (m_authenticated)
+    if (m_authenticated) {
+        qWarning("Already authenticated, ignoring");
         return false;
+    }
 
     if (isRequestActive(AuthLogin)) {
         qWarning("Login request is already active");
