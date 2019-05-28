@@ -22,6 +22,7 @@
 
 #ifdef Q_OS_ANDROID
 #include "androidhelper.h"
+#include <QtAndroidExtras/QtAndroid>
 #endif
 
 #define VERSION "0.0.10"
@@ -82,6 +83,8 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName(APP_ORG);
     QCoreApplication::setApplicationName(APP_NAME);
     QCoreApplication::setApplicationVersion(appversion);
+
+    QQuickStyle::setStyle("Material");
 
     QTranslator translator;
 
@@ -147,6 +150,10 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("appUtil", &apputil);
 
     engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
+
+#ifdef Q_OS_ANDROID
+    QtAndroid::hideSplashScreen(250);
+#endif
 
     return app.exec();
 }
