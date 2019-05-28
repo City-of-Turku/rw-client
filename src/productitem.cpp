@@ -98,6 +98,11 @@ ProductItem* ProductItem::fromVariantMap(QVariantMap &data, QObject *parent)
     if (data.contains("isbn"))
         p->setAttribute("isbn", data["isbn"].toString());
 
+    if (data.contains("model"))
+        p->setAttribute("model", data["model"].toString());
+
+    if (data.contains("manufacturer"))
+        p->setAttribute("manufacturer", data["manufacturer"].toString());
 
     return p;
 }
