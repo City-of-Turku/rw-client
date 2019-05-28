@@ -3,7 +3,7 @@ import QtQuick.Controls 2.4
 
 TextField {
     id: productPrice
-    inputMethodHints: Qt.ImhPreferNumbers | Qt.ImhFormattedNumbersOnly
+    inputMethodHints: Qt.ImhPreferNumbers | Qt.ImhFormattedNumbersOnly | Qt.ImhNoPredictiveText
     placeholderText: qsTr("Price")
     background: Rectangle {
         color: "transparent"
