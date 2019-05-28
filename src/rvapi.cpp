@@ -1325,7 +1325,7 @@ void RvAPI::addCommonProductParameters(QHttpMultiPart *mp, ProductItem *product)
         QString a=m_attributes.at(i);
 
         if (product->hasAttribute(a)) {
-            addParameter(mp, a, product->getAttribute(a).toString());
+            addParameter(mp, a, product->getAttribute(a));
         }
     }
 }
