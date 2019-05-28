@@ -972,38 +972,11 @@ Page {
         }
     }
 
-    Popup {
+    PopupProgress {
         id: savingPopup
-        modal: true
-        contentHeight: pc.height
-        x: parent.width/2-width/2
-        y: parent.height/2-height/2
-        width: parent.width/2
-        //height: parent.height/4
-        closePolicy: Popup.NoAutoClose
-
-        Column {
-            id: pc
-            spacing: 16
-            Label {
-                id: name
-                text: qsTr("Saving...")
-                font.bold: true
-            }
-            BusyIndicator {
-                id: busyIndicator
-                running: isSaving
-                visible: true
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
-            ProgressBar {
-                id: savingProgress
-                from: 0
-                to: 100
-                indeterminate: value==0.0
-                value: api.uploadProgress
-            }
-        }
+        label: qsTr("Saving product")
+        description: api.uploadProgress<100 ? qsTr("Uploading") : qsTr("Waiting for response")
+        value: api.uploadProgress
     }
 
     LocationPopup {
