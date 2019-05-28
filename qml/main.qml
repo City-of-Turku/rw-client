@@ -39,6 +39,11 @@ ApplicationWindow {
     property Position myPosition;
     property int savedLocation: 0
 
+    // MultiCity API
+    property string home: "";
+    property string apiUrl: "";
+    property string apiKey: "";
+
     onBusyChanged: {
         console.debug("*** BUSY: "+busy)
     }
@@ -63,15 +68,26 @@ ApplicationWindow {
         rootStack.push(mainView);
     }
 
-    Component.onCompleted: {
+    Component.onCompleted: {        
         settingsDevelopmentMode=settings.getSettingsBool("developmentMode", false);
+
+        home=settings.getSettingsStr("homeOrg", "");
+        if (home=='') {
+            console.debug("*** homeOrg is not set")
+        } else {
+            console.debug("*** homeOrg is "+home)
+        }
+
         settingsAskMultiple=settings.getSettingsBool("askMultiple", true);
         settingsKeepImages=settings.getSettingsBool("keepImages", true);
 
         savedLocation=settings.getSettingsInt("location", 0);
 
-        if (userData.username!=='' && userData.password!=='')
+        if (userData.username!=='' && userData.password!=='' && home!=='') {
             loginTimer.start();
+        } else if (home=='') {
+
+        }
     }
 
     onSettingsDevelopmentModeChanged: settings.setSettings("developmentMode", settingsDevelopmentMode)
