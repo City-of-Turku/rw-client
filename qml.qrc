@@ -47,5 +47,6 @@
         <file>qml/delegates/OrderLineItemDelegate.qml</file>
         <file>qml/components/Badge.qml</file>
         <file>qml/components/ListViewRefresh.qml</file>
+        <file>qml/components/PopupProgress.qml</file>
     </qresource>
 </RCC>
