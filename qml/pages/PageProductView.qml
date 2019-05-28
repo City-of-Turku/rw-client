@@ -272,7 +272,13 @@ Page {
                         DetailItem {
                             label: qsTr("Color");
                             visible: product.hasAttribute("color")
-                            value: product.getAttribute("color") // XXX
+                            value: getColorString(product.getAttribute("color"))
+                            function getColorString(ca) {
+                                if (!ca)
+                                    return 'N/A'
+                                console.debug("Color: ")
+                                console.debug(ca)
+                            }
                         }
                         DetailItem {
                             label: qsTr("EAN")
@@ -283,6 +289,16 @@ Page {
                             label: qsTr("ISBN")
                             visible: product.hasAttribute("isbn")
                             value: product.getAttribute("isbn")
+                        }
+                        DetailItem {
+                            label: qsTr("Manufacturer")
+                            visible: product.hasAttribute("manufacturer")
+                            value: product.getAttribute("manufacturer")
+                        }
+                        DetailItem {
+                            label: qsTr("Model")
+                            visible: product.hasAttribute("model")
+                            value: product.getAttribute("model")
                         }
                     }
                 }
