@@ -206,6 +206,7 @@ Page {
             text: qsTr("No products available in selected category")
             wrapMode: Text.Wrap
             font.pixelSize: 32
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
         }
 
         Label {
@@ -213,6 +214,15 @@ Page {
             text: qsTr("No products found")
             wrapMode: Text.Wrap
             font.pixelSize: 32
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
+        }
+
+        Label {
+            visible: searchResults.count==0 && isInitialView
+            text: qsTr("No products available")
+            wrapMode: Text.Wrap
+            font.pixelSize: 32
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
         }
 
         Component {
