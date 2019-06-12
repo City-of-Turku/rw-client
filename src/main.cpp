@@ -88,15 +88,8 @@ int main(int argc, char *argv[])
 
     QTranslator translator;
 
-    QQmlPropertyMap user;
     Settings settings;
     AppUtility apputil;
-
-    user.insert("username", settings.getSettingsStr("username", ""));
-    user.insert("password", settings.getSettingsStr("password", ""));
-    user.insert("apikey", API_KEY);
-    user.insert("urlSandbox", API_SERVER_SANDBOX);
-    user.insert("urlProduction", API_SERVER_PRODUCTION);
 
     QString locale(QLocale().name());
 
@@ -112,6 +105,9 @@ int main(int argc, char *argv[])
     QQuickStyle::setStyle("Material");
 
     engine.setNetworkAccessManagerFactory(new MyNetworkAccessManagerFactory);
+
+    qRegisterMetaType<OrganizationItem*>("OrganizationItem");
+    qRegisterMetaType<OrganizationModel*>();
 
     qRegisterMetaType<ProductItem*>("ProductItem");
     qRegisterMetaType<LocationItem*>("LocationItem");
@@ -136,6 +132,8 @@ int main(int argc, char *argv[])
     qmlRegisterUncreatableType<OrdersModel>("net.ekotuki", 1, 0, "OrderModel", "Used in C++ only");
     qmlRegisterUncreatableType<OrderLineItemModel>("net.ekotuki", 1, 0, "OrderLineItemModel", "Used in C++ only");
 
+    qmlRegisterUncreatableType<OrganizationModel>("net.ekotuki", 1, 0, "OrganizationModel", "Used in C++ only");
+
 #ifdef Q_OS_ANDROID
     AndroidHelper android;
     engine.rootContext()->setContextProperty("android", &android);
@@ -145,8 +143,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("appVersion", appversion);
     engine.rootContext()->setContextProperty("appName", QCoreApplication::applicationName());
     engine.rootContext()->setContextProperty("appTitle", apptitle);
-    engine.rootContext()->setContextProperty("appVersionCode", appvcode);
-    engine.rootContext()->setContextProperty("userData", &user);
+    engine.rootContext()->setContextProperty("appVersionCode", appvcode);    
     engine.rootContext()->setContextProperty("appUtil", &apputil);
 
     engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));

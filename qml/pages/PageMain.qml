@@ -19,7 +19,7 @@ Page {
             fillMode: Image.PreserveAspectCrop
             anchors.fill: parent
             opacity: 0.4
-            source: "qrc:/images/bg/bg.jpg"
+            source: root.imageBackground // "qrc:/images/bg/bg.jpg"
         }
     }
 
@@ -32,11 +32,26 @@ Page {
             fillMode: Image.PreserveAspectFit
             Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
             opacity: 0.9
-            source: "/images/logo.png"
-            //Layout.fillHeight: true
+            source: root.imageLogo // "qrc:/images/logo.png"
             Layout.fillWidth: true
             Layout.margins: 16
         }
+
+        Button {
+            visible: !api.authenticated
+            text: qsTr("Login")
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
+            onClicked: {
+                rootStack.push(pageLogin)
+            }
+        }        
+
+        Text {
+            visible: !api.isonline
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
+            text: qsTr("Please connect to a network")
+        }
+
     }
 
     BusyIndicator {

@@ -17,6 +17,8 @@
 
 #include <QNetworkProxy>
 
+#include <QDir>
+
 //#define LOGIN_DEBUG 1
 //#define DATA_DEBUG 1
 //#define JSON_DEBUG 1
@@ -66,6 +68,46 @@ RvAPI::RvAPI(QObject *parent) :
 
     // Create network request application header string
     m_hversion=QString("RW/%1").arg(QCoreApplication::applicationVersion());
+
+    // Load supported organizations from profiles
+    QDir profiles(":/profiles");
+    QStringList filters;
+    filters << "*.json";
+    profiles.setNameFilters(filters);
+
+    qDebug() << "Profiles available:" << profiles.entryList();
+
+    // String fields to copy from JSON object
+    QStringList fields;
+    fields << "code" << "name" << "apiKey" << "apiUrlProduction" << "apiUrlSandbox";
+
+    foreach(const QString &profileName, profiles.entryList() ) {
+        QFile file(":/profiles/"+profileName);
+        file.open(QIODevice::ReadOnly);
+
+        QByteArray data=file.readAll();
+        QJsonDocument json=QJsonDocument::fromJson(data);
+        if (json.isNull() || json.isEmpty()) {
+            qWarning() << "Invalid profile JSON" << profileName;
+            continue;
+        }
+        QVariantMap profileMap=json.object().toVariantMap();  
+
+        OrganizationItem *org=new OrganizationItem();
+        foreach(const QString &field, fields) {
+            qDebug() << field << profileMap.value(field).toString();
+            org->setProperty(field.toLocal8Bit(), profileMap.value(field).toString());
+        }
+
+        m_organization_model.append(org);
+    }
+
+    // Monitor network connection
+    m_netconf=new QNetworkConfigurationManager();
+    QObject::connect(m_netconf, SIGNAL(onlineStateChanged(bool)), this, SLOT(onNetworkOnlineChanged(bool)));
+
+    m_isonline=m_netconf->isOnline();
+    emit isOnlineChanged(m_isonline);
 
     // Dummy categories for development purposes
 #ifdef DUMMY_CATEGORIES
@@ -235,6 +277,12 @@ void RvAPI::requestFinished() {
     parseResponse(reply);
 
     reply->deleteLater();
+}
+
+void RvAPI::onNetworkOnlineChanged(bool online)
+{
+    m_isonline=online;
+    emit isOnlineChanged(online);
 }
 
 void RvAPI::clearProductStore()
@@ -1724,6 +1772,11 @@ bool RvAPI::validateBarcodeEAN(const QString code) const
     int cd=(10-(val % 10)) % 10;
 
     return code.at(12).digitValue()==cd ? true : false;
+}
+
+OrganizationModel *RvAPI::getOrganizationModel()
+{
+    return &m_organization_model;
 }
 
 ItemListModel *RvAPI::getItemModel()

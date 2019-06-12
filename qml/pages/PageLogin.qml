@@ -10,11 +10,11 @@ Page {
     title: qsTr("Login")
 
     property bool loginActive: false
+    property string organization;
     property alias username: textUsername.text
     property alias password: textPassword.text
 
     signal loginRequested(string username, string password)
-
     signal loginCanceled()
 
     header: ToolbarBasic {
@@ -22,6 +22,12 @@ Page {
         enableBackPop: true
         enableMenuButton: false
         visibleMenuButton: false
+    }
+
+    onOrganizationChanged: {
+        var m=api.getOrganizationModel();
+        var i=m.indexKey(organization);
+        orgSelector.currentIndex=i;
     }
 
     Keys.onReleased: {
@@ -63,7 +69,7 @@ Page {
             fillMode: Image.PreserveAspectCrop
             anchors.fill: parent
             opacity: 0.4
-            source: "qrc:/images/bg/bg.jpg"
+            source: "qrc:/profiles/"+root.home+"/images/bg/bg.jpg"
         }
     }
 
@@ -101,6 +107,49 @@ Page {
                         //visible: text!=""
                         Layout.fillWidth: true
                     }
+
+                    Label {
+                        text: qsTr("Organization")
+                        Layout.alignment: Qt.AlignHCenter
+                    }
+                    ComboBoxLabel {
+                        id: orgSelector                        
+                        textRole: "name"
+                        placeHolder: qsTr("Select organization")
+                        enabled: !loginActive
+                        model: api.orgModel
+                        Layout.fillWidth: true
+                        onActivated: {
+                            var tmp=model.get(currentIndex);
+                            console.debug(tmp.code)
+                            root.setOrganization(tmp)
+                            console.debug(currentIndex)
+                        }
+                        onCurrentIndexChanged: console.debug(currentIndex)
+                        Component.onDestruction: model=undefined; // Note: We must clear it, otherwise fails second time around
+                        Component.onCompleted: {
+                            var i=model.indexKey(root.home)                            
+                            console.debug("ORG: "+i)
+                            currentIndex=i-1; // XXX Hmm,
+
+                            console.debug("ORG: "+root.home)
+                        }
+                    }
+
+                    Button {
+                        visible: !api.authenticated && root.apiRegistrationUrl!=''
+                        text: qsTr("Register")
+                        Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
+                        onClicked: {
+                            Qt.openUrlExternally(root.apiRegistrationUrl)
+                        }
+                    }
+
+                    ToolSeparator {
+                        orientation: Qt.Horizontal
+                        Layout.fillWidth: true
+                    }
+
                     Label {
                         text: qsTr("Username")
                         Layout.alignment: Qt.AlignHCenter
@@ -108,9 +157,9 @@ Page {
                     TextField {
                         id: textUsername
                         Layout.alignment: Qt.AlignHCenter
-                        enabled: !loginActive
+                        enabled: !loginActive && orgSelector.currentIndex!=-1
                         placeholderText: qsTr("Your username")
-                        focus: true
+                        focus: true                        
                         inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText | Qt.ImhEmailCharactersOnly
                         maximumLength: 64
                         padding: 4
@@ -135,7 +184,7 @@ Page {
                     }
                     TextField {
                         id: textPassword
-                        enabled: !loginActive
+                        enabled: !loginActive && orgSelector.currentIndex!=-1
                         maximumLength: 32
                         placeholderText: qsTr("Your Password")
                         Layout.alignment: Qt.AlignHCenter

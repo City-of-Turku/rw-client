@@ -39,10 +39,19 @@ ApplicationWindow {
     property Position myPosition;
     property int savedLocation: 0
 
-    // MultiCity API
+    // Multi oprganization support settings
     property string home: "";
-    property string apiUrl: "";
+    property string username: "";
+    property string password: "";
+
     property string apiKey: "";
+    property string apiUrlProduction: "";
+    property string apiUrlSandbox: "";   
+
+    property string apiRegistrationUrl: ""
+
+    property string imageBackground: "qrc:/profiles/turku/images/bg/bg.jpg";
+    property string imageLogo: "";
 
     onBusyChanged: {
         console.debug("*** BUSY: "+busy)
@@ -60,30 +69,62 @@ ApplicationWindow {
 
     onSavedLocationChanged: console.debug("SLOC: "+savedLocation)
 
+    function setProfileImages() {
+        if (home!='') {
+            imageBackground="qrc:/profiles/"+home+"/images/bg/bg.jpg"
+            imageLogo="qrc:/profiles/"+home+"/images/logo.png"
+        } else {
+            imageBackground=''
+            imageLogo=''
+        }
+    }
+
     function logout() {
         api.logout();
         isLogged=false;
-        settings.setSettingsStr("password", "");
+        password='';
         rootStack.clear();
         rootStack.push(mainView);
     }
 
-    Component.onCompleted: {        
+    onUsernameChanged: {
+        settings.setSettingsStr(home+"/username", username);
+    }
+
+    onPasswordChanged: {
+        settings.setSettingsStr(home+"/password", password);
+    }
+
+    function initSettings() {
         settingsDevelopmentMode=settings.getSettingsBool("developmentMode", false);
 
-        home=settings.getSettingsStr("homeOrg", "");
+        home=settings.getSettingsStr("organization", "");
         if (home=='') {
-            console.debug("*** homeOrg is not set")
+            console.debug("*** organization is not set")
         } else {
-            console.debug("*** homeOrg is "+home)
+            console.debug("*** organization is "+home)
+
+            var i=api.orgModel.indexKey(home);
+            var o=api.orgModel.get(i-1);
+
+            if (o) {
+                setOrganization(o);
+
+                username=settings.getSettingsStr(home+"/username", "");
+                password=settings.getSettingsStr(home+"/password", "");
+            } else {
+                console.debug("*** organization not found!")
+                home='';
+            }
         }
+        setProfileImages();
 
         settingsAskMultiple=settings.getSettingsBool("askMultiple", true);
         settingsKeepImages=settings.getSettingsBool("keepImages", true);
 
         savedLocation=settings.getSettingsInt("location", 0);
 
-        if (userData.username!=='' && userData.password!=='' && home!=='') {
+        if (username!=='' && password!=='' && home!=='') {
             loginTimer.start();
         } else if (home=='') {
 
@@ -93,6 +134,10 @@ ApplicationWindow {
     onSettingsDevelopmentModeChanged: settings.setSettings("developmentMode", settingsDevelopmentMode)
     onSettingsAskMultipleChanged: settings.setSettings("askMultiple", settingsAskMultiple)
     onSettingsKeepImagesChanged: settings.setSettings("keepImages", settingsKeepImages)
+    onHomeChanged: {
+        settings.setSettings("organization", home)
+        setProfileImages();
+    }
 
     Timer {
         id: loginTimer
@@ -229,7 +274,7 @@ ApplicationWindow {
                 font.pixelSize: 20
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
-                text: userData.username
+                text: root.username
             }
 
             Label {
@@ -577,19 +622,15 @@ ApplicationWindow {
             id: pageLoginPage
             objectName: "login"
             onLoginRequested: {
-                userData.username=username;
-                userData.password=password;
-                settings.setSettingsStr("username", username);
-                settings.setSettingsStr("password", password);
+                root.username=username;
+                root.password=password;
                 loginTimer.start();
             }
             onLoginCanceled: {
                 api.loginCancel();                
             }
             Component.onCompleted: {
-                // Fill in stored data
-                username=userData.username;
-                password=userData.password;
+
             }
         }
     }
@@ -660,12 +701,21 @@ ApplicationWindow {
         }
     }
 
+    function setOrganization(o) {
+        root.apiKey=o.apiKey;
+        root.apiUrlProduction=o.apiUrlProduction;
+        root.apiUrlSandbox=o.apiUrlSandbox;        
+        root.home=o.code;
+    }
+
     ServerApi {
         id: api
-        url: settingsDevelopmentMode ? userData.urlSandbox : userData.urlProduction
-        username: userData.username;
-        password: userData.password;
-        apikey: userData.apikey;
+        url: settingsDevelopmentMode ? root.apiUrlSandbox : root.apiUrlProduction
+        username: root.username;
+        password: root.password;
+        apikey: root.apiKey
+
+        property OrganizationModel orgModel;
 
         onLoginSuccesfull: {
             console.debug("Login succesfull")
@@ -788,7 +838,10 @@ ApplicationWindow {
         }
 
         Component.onCompleted: {
+            console.debug("*** API is ready!")
             setAppVersion(appVersionCode);
+            orgModel=getOrganizationModel();
+            initSettings();
         }
 
         function getOrderFilterStatusString(s) {

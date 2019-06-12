@@ -10,6 +10,8 @@ CONFIG += c++11
 include(profile.pri)
 
 HEADERS += \
+    src/organizationitem.h \
+    src/organizationmodel.h \
     src/rvapi.h \
     src/itemlistmodel.h \
     src/productitem.h \
@@ -25,6 +27,8 @@ HEADERS += \
     src/orderlineitemmodel.h
 
 SOURCES += src/main.cpp \
+    src/organizationitem.cpp \
+    src/organizationmodel.cpp \
     src/rvapi.cpp \
     src/itemlistmodel.cpp \
     src/productitem.cpp \

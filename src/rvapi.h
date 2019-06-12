@@ -9,6 +9,8 @@
 #include <QtNetwork/QHttpMultiPart>
 #include <QtNetwork/QHttpPart>
 
+#include <QNetworkConfigurationManager>
+
 #include <QSsl>
 #include <QSslError>
 
@@ -33,6 +35,9 @@
 #include "ordersmodel.h"
 #include "orderlineitem.h"
 #include "orderlineitemmodel.h"
+
+#include "organizationitem.h"
+#include "organizationmodel.h"
 
 class RvAPI : public QObject
 {
@@ -59,6 +64,8 @@ class RvAPI : public QObject
     Q_PROPERTY(QString searchCategory MEMBER m_searchcategory NOTIFY searchCategoryChanged)
     Q_PROPERTY(QString searchString MEMBER m_searchstring NOTIFY searchStringChanged)
     Q_PROPERTY(ItemSort searchSort MEMBER m_searchsort NOTIFY searchSortChanged)
+
+    Q_PROPERTY(bool isonline READ isOnline NOTIFY isOnlineChanged)
 
 public:
     explicit RvAPI(QObject *parent = nullptr);
@@ -158,6 +165,8 @@ public:
     Q_INVOKABLE bool validateBarcode(const QString barcode) const;
     Q_INVOKABLE bool validateBarcodeEAN(const QString code) const;
 
+    Q_INVOKABLE OrganizationModel *getOrganizationModel();
+
     Q_INVOKABLE ItemListModel *getItemModel();
     Q_INVOKABLE OrderLineItemModel *getCartModel();
     Q_INVOKABLE OrdersModel *getOrderModel();
@@ -196,6 +205,11 @@ public:
     Q_INVOKABLE void clearCache();
 
     Q_INVOKABLE bool hasRole(const QString &role);
+
+    bool isOnline() const
+    {
+        return m_isonline;
+    }
 
 signals:
 
@@ -259,6 +273,8 @@ signals:
     void searchStringChanged();
     void searchSortChanged();
 
+    void isOnlineChanged(bool isonline);
+
 public slots:
 
     void setUrl(QUrl url);
@@ -302,6 +318,7 @@ private slots:
     void downloadProgress(qint64 bytes, qint64 total);
     void requestError(QNetworkReply::NetworkError code);
     void requestFinished();
+    void onNetworkOnlineChanged(bool online);
 
 private:
     enum RequestOps {
@@ -377,6 +394,12 @@ private:
     QVariantList m_roles;
     uint m_uid;
     QDateTime m_lastlogin;
+
+    // Organizations model
+    OrganizationModel m_organization_model;
+
+    QNetworkConfigurationManager *m_netconf;
+    bool m_isonline;
 
     bool m_busy;
 
