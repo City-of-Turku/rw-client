@@ -37,24 +37,13 @@ Page {
             fillMode: Image.PreserveAspectCrop
             anchors.fill: parent
             opacity: 0.4
-            source: "qrc:/images/bg/bg.jpg"
+            source: root.imageBackground
         }
     }
 
     ColumnLayout {
         id: columnLayout1
-        anchors.fill: parent
-
-        Image {
-            id: image1
-            fillMode: Image.PreserveAspectFit
-            Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
-            opacity: 0.9
-            source: "/images/logo.png"
-            //Layout.fillHeight: true
-            Layout.fillWidth: true
-            Layout.margins: 16
-        }
+        anchors.fill: parent        
 
         ListView {
             id: listLatestNews
