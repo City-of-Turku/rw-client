@@ -27,7 +27,7 @@ Page {
             fillMode: Image.PreserveAspectCrop
             anchors.fill: parent
             opacity: 0.4
-            source: "qrc:/images/bg/bg.jpg"
+            source: "qrc:/profiles/turku/images/bg/bg.jpg"
         }
     }
 
