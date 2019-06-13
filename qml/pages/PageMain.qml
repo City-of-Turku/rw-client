@@ -39,12 +39,24 @@ Page {
 
         Button {
             visible: !api.authenticated
+            enabled: !api.busy
             text: qsTr("Login")
             Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
             onClicked: {
                 rootStack.push(pageLogin)
             }
         }        
+
+        Button {
+            visible: !api.authenticated && api.busy
+            enabled: api.busy
+            text: qsTr("Cancel login")
+            Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
+            onClicked: {
+                api.loginCancel();
+            }
+        }
+
 
         Text {
             visible: !api.isonline
