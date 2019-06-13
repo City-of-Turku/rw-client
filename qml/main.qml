@@ -51,7 +51,7 @@ ApplicationWindow {
     property string apiRegistrationUrl: ""
 
     property string imageBackground: "qrc:/profiles/turku/images/bg/bg.jpg";
-    property string imageLogo: "";
+    property string imageLogo: "qrc:/images/logo.png";
 
     onBusyChanged: {
         console.debug("*** BUSY: "+busy)
@@ -87,12 +87,14 @@ ApplicationWindow {
         rootStack.push(mainView);
     }
 
-    onUsernameChanged: {
+    function saveLoginDetails() {
         settings.setSettingsStr(home+"/username", username);
+        settings.setSettingsStr(home+"/password", password);
     }
 
-    onPasswordChanged: {
-        settings.setSettingsStr(home+"/password", password);
+    function clearLoginDetails() {
+        settings.setSettingsStr(home+"/username", '');
+        settings.setSettingsStr(home+"/password", '');
     }
 
     function initSettings() {
@@ -253,7 +255,10 @@ ApplicationWindow {
             spacing: 16
             Image {
                 Layout.fillWidth: true
-                source: "/images/logo.png"
+                source: "qrc:/images/logo.png"
+                smooth: true
+                sourceSize.width: 64
+                sourceSize.height: 64
                 fillMode: Image.PreserveAspectFit
             }
 
@@ -723,8 +728,9 @@ ApplicationWindow {
             if (rootStack.contains(pageLogin)) {
                 rootStack.pop();
             }
+            saveLoginDetails();
             rootStack.clear();
-            rootStack.push(searchView)
+            // rootStack.push(searchView)
             requestLocations();
             requestCategories();
         }
