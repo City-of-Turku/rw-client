@@ -69,7 +69,7 @@ Page {
             fillMode: Image.PreserveAspectCrop
             anchors.fill: parent
             opacity: 0.4
-            source: "qrc:/profiles/"+root.home+"/images/bg/bg.jpg"
+            source: root.imageBackground
         }
     }
 
