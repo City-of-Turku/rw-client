@@ -80,5 +80,6 @@
         <file>images/icon_sort_asc@4x.png</file>
         <file>images/icon_sort_desc.png</file>
         <file>images/icon_sort_asc.png</file>
+        <file>images/logo.png</file>
     </qresource>
 </RCC>
