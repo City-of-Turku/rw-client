@@ -220,7 +220,7 @@ ApplicationWindow {
                     transformOrigin: Menu.TopRight
                     modal: true
                     MenuItem {
-                        enabled: rootStack.currentItem && rootStack.currentItem.objectName!='login'
+                        enabled: rootStack.currentItem && rootStack.currentItem.objectName!='login' && api.isonline
                         text: !isLogged ? qsTr("Login") : qsTr("Logout")
                         onTriggered: {
                             if (!isLogged)
@@ -368,7 +368,7 @@ ApplicationWindow {
     // Main views when logged out
     ListModel {
         id: actionModel2
-        ListElement { title: qsTr("Login"); viewId: 1; role: ""; image: "qrc:/images/icon_login.png"; }
+        // ListElement { title: qsTr("Login"); viewId: 1; role: ""; image: "qrc:/images/icon_login.png"; }
         ListElement { title: qsTr("Messages"); viewId: 10; role: ""; image: "qrc:/images/icon_messages.png"; }
         ListElement { title: qsTr("About"); viewId: 7; role: ""; image: "qrc:/images/icon_at.png"; }
     }

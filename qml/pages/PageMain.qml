@@ -38,7 +38,7 @@ Page {
         }
 
         Button {
-            visible: !api.authenticated
+            visible: !api.authenticated && api.isonline
             enabled: !api.busy
             text: qsTr("Login")
             Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
@@ -56,7 +56,6 @@ Page {
                 api.loginCancel();
             }
         }
-
 
         Text {
             visible: !api.isonline
