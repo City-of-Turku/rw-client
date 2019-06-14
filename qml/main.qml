@@ -695,13 +695,13 @@ ApplicationWindow {
 
     NewsModel {
         id: newsFeedModel
-        source: api.url+"news"
+        source: home!='' ? api.url+"news" : ''
         onLatestEntryDateChanged: {
-            var ts=settings.getSettingsStr("newsStamp", "");
+            var ts=settings.getSettingsStr(home+"/newsStamp", "");
             if (ts!=latestEntryDate) {
                 var m=get(0);
                 messagePopup.show(m.newsTitle, m.description, m.newsDate);
-                settings.setSettingsStr("newsStamp", latestEntryDate);
+                settings.setSettingsStr(home+"/newsStamp", latestEntryDate);
             }
         }
     }
@@ -733,6 +733,11 @@ ApplicationWindow {
             // rootStack.push(searchView)
             requestLocations();
             requestCategories();
+        }
+
+        onIsOnlineChanged: {
+            if (isonline)
+                newsFeedModel.reload();
         }
 
         onUpdateAvailable: {
