@@ -129,6 +129,15 @@ Page {
                 title: "Debug settings"
                 Layout.fillWidth: true
                 ColumnLayout {
+                    Button {
+                        text: qsTr("Clear organization and login")
+                        enabled: !api.authenticated
+                        Layout.fillWidth: true
+                        onClicked: {
+                            clearLoginDetails();
+                            root.home='';
+                        }
+                    }
                     CheckBox {
                         id: checkDevelopment
                         text: qsTr("Development sandbox mode")
