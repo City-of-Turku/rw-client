@@ -33,6 +33,7 @@ Page {
             Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
             opacity: 0.9
             source: root.imageLogo // "qrc:/images/logo.png"
+            visible: root.home!=''
             Layout.fillWidth: true
             Layout.margins: 16
         }
@@ -40,7 +41,7 @@ Page {
         Button {
             visible: !api.authenticated && api.isonline
             enabled: !api.busy
-            text: qsTr("Login")
+            text: qsTr("Select organization and login")
             Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
             onClicked: {
                 rootStack.push(pageLogin)
