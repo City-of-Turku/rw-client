@@ -318,7 +318,7 @@ ApplicationWindow {
                     icon.width: 32
                     icon.height: 32
                     font.pointSize: 22;                    
-                    enabled: role=="" || api.hasRole(role);
+                    enabled: role=="" || api.hasRole(role) || !(home=='' && role=='home');
                     display: AbstractButton.TextBesideIcon
                     onClicked: {
                         console.debug("DrawerMenu click: "+model.viewId)
@@ -369,7 +369,7 @@ ApplicationWindow {
     ListModel {
         id: actionModel2
         // ListElement { title: qsTr("Login"); viewId: 1; role: ""; image: "qrc:/images/icon_login.png"; }
-        ListElement { title: qsTr("Messages"); viewId: 10; role: ""; image: "qrc:/images/icon_messages.png"; }
+        ListElement { title: qsTr("Messages"); viewId: 10; role: "home"; image: "qrc:/images/icon_messages.png"; }
         ListElement { title: qsTr("About"); viewId: 7; role: ""; image: "qrc:/images/icon_at.png"; }
     }
 
@@ -695,7 +695,7 @@ ApplicationWindow {
 
     NewsModel {
         id: newsFeedModel
-        source: home!='' ? api.url+"news" : ''
+        source: home!='' && api.url!='' ? api.url+"news" : ''
         onLatestEntryDateChanged: {
             var ts=settings.getSettingsStr(home+"/newsStamp", "");
             if (ts!=latestEntryDate) {
