@@ -24,7 +24,8 @@ HEADERS += \
     src/baselistmodel.h \
     src/orderitem.h \
     src/orderlineitem.h \
-    src/orderlineitemmodel.h
+    src/orderlineitemmodel.h \
+    src/rwnetworkaccessmanagerfactory.h
 
 SOURCES += src/main.cpp \
     src/organizationitem.cpp \
@@ -40,7 +41,8 @@ SOURCES += src/main.cpp \
     src/baselistmodel.cpp \
     src/orderitem.cpp \
     src/orderlineitem.cpp \
-    src/orderlineitemmodel.cpp
+    src/orderlineitemmodel.cpp \
+    src/rwnetworkaccessmanagerfactory.cpp
 
 lupdate_only {
     SOURCES +=  qml/*.qml qml/components/*.qml qml/pages/*.qml qml/delegates/*.qml qml/models/*.qml

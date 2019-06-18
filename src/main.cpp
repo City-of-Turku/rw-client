@@ -15,6 +15,7 @@
 
 #include "src/barcodevideofilter.h"
 
+#include "rwnetworkaccessmanagerfactory.h"
 #include "rvapi.h"
 #include "itemlistmodel.h"
 #include "settings.h"
@@ -28,47 +29,6 @@
 #define VERSION "0.0.10"
 #define VERSION_CODE 10
 
-class MyNetworkAccessManager : public QNetworkAccessManager
-{
-public:
-    explicit MyNetworkAccessManager(QObject *parent = nullptr);
-protected:
-    QNetworkReply* createRequest(QNetworkAccessManager::Operation op, const QNetworkRequest &req, QIODevice *device);
-};
-
-MyNetworkAccessManager::MyNetworkAccessManager(QObject *parent)
-    : QNetworkAccessManager(parent)
-{
-
-}
-
-QNetworkReply* MyNetworkAccessManager::createRequest(QNetworkAccessManager::Operation op, const QNetworkRequest &req, QIODevice *device)
-{
-    QNetworkRequest myReq(req);
-
-    myReq.setRawHeader(QByteArray("X-AuthenticationKey"), API_KEY);
-    myReq.setAttribute(QNetworkRequest::HttpPipeliningAllowedAttribute, true);
-    return QNetworkAccessManager::createRequest(op, myReq, device);
-}
-
-class MyNetworkAccessManagerFactory : public QQmlNetworkAccessManagerFactory
-{
-public:
-    virtual QNetworkAccessManager *create(QObject *parent);
-};
-
-QNetworkAccessManager *MyNetworkAccessManagerFactory::create(QObject *parent)
-{
-    QNetworkAccessManager *nam = new MyNetworkAccessManager(parent);
-    QNetworkDiskCache *diskCache = new QNetworkDiskCache(nam);
-
-    diskCache->setCacheDirectory(QStandardPaths::writableLocation(QStandardPaths::CacheLocation));
-    nam->setCache(diskCache);
-
-    qDebug() << "Cache is " << diskCache->cacheSize() << diskCache->maximumCacheSize() << diskCache->cacheDirectory();
-
-    return nam;
-}
 
 int main(int argc, char *argv[])
 {
@@ -104,7 +64,9 @@ int main(int argc, char *argv[])
 
     QQuickStyle::setStyle("Material");
 
-    engine.setNetworkAccessManagerFactory(new MyNetworkAccessManagerFactory);
+    RWNetworkAccessManagerFactory *nam=new RWNetworkAccessManagerFactory();
+
+    engine.setNetworkAccessManagerFactory(nam);
 
     qRegisterMetaType<OrganizationItem*>("OrganizationItem");
     qRegisterMetaType<OrganizationModel*>();
@@ -145,6 +107,9 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("appTitle", apptitle);
     engine.rootContext()->setContextProperty("appVersionCode", appvcode);    
     engine.rootContext()->setContextProperty("appUtil", &apputil);
+
+    // For setting API key for custom QtQuick NetworkAccessManagerFactory
+    engine.rootContext()->setContextProperty("appNAM", nam);
 
     engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 

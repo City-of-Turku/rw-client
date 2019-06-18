@@ -722,6 +722,11 @@ ApplicationWindow {
 
         property OrganizationModel orgModel;
 
+        onApikeyChanged: {
+            // We need to set the organization specific API key for the engine NetworkAccessManagerFactory to use for requests
+            appNAM.setApiKey(apikey)
+        }
+
         onLoginSuccesfull: {
             console.debug("Login succesfull")
             isLogged=true;
