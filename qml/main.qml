@@ -735,7 +735,8 @@ ApplicationWindow {
             }
             saveLoginDetails();
             rootStack.clear();
-            // rootStack.push(searchView)
+            // XXX: Should this be the "default view" ?
+            rootStack.push(searchView)
             requestLocations();
             requestCategories();
         }
