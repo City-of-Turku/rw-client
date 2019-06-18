@@ -75,7 +75,7 @@ RvAPI::RvAPI(QObject *parent) :
     filters << "*.json";
     profiles.setNameFilters(filters);
 
-    qDebug() << "Profiles available:" << profiles.entryList();
+    // qDebug() << "Profiles available:" << profiles.entryList();
 
     // String fields to copy from JSON object
     QStringList fields;
@@ -95,7 +95,7 @@ RvAPI::RvAPI(QObject *parent) :
 
         OrganizationItem *org=new OrganizationItem();
         foreach(const QString &field, fields) {
-            qDebug() << field << profileMap.value(field).toString();
+            // qDebug() << field << profileMap.value(field).toString();
             org->setProperty(field.toLocal8Bit(), profileMap.value(field).toString());
         }
 
