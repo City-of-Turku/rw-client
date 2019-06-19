@@ -22,6 +22,8 @@ Popup {
     property int locationID;
     property string locationDetail;
 
+    property bool hasLocationDetail: false
+
     signal refresh();
 
     onOpened: {
@@ -95,7 +97,8 @@ Popup {
 
         TextField {
             id: productWarehouseLocation
-            enabled: productWarehouse.currentIndex>=0
+            enabled: productWarehouse.currentIndex>=0 && hasLocationDetail
+            visible: hasLocationDetail
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignBottom
             placeholderText: qsTr("Enter storage location")

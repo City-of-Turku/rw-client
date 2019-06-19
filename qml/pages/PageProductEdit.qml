@@ -56,8 +56,9 @@ Page {
     property bool categoryHasMakeAndModel: categoryFlags & CategoryModel.HasMakeAndModel
     property bool categoryHasAuthor: categoryFlags & CategoryModel.HasAuthor
 
-    property bool hasTax: true
-    property bool hasLocation: true
+    property bool categoryHasTax: true
+    property bool categoryHasLocation: true
+    property bool categoryHasLocationDetail: true
 
     property int defaultWarehouse;
 
@@ -984,6 +985,7 @@ Page {
         onLocationDetailChanged: productEditPage.locationDetail=locationDetail;
         onLocationIDChanged: productEditPage.locationID=locationID
         onRefresh: api.requestLocations();
+        hasLocationDetail: categoryHasLocationDetail
     }
 
     function createProduct() {
@@ -1004,9 +1006,9 @@ Page {
         if (categoryHasPurpose)
             p.setAttribute("purpose", purposeID)
 
-        if (hasLocation) {
+        if (categoryHasLocation) {
             p.setAttribute("location", locationID)
-            if (locationDetail!='')
+            if (categoryHasLocationDetail && locationDetail!='')
                 p.setAttribute("locationdetail", locationDetail)
         }
 
