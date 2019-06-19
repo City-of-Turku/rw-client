@@ -574,6 +574,7 @@ Page {
                                     visible: !validWarehouse
                                     Label {
                                         text: qsTr("Select a location")
+                                        Layout.fillWidth: true
                                         background: Rectangle {
                                             color: "transparent"
                                             border.color: "red"
