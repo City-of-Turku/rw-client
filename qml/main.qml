@@ -693,6 +693,10 @@ ApplicationWindow {
         id: purposeModel
     }
 
+    ManufacturerModel {
+        id: manufacturerModel
+    }
+
     NewsModel {
         id: newsFeedModel
         source: home!='' && api.url!='' ? api.url+"news" : ''

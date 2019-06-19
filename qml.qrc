@@ -48,5 +48,6 @@
         <file>qml/components/Badge.qml</file>
         <file>qml/components/ListViewRefresh.qml</file>
         <file>qml/components/PopupProgress.qml</file>
+        <file>qml/models/ManufacturerModel.qml</file>
     </qresource>
 </RCC>

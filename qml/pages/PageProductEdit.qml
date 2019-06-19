@@ -7,8 +7,8 @@
  * XXX!!!
  * Re-think handling of Product, perhaps instead use a empty product and bind the properties, with a isValid flag ?
  */
-import QtQuick 2.10
-import QtQuick.Controls 2.5
+import QtQuick 2.11
+import QtQuick.Controls 2.12
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.3
 import net.ekotuki 1.0
@@ -485,10 +485,12 @@ Page {
                                     categoryID=cdata.cid;
 
                                     var scm=root.api.getSubCategoryModel(cdata.cid);
-                                    if (scm)
+                                    if (scm) {
                                         subCategorySelection.model=scm;
-                                    else
+                                        subCategorySelection.forceActiveFocus();
+                                    } else {
                                         subCategorySelection.model=false;
+                                    }
                                 }
 
                             }
@@ -524,7 +526,7 @@ Page {
                             ComboBoxLabel {
                                 id: purposeSelection
                                 model: root.purposeModel
-                                enabled: true
+                                enabled: categoryHasPurpose
                                 visible: categoryHasPurpose
                                 textRole: "purpose"
                                 placeHolder: qsTr("Usage")
@@ -826,7 +828,7 @@ Page {
                         }
                         ComboBox {
                             id: productTax
-                            visible: hasTax
+                            visible: categoryHasTax
                             displayText: qsTr("Tax: ")+currentText
                             model: api.getTaxModel();
                             textRole: "display"
@@ -882,10 +884,19 @@ Page {
                         Layout.fillWidth: true
                         Layout.fillHeight: false
                         Layout.alignment: Qt.AlignTop
-                        TextField {
+                        Label {
+                            text: qsTr("Product manufacturer")
+                        }
+                        ComboBox {
                             id: productMake
                             Layout.fillWidth: true
-                            placeholderText: qsTr("Product manufacturer")
+                            editable: true
+                            model: manufacturerModel
+                            textRole: "manufacturer"
+                            Component.onCompleted: console.debug("*** MODEL HAS MANUFACTURERS: "+model.length)
+                            onAccepted: {
+                                productModel.forceActiveFocus()
+                            }
                         }
                         TextField {
                             id: productModel
@@ -1054,10 +1065,14 @@ Page {
         }
 
         if (categoryHasMakeAndModel) {
+            if (productMake.editText!='') {
+                p.setAttribute("manufacturer", productMake.editText)
+                if (find(productMake.editText) === -1)
+                    productMake.model.append({text: productMake.editText})
+            }
+
             if (productModel.text!='')
                 p.setAttribute("model", productModel.text)
-            if (productMake.text!='')
-                p.setAttribute("manufacturer", productMake.text)
         }
 
         if (categoryHasAuthor && productAuthor.text!='') {
