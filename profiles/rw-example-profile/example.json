@@ -1,0 +1,10 @@
+{
+    "code": "example",
+    "name": "Example",
+    "apiKey": "MUST_BE_SET",
+    "apiUrlProduction": "http://localhost/v4/",
+    "apiUrlSandbox": "http://localhost/v4/",
+    "wifiRequired": false,
+    "CA": false,
+    "Certificate": ""
+}

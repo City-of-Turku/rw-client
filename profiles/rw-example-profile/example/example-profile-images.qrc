@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/profiles/example">
+        <file>images/logo.png</file>
+        <file>images/bg/bg.jpg</file>
+    </qresource>
+</RCC>

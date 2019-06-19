@@ -1,0 +1,6 @@
+<RCC>
+ <qresource prefix="/profiles/">
+  <file>example.json</file>
+ </qresource>
+</RCC>
+
