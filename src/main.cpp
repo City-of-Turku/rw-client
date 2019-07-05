@@ -26,8 +26,8 @@
 #include <QtAndroidExtras/QtAndroid>
 #endif
 
-#define VERSION "0.0.10"
-#define VERSION_CODE 10
+#define VERSION "0.0.11"
+#define VERSION_CODE 11
 
 
 int main(int argc, char *argv[])
