@@ -25,6 +25,7 @@ RowLayout {
         MouseArea {
             anchors.fill: parent
             onClicked: productColor.popup.open();
+            onPressAndHold: productColor.currentIndex=0
         }
     }
 
