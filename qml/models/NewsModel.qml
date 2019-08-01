@@ -1,4 +1,4 @@
-import QtQuick 2.10
+import QtQuick 2.12
 import QtQuick.XmlListModel 2.0
 
 XmlListModel {

@@ -1,4 +1,4 @@
-import QtQuick 2.10
+import QtQuick 2.12
 
 // XXX: Save and load these from somewhere
 ListModel {
