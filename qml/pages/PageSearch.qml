@@ -24,9 +24,7 @@ Page {
 
     property bool isInitialView: true
 
-    property alias model: searchResults.model
-
-    property ItemModel cartModel;
+    property alias model: searchResults.model    
 
     signal searchRequested(string str, string category, int sort);
     signal searchBarcodeRequested(string barcode);
@@ -115,8 +113,7 @@ Page {
     }
 
     Component.onCompleted: {        
-        model=root.api.getItemModel();
-        cartModel=root.api.getCartModel();
+        model=root.api.getItemModel();        
         searchResults.currentIndex=-1;
         if (searchString.length>0) {
             console.debug("Created with pre-populated search string: "+searchString)
