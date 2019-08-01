@@ -1,11 +1,11 @@
-import QtQuick 2.10
-import QtQuick.Controls 2.4
-import QtQuick.Controls.Material 2.0
-import QtQuick.Layouts 1.3
+import QtQuick 2.12
+import QtQuick.Controls 2.12
+import QtQuick.Controls.Material 2.12
+import QtQuick.Layouts 1.12
 import QtQuick.Dialogs 1.2
-import QtQuick.Window 2.3
-import QtQuick.XmlListModel 2.0
-import QtPositioning 5.8
+import QtQuick.Window 2.12
+import QtQuick.XmlListModel 2.12
+import QtPositioning 5.12
 import net.ekotuki 1.0
 
 import "pages"

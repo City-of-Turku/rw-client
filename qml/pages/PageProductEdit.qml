@@ -7,7 +7,7 @@
  * XXX!!!
  * Re-think handling of Product, perhaps instead use a empty product and bind the properties, with a isValid flag ?
  */
-import QtQuick 2.11
+import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Dialogs 1.2
 import QtQuick.Layouts 1.3

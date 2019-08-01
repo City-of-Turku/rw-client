@@ -1,4 +1,4 @@
-import QtQuick 2.10
+import QtQuick 2.12
 import net.ekotuki 1.0
 
 DetailItem {

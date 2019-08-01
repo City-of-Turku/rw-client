@@ -1,7 +1,7 @@
-import QtQuick 2.10
-import QtQuick.Controls 2.5
+import QtQuick 2.12
+import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.3
-import QtLocation 5.9
+import QtLocation 5.12
 
 Popup {
     id: locationPopup
