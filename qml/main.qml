@@ -734,7 +734,7 @@ ApplicationWindow {
         onLoginSuccesfull: {
             console.debug("Login succesfull")
             isLogged=true;
-            if (rootStack.contains(pageLogin)) {
+            if (rootStack.currentItem.objectName=='login') {
                 rootStack.pop();
             }
             saveLoginDetails();
