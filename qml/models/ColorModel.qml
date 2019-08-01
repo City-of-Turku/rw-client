@@ -23,6 +23,7 @@ ListModel {
     // Misc
     ListElement { cid: "gold"; color: qsTr("Gold"); code: "#FFD700";}
     ListElement { cid: "silver"; color: qsTr("Silver"); code: "#C0C0C0";}
+    ListElement { cid: "chrome"; color: qsTr("Chrome"); code: "#DBE4EB";}
 
     // Other
     ListElement { cid: "walnut"; color: qsTr("Walnut"); code: "#443028";}
