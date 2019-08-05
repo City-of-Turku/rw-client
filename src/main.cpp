@@ -83,6 +83,9 @@ int main(int argc, char *argv[])
     qRegisterMetaType<OrderLineItemModel*>();
     qRegisterMetaType<LocationListModel*>();
 
+    qRegisterMetaType<ColorItem*>("ColorItem");
+    //qRegisterMetaType<ColorModel*>();
+
     qmlRegisterType<BarcodeVideoFilter>("net.ekotuki", 1,0, "BarcodeScanner");
     qmlRegisterType<ProductItem>("net.ekotuki", 1,0, "Product");
     qmlRegisterType<OrderItem>("net.ekotuki", 1,0, "OrderItem");
@@ -93,7 +96,7 @@ int main(int argc, char *argv[])
     qmlRegisterUncreatableType<ItemListModel>("net.ekotuki", 1, 0, "ItemModel", "Used in C++ only");
     qmlRegisterUncreatableType<OrdersModel>("net.ekotuki", 1, 0, "OrderModel", "Used in C++ only");
     qmlRegisterUncreatableType<OrderLineItemModel>("net.ekotuki", 1, 0, "OrderLineItemModel", "Used in C++ only");
-
+    qmlRegisterUncreatableType<ColorModel>("net.ekotuki", 1, 0, "ColorModel", "Used in C++ only");
     qmlRegisterUncreatableType<OrganizationModel>("net.ekotuki", 1, 0, "OrganizationModel", "Used in C++ only");
 
 #ifdef Q_OS_ANDROID

@@ -10,7 +10,7 @@ class OrganizationModel : public Cute::AbstractObjectModel
 {
     Q_OBJECT
 public:
-    OrganizationModel(QObject *parent = nullptr);
+    explicit OrganizationModel(QObject *parent = nullptr);
 
     Q_INVOKABLE OrganizationItem *getItem(int index) const;
 };

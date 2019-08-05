@@ -38,5 +38,11 @@ RowLayout {
             colorIndicator.color=tmp.code;
             colorID=tmp.cid;
         }
+        Text {
+            visible: productColor.currentIndex==0
+            anchors.centerIn: parent
+            color: "#d0d0d0"
+            text: qsTr("Pick a color")
+        }
     }
 }

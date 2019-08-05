@@ -39,6 +39,9 @@
 #include "organizationitem.h"
 #include "organizationmodel.h"
 
+#include "coloritem.h"
+#include "colormodel.h"
+
 class RvAPI : public QObject
 {
     Q_OBJECT
@@ -175,6 +178,8 @@ public:
     Q_INVOKABLE CategoryModel *getSubCategoryModel(const QString key);
 
     Q_INVOKABLE QStringListModel *getTaxModel();
+
+    Q_INVOKABLE ColorModel *getColorModel();
 
     Q_INVOKABLE bool downloadUpdate();
 
@@ -395,9 +400,6 @@ private:
     uint m_uid;
     QDateTime m_lastlogin;
 
-    // Organizations model
-    OrganizationModel m_organization_model;
-
     QNetworkConfigurationManager *m_netconf;
     bool m_isonline;
 
@@ -415,7 +417,8 @@ private:
     ProductMap m_product_store;
 
     QObjectList m_orders;
-
+    OrganizationModel m_organization_model;
+    ColorModel m_color_model;
     ItemListModel m_itemsmodel;
     OrderLineItemModel m_cartmodel;
     CategoryModel m_categorymodel;

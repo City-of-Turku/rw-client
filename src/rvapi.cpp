@@ -39,6 +39,9 @@
 // Keep this at what proxy API enforces, currently set to 100
 #define ITEMS_MAX (100)
 
+// Until server code is ready
+#define STATIC_COLOR_MODEL 1
+
 RvAPI::RvAPI(QObject *parent) :
     QObject(parent),
     m_NetManager(new QNetworkAccessManager(this)),
@@ -48,11 +51,13 @@ RvAPI::RvAPI(QObject *parent) :
     m_busy(false),
     m_hasMore(false),
     m_loadedPage(0),
+    m_organization_model(this),
+    m_color_model(this),
     m_itemsmodel(&m_product_store, this),
     m_cartmodel(this),
     m_categorymodel(nullptr, this),
     m_locations(this),
-    m_ordersmodel(this),
+    m_ordersmodel(this),    
     m_tax_model(this)
 {
 
@@ -142,6 +147,35 @@ RvAPI::RvAPI(QObject *parent) :
     m_order_status_str.insert(OrderItem::Processing, "processing");
     m_order_status_str.insert(OrderItem::Shipped, "completed");
     m_order_status_str.insert(OrderItem::Cart, "cart");
+
+#ifdef STATIC_COLOR_MODEL
+    m_color_model.append(new ColorItem("", "", "transparent"));
+
+    m_color_model.append(new ColorItem("black", tr("Black"), "#000000"));
+    m_color_model.append(new ColorItem("brown", tr("Brown"), "#ab711a"));
+    m_color_model.append(new ColorItem("grey", tr("Grey"), "#a0a0a0"));
+    m_color_model.append(new ColorItem("white", tr("White"), "#ffffff"));
+
+    m_color_model.append(new ColorItem("blue", tr("Blue"), "#0000ff"));
+    m_color_model.append(new ColorItem("green", tr("Green"), "#00ff00"));
+    m_color_model.append(new ColorItem("red", tr("Red"), "#ff0000"));
+    m_color_model.append(new ColorItem("yellow", tr("Yellow"), "#ffff00"));
+    m_color_model.append(new ColorItem("pink", tr("Pink"), "#ff53a6"));
+    m_color_model.append(new ColorItem("orange", tr("Orange"), "#ff9800"));
+    m_color_model.append(new ColorItem("cyan", tr("Cyan"), "#00FFFF"));
+    m_color_model.append(new ColorItem("violet", tr("Violet"), "#800080"));
+
+    m_color_model.append(new ColorItem("multi", tr("Multicolor"), "#transparent"));
+
+    m_color_model.append(new ColorItem("gold", tr("Gold"), "#FFD700"));
+    m_color_model.append(new ColorItem("silver", tr("Silver"), "#C0C0C0"));
+    m_color_model.append(new ColorItem("chrome", tr("Chrome"), "#DBE4EB"));
+
+    m_color_model.append(new ColorItem("walnut", tr("Walnut"), "#443028"));
+    m_color_model.append(new ColorItem("oak", tr("Oak"), "#806517"));
+    m_color_model.append(new ColorItem("birch", tr("Birch"), "#f8dfa1"));
+    m_color_model.append(new ColorItem("beech", tr("Beech"), "#cdaa88"));
+#endif
 }
 
 RvAPI::~RvAPI()
@@ -1812,6 +1846,11 @@ CategoryModel *RvAPI::getSubCategoryModel(const QString key)
 QStringListModel *RvAPI::getTaxModel()
 {
     return &m_tax_model;
+}
+
+ColorModel *RvAPI::getColorModel()
+{
+    return &m_color_model;
 }
 
 bool RvAPI::authenticated() const

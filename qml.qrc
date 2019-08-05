@@ -25,7 +25,7 @@
         <file>qml/components/ComboBoxLabel.qml</file>
         <file>qml/pages/PageAbout.qml</file>
         <file>qml/components/ProductAttributeDetailItem.qml</file>
-        <file>qml/models/ColorModel.qml</file>
+        <file>qml/models/StaticColorModel.qml</file>
         <file>qml/models/PurposeModel.qml</file>
         <file>qml/models/NewsModel.qml</file>
         <file>qml/models/LatestProductsModel.qml</file>

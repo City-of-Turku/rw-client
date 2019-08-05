@@ -31,7 +31,6 @@ ApplicationWindow {
     property bool settingsAskMultiple: true
 
     property ServerApi api: api
-    property alias colorModel: colorModel
     property alias purposeModel: purposeModel
 
     property alias busy: api.busy
@@ -682,13 +681,6 @@ ApplicationWindow {
         }
     }
 
-
-    // XXX, should we hardcode values here and map these on the server side or what ?
-    // cid: server side identifier
-    ColorModel {
-        id: colorModel
-    }
-
     PurposeModel {
         id: purposeModel
     }
@@ -725,6 +717,7 @@ ApplicationWindow {
         apikey: root.apiKey
 
         property OrganizationModel orgModel;
+        property ColorModel colorModel;
 
         onApikeyChanged: {
             // We need to set the organization specific API key for the engine NetworkAccessManagerFactory to use for requests
@@ -862,6 +855,7 @@ ApplicationWindow {
             console.debug("*** API is ready!")
             setAppVersion(appVersionCode);
             orgModel=getOrganizationModel();
+            colorModel=getColorModel();
             initSettings();
         }
 

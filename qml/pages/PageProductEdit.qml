@@ -851,17 +851,17 @@ Page {
                     ColorSelector {
                         id: productColor
                         visible: categoryHasColor
-                        model: root.colorModel
+                        model: api.colorModel
                     }
                     ColorSelector {
                         id: productColor2
                         visible: categoryHasColor && productColor.colorIndex>0
-                        model: root.colorModel
+                        model: api.colorModel
                     }
                     ColorSelector {
                         id: productColor3
                         visible: categoryHasColor && productColor2.colorIndex>0
-                        model: root.colorModel
+                        model: api.colorModel
                     }
 
                     SizeField {

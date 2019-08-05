@@ -10,6 +10,8 @@ CONFIG += c++11
 include(profile.pri)
 
 HEADERS += \
+    src/coloritem.h \
+    src/colormodel.h \
     src/organizationitem.h \
     src/organizationmodel.h \
     src/rvapi.h \
@@ -28,6 +30,8 @@ HEADERS += \
     src/rwnetworkaccessmanagerfactory.h
 
 SOURCES += src/main.cpp \
+    src/coloritem.cpp \
+    src/colormodel.cpp \
     src/organizationitem.cpp \
     src/organizationmodel.cpp \
     src/rvapi.cpp \
