@@ -164,6 +164,7 @@ public:
 
     Q_INVOKABLE bool requestLocations();
     Q_INVOKABLE bool requestCategories();
+    Q_INVOKABLE bool requestColors();
 
     Q_INVOKABLE bool validateBarcode(const QString barcode) const;
     Q_INVOKABLE bool validateBarcodeEAN(const QString code) const;
@@ -332,8 +333,7 @@ private:
         ProductSearch, ProductSearchBarcode, ProductAdd, ProductUpdate, Product, Products,
         Order, Orders, OrderUpdateStatus,
         Cart, ClearCart, AddToCart, CheckoutCart,
-        Categories,
-        Locations,
+        Categories, Locations, Colors,
         DownloadAPK,
     };
 
@@ -361,8 +361,10 @@ private:
     const QString op_products_search=QStringLiteral("products/search");
     const QString op_product_get=QStringLiteral("products/barcode");
 
+    // Dynamic meta data lists
     const QString op_locations=QStringLiteral("locations");
     const QString op_categories=QStringLiteral("categories");
+    const QString op_colors=QStringLiteral("colors");
 
     const QString op_download=QStringLiteral("download/apk");
 
@@ -453,12 +455,14 @@ private:
     void parseErrorResponse(int code, QNetworkReply::NetworkError e, RequestOps op, const QByteArray &response);
     bool parseLocationData(QVariantMap &data);
     bool parseCategoryData(QVariantMap &data);
+    bool parseColorsData(QVariantMap &data);
+    void createStaticColorModel();
     bool parseProductData(QVariantMap &data, const QNetworkAccessManager::Operation method);
     bool parseProductsData(QVariantMap &data);
     bool parseLogin(QVariantMap &data);
     bool parseLogout();
     bool parseFileDownload(const QByteArray &data);
-    void parseCategoryMap(const QString key, CategoryModel &model, QVariantMap &tmp);
+    void parseCategoryMap(const QString key, CategoryModel &model, QVariantMap &tmp);    
     bool parseOrderCreated(QVariantMap &data);
     bool parseOrders(QVariantMap &data);    
     bool parseOrderStatusUpdate(QVariantMap &data);

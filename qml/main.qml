@@ -736,6 +736,7 @@ ApplicationWindow {
             rootStack.push(searchView)
             requestLocations();
             requestCategories();
+            requestColors();
         }
 
         onIsOnlineChanged: {

@@ -149,32 +149,7 @@ RvAPI::RvAPI(QObject *parent) :
     m_order_status_str.insert(OrderItem::Cart, "cart");
 
 #ifdef STATIC_COLOR_MODEL
-    m_color_model.append(new ColorItem("", "", "transparent"));
 
-    m_color_model.append(new ColorItem("black", tr("Black"), "#000000"));
-    m_color_model.append(new ColorItem("brown", tr("Brown"), "#ab711a"));
-    m_color_model.append(new ColorItem("grey", tr("Grey"), "#a0a0a0"));
-    m_color_model.append(new ColorItem("white", tr("White"), "#ffffff"));
-
-    m_color_model.append(new ColorItem("blue", tr("Blue"), "#0000ff"));
-    m_color_model.append(new ColorItem("green", tr("Green"), "#00ff00"));
-    m_color_model.append(new ColorItem("red", tr("Red"), "#ff0000"));
-    m_color_model.append(new ColorItem("yellow", tr("Yellow"), "#ffff00"));
-    m_color_model.append(new ColorItem("pink", tr("Pink"), "#ff53a6"));
-    m_color_model.append(new ColorItem("orange", tr("Orange"), "#ff9800"));
-    m_color_model.append(new ColorItem("cyan", tr("Cyan"), "#00FFFF"));
-    m_color_model.append(new ColorItem("violet", tr("Violet"), "#800080"));
-
-    m_color_model.append(new ColorItem("multi", tr("Multicolor"), "#transparent"));
-
-    m_color_model.append(new ColorItem("gold", tr("Gold"), "#FFD700"));
-    m_color_model.append(new ColorItem("silver", tr("Silver"), "#C0C0C0"));
-    m_color_model.append(new ColorItem("chrome", tr("Chrome"), "#DBE4EB"));
-
-    m_color_model.append(new ColorItem("walnut", tr("Walnut"), "#443028"));
-    m_color_model.append(new ColorItem("oak", tr("Oak"), "#806517"));
-    m_color_model.append(new ColorItem("birch", tr("Birch"), "#f8dfa1"));
-    m_color_model.append(new ColorItem("beech", tr("Beech"), "#cdaa88"));
 #endif
 }
 
@@ -676,6 +651,71 @@ void RvAPI::parseCategoryMap(const QString key, CategoryModel &model, QVariantMa
     }
 }
 
+bool RvAPI::parseColorsData(QVariantMap &data)
+{
+    qDebug() << "ColorData: " << data;
+
+    if (data.isEmpty())
+        return false;
+
+    m_color_model.clear();
+
+    // Add the default dummy
+    m_color_model.append(new ColorItem("", "", "transparent", &m_color_model));
+
+
+    QMapIterator<QString, QVariant> i(data);
+    while(i.hasNext()) {
+        i.next();
+
+        QVariantMap cm=i.value().toMap();
+
+        qDebug() << "ColorMap: " << cm;
+
+        ColorItem *ci=new ColorItem(cm.value("cid").toString(), cm.value("color").toString(), cm.value("code").toString(), &m_color_model);
+        m_color_model.append(ci);
+    }
+
+    return true;
+}
+
+/**
+ * @brief RvAPI::createStaticColorModel
+ *
+ * Create fallback static color model in case server request fails
+ */
+void RvAPI::createStaticColorModel()
+{
+    m_color_model.clear();
+
+    m_color_model.append(new ColorItem("", "", "transparent"));
+
+    m_color_model.append(new ColorItem("black", tr("Black"), "#000000"));
+    m_color_model.append(new ColorItem("brown", tr("Brown"), "#ab711a"));
+    m_color_model.append(new ColorItem("grey", tr("Grey"), "#a0a0a0"));
+    m_color_model.append(new ColorItem("white", tr("White"), "#ffffff"));
+
+    m_color_model.append(new ColorItem("blue", tr("Blue"), "#0000ff"));
+    m_color_model.append(new ColorItem("green", tr("Green"), "#00ff00"));
+    m_color_model.append(new ColorItem("red", tr("Red"), "#ff0000"));
+    m_color_model.append(new ColorItem("yellow", tr("Yellow"), "#ffff00"));
+    m_color_model.append(new ColorItem("pink", tr("Pink"), "#ff53a6"));
+    m_color_model.append(new ColorItem("orange", tr("Orange"), "#ff9800"));
+    m_color_model.append(new ColorItem("cyan", tr("Cyan"), "#00FFFF"));
+    m_color_model.append(new ColorItem("violet", tr("Violet"), "#800080"));
+
+    m_color_model.append(new ColorItem("multi", tr("Multicolor"), "#transparent"));
+
+    m_color_model.append(new ColorItem("gold", tr("Gold"), "#FFD700"));
+    m_color_model.append(new ColorItem("silver", tr("Silver"), "#C0C0C0"));
+    m_color_model.append(new ColorItem("chrome", tr("Chrome"), "#DBE4EB"));
+
+    m_color_model.append(new ColorItem("walnut", tr("Walnut"), "#443028"));
+    m_color_model.append(new ColorItem("oak", tr("Oak"), "#806517"));
+    m_color_model.append(new ColorItem("birch", tr("Birch"), "#f8dfa1"));
+    m_color_model.append(new ColorItem("beech", tr("Beech"), "#cdaa88"));
+}
+
 bool RvAPI::parseOrderCreated(QVariantMap &data)
 {
     emit orderCreated();
@@ -987,6 +1027,8 @@ bool RvAPI::parseOKResponse(RequestOps op, const QByteArray &response, const QNe
         return parseCategoryData(data);
     case RvAPI::Locations:
         return parseLocationData(data);
+    case RvAPI::Colors:
+        return parseColorsData(data);
     case RvAPI::Orders:
         if (method==QNetworkAccessManager::PostOperation)
             return parseOrderCreated(data);
@@ -1734,6 +1776,11 @@ bool RvAPI::requestLocations()
 bool RvAPI::requestCategories()
 {
     return createSimpleAuthenticatedRequest(op_categories, Categories);
+}
+
+bool RvAPI::requestColors()
+{
+    return createSimpleAuthenticatedRequest(op_colors, Colors);
 }
 
 bool RvAPI::downloadUpdate()
