@@ -293,7 +293,48 @@ Page {
             }
             onImageCaptured: {
                 imageModel.addImage("file:/"+path, Product.CameraSource);
-                rootStack.pop();
+                if (imageModel.count<maxImages) {
+                    captureAnimation.start()
+                } else {
+                    rootStack.pop();
+                }
+            }
+            Row {
+                anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.margins: 16
+                Text {
+                    id: captureCount
+                    text: imageModel.count+"/"+maxImages
+                    style: Text.Outline
+                    verticalAlignment: Text.AlignVCenter
+                    horizontalAlignment: Text.AlignHCenter
+                    font.pixelSize: 26
+                    color: imageModel.count<maxImages-1 ? "white" : "yellow"
+                    opacity: 0.9
+                    transformOrigin: Item.Center
+                    SequentialAnimation {
+                        id: captureAnimation
+                        ScaleAnimator {
+                            target: captureCount
+                            from: 1
+                            to: 1.5
+                            duration: 300
+                            easing.type: Easing.InOutElastic;
+                            easing.amplitude: 2.0;
+                            easing.period: 1.2
+                        }
+                        ScaleAnimator {
+                            target: captureCount
+                            from: 1.5
+                            to: 1
+                            duration: 200
+                            easing.type: Easing.InOutElastic;
+                            easing.amplitude: 2.0;
+                            easing.period: 1.4
+                        }
+                    }
+                }
             }
         }
     }
