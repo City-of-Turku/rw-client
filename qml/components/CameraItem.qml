@@ -67,7 +67,7 @@ Item {
             onImageCaptured: {
                 console.debug("Image captured!")
                 console.debug(camera.imageCapture.capturedImagePath)
-                previewImage.source=preview
+                previewImage.source=preview;
             }
             onCaptureFailed: {
                 console.debug("Capture failed")
@@ -136,16 +136,6 @@ Item {
 
             filters: imageCapture ? [] : [ scanner ]
 
-            Image {
-                id: previewImage
-                fillMode: Image.PreserveAspectFit
-                width: 128
-                height: 128
-                anchors.left: parent.left
-                anchors.top: parent.top
-                opacity: 0.75
-            }
-
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -160,6 +150,44 @@ Item {
                         camera.searchAndLock();
                     else
                         camera.unlock();
+                }
+            }
+
+            Image {
+                id: previewImage
+                fillMode: Image.PreserveAspectFit
+                width: Math.max(parent.width/6, 192)
+                height: Math.max(parent.height/6, 192)
+                anchors.left: parent.left
+                anchors.top: parent.top
+                anchors.margins: 16
+                opacity: zoomed ? 1 : 0.75
+                scale: zoomed ? 2 : 1
+                transformOrigin: Item.TopLeft
+
+                property bool zoomed: false
+
+                onStatusChanged: {
+                    if (previewImage.status == Image.Ready) {
+                        visible=true;
+                        zoomed=false;
+                    }
+                }
+
+                MouseArea {
+                    id: previewMouse
+                    anchors.fill: parent
+                    onPressAndHold: {
+                        previewImage.visible=false;
+                    }
+                    onClicked: {
+                        previewImage.zoomed=!previewImage.zoomed
+                    }
+                }
+                Behavior on scale {
+                    ScaleAnimator {
+                        duration: 200
+                    }
                 }
             }
 
