@@ -84,7 +84,7 @@ ProductItem* ProductItem::fromVariantMap(QVariantMap &data, QObject *parent)
     // XXX: Loop over valid attributes ?
 
     if (data.contains("color"))
-        p->setAttribute("color", data["color"].toString().toDouble());
+        p->setAttribute("color", data["color"].toList());
 
     if (data.contains("purpose"))
         p->setAttribute("purpose", data["purpose"].toString().toDouble());
