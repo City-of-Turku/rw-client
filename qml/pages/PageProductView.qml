@@ -273,11 +273,11 @@ Page {
                             label: qsTr("Color");
                             visible: product.hasAttribute("color")
                             value: getColorString(product.getAttribute("color"))
-                            function getColorString(ca) {
+                            function getColorString(ca) {                                
                                 if (!ca)
                                     return 'N/A'
-                                console.debug("Color: ")
-                                console.debug(ca)
+                                else
+                                    return ca.join(); // XXX
                             }
                         }
                         DetailItem {
