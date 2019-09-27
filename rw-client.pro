@@ -5,6 +5,34 @@ QT += positioning
 
 CONFIG += c++11
 
+defineTest(minQtVersion) {
+    maj = $$1
+    min = $$2
+    patch = $$3
+    isEqual(QT_MAJOR_VERSION, $$maj) {
+        isEqual(QT_MINOR_VERSION, $$min) {
+            isEqual(QT_PATCH_VERSION, $$patch) {
+                return(true)
+            }
+            greaterThan(QT_PATCH_VERSION, $$patch) {
+                return(true)
+            }
+        }
+        greaterThan(QT_MINOR_VERSION, $$min) {
+            return(true)
+        }
+    }
+    greaterThan(QT_MAJOR_VERSION, $$maj) {
+        return(true)
+    }
+    return(false)
+}
+
+!minQtVersion(5, 12, 0) {
+    message("Cannot build RW-Client with Qt version $${QT_VERSION}.")
+    error("Use at least Qt 5.12.0.")
+}
+
 # Create your own build profile first, copy profile.pri.sample to profile.pri
 # and adjust for your system. Don't change this line.
 include(profile.pri)
