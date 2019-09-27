@@ -193,6 +193,11 @@ Page {
         }
     }
 
+    onValidValueChanged: {
+        console.debug("*** ValidValue: "+validValue)
+        console.debug(productValue.price)
+    }
+
     header: ToolbarBasic {
         enableBackPop: false
         onBackButton: {
@@ -569,10 +574,14 @@ Page {
                                 textRole: "purpose"
                                 placeHolder: qsTr("Usage")
                                 Layout.fillWidth: true
+                                currentIndex: 0 //xxx
+                                invalidIndex: 0
                                 onCurrentIndexChanged: {
                                     var pdata=model.get(currentIndex)
                                     purposeID=pdata.pid;
                                 }
+                                /*
+                                  XXX: Fix this
                                 contentItem: Row {
                                     width: parent.width
                                     PurposeBadge {
@@ -591,6 +600,7 @@ Page {
                                         elide: Text.ElideRight
                                     }
                                 }
+                                */
                             }
 
                             RowLayout {
@@ -882,6 +892,7 @@ Page {
                             Layout.fillWidth: true
                             id: productValue
                             text: hasProduct ? product.value : ''
+                            isOptional: true;
                             placeholderText: qsTr("Product value")
                         }
                     }
@@ -1101,8 +1112,8 @@ Page {
             p.setPrice(0.0);
         }
 
-        if (categoryHasValue && validValue) {
-            p.setAttribute("value", productValue.price)
+        if (categoryHasValue && validValue) {            
+            p.setAttribute("value", productValue.price)            
         }
 
         if (categoryHasMakeAndModel) {
