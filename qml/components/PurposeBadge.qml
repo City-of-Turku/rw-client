@@ -9,6 +9,7 @@ Image {
     cache: true
     visible: purpose>0
     source: getPurposeBadge(purpose)
+    fillMode: Image.PreserveAspectFit
 
     signal clicked();
 
