@@ -7,11 +7,13 @@ TextField {
     placeholderText: qsTr("Price")
     background: Rectangle {
         color: "transparent"
-        border.color: parent.acceptableInput ? "green" : "red"
+        border.color: parent.acceptableInput ? "green" : isOptional ? "yellow" : "red"
     }
     leftPadding: 4
     rightPadding: 4
     verticalAlignment: TextInput.AlignVCenter
+
+    property bool isOptional: true
 
     property double price;
     signal invalidPrice();
@@ -39,8 +41,15 @@ TextField {
 
     function parsePrice() {
         var price;
+        var t=productPrice.text;
+
+        if (isOptional && t==='') {
+            price=undefined;
+            return;
+        }
+
         try {
-            price=Number.fromLocaleString(productPrice.text);
+            price=Number.fromLocaleString(t);
             if (isNaN(price)) {
                 invalidPrice();
             }
