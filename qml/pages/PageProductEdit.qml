@@ -158,19 +158,19 @@ Page {
         switch (event.key) {
         case Qt.Key_F1:
             event.accepted = true;
-            editorSwipeView.currentIndex=0;
+            editorSwipeView.setCurrentIndex(0);
             break;
         case Qt.Key_F2:
             event.accepted = true;
-            editorSwipeView.currentIndex=1;
+            editorSwipeView.setCurrentIndex(1);
             break;
         case Qt.Key_F3:
             event.accepted = true;
-            editorSwipeView.currentIndex=2;
+            editorSwipeView.setCurrentIndex(2);
             break;
         case Qt.Key_F4:
             event.accepted = true;
-            editorSwipeView.currentIndex=3;
+            editorSwipeView.setCurrentIndex(3);
             break;
         case Qt.Key_Escape:
             console.log("*** ESC")
@@ -181,7 +181,7 @@ Page {
             console.log("*** Back button")
             event.accepted = true;
             if (editorSwipeView.currentIndex>0)
-                editorSwipeView.currentIndex--;
+                editorSwipeView.decrementCurrentIndex();
             else
                 confirmBackDialog.open();
             break;
@@ -200,9 +200,10 @@ Page {
         }
         enableActionButton: validEntry && !isSaving
         visibleActionButton: true
-        actionIcon: "qrc:/images/icon_down_box.png"
+        //actionIcon: "qrc:/images/icon_down_box.png"
+        actionText: qsTr("Save")
         onActionButton: {
-            bar.currentIndex=0
+            editorSwipeView.setCurrentIndex(0);
             confirmDialog.open();
         }
     }
@@ -425,11 +426,7 @@ Page {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 Layout.alignment: Qt.AlignTop
-                currentIndex: bar.currentIndex
-                onCurrentIndexChanged: {
-                    console.debug("CurrentViewIndex: "+currentIndex)
-                    // bar.currentIndex=currentIndex
-                }
+                currentIndex: bar.currentIndex                
 
                 ScrollView {
                     id: basicDataSV
@@ -968,6 +965,7 @@ Page {
                                 id: productEAN
                                 visible: categoryHasEAN
                                 scannerEnabled: categoryHasEAN
+                                isOptional: true
                                 placeholderText: qsTr("Type or scan EAN")
                                 validator: RegExpValidator {
                                     regExp: /[0-9]{10,13}/
@@ -978,6 +976,7 @@ Page {
                             BarcodeScannerField {
                                 id: productISBN
                                 visible: categoryHasISBN
+                                isOptional: true
                                 placeholderText: qsTr("Type or scan ISBN")
                                 scannerEnabled: categoryHasISBN
                                 validator: RegExpValidator {
