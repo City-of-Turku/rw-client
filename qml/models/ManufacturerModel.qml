@@ -17,4 +17,16 @@ ListModel {
     ListElement { manufacturer: "Casio"; }
     ListElement { manufacturer: "Sony"; }
     ListElement { manufacturer: "Onkyo"; }
+    ListElement { manufacturer: "Yamaha"; }
+
+    ListElement { manufacturer: "QOMO"; }
+    ListElement { manufacturer: "Alto Professional"; }
+
+    ListElement { manufacturer: "Electrolux"; }
+    ListElement { manufacturer: "AEG"; }
+    ListElement { manufacturer: "Bosch"; }
+    ListElement { manufacturer: "Zebra"; }
+    ListElement { manufacturer: "Samsung"; }
+    ListElement { manufacturer: "LG"; }
+    ListElement { manufacturer: "Mile"; }
 }
