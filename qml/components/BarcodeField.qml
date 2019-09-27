@@ -12,9 +12,12 @@ TextField {
     inputMethodHints: Qt.ImhUppercaseOnly | Qt.ImhNoPredictiveText // | Qt.ImhPreferNumbers
     //inputMask: ">AAA999999999"
     validator: RegExpValidator { regExp: /[A-Z]{3}[0-9]{6,9}/ }
+
+    property bool isOptional : false;
+
     background: Rectangle {
         color: "transparent"
-        border.color: barcodeText.acceptableInput ? "green" : "red"
+        border.color: barcodeText.acceptableInput ? "green" : (isOptional ? "yellow" :  "red")
     }
     onPressAndHold: {
         clear()

@@ -15,6 +15,8 @@ RowLayout {
     signal validateBarcode(string barcode)
     property bool scannerEnabled: true
 
+    property alias isOptional: barcodeText.isOptional
+
     property alias text: barcodeText.text
     property alias placeholderText: barcodeText.placeholderText
     property alias validator: barcodeText.validator
