@@ -39,9 +39,6 @@
 // Keep this at what proxy API enforces, currently set to 100
 #define ITEMS_MAX (100)
 
-// Until server code is ready
-#define STATIC_COLOR_MODEL 1
-
 RvAPI::RvAPI(QObject *parent) :
     QObject(parent),
     m_NetManager(new QNetworkAccessManager(this)),
@@ -57,7 +54,7 @@ RvAPI::RvAPI(QObject *parent) :
     m_cartmodel(this),
     m_categorymodel(nullptr, this),
     m_locations(this),
-    m_ordersmodel(this),    
+    m_ordersmodel(this),
     m_tax_model(this)
 {
 
@@ -96,7 +93,7 @@ RvAPI::RvAPI(QObject *parent) :
             qWarning() << "Invalid profile JSON" << profileName;
             continue;
         }
-        QVariantMap profileMap=json.object().toVariantMap();  
+        QVariantMap profileMap=json.object().toVariantMap();
 
         OrganizationItem *org=new OrganizationItem();
         foreach(const QString &field, fields) {
@@ -147,10 +144,6 @@ RvAPI::RvAPI(QObject *parent) :
     m_order_status_str.insert(OrderItem::Processing, "processing");
     m_order_status_str.insert(OrderItem::Shipped, "completed");
     m_order_status_str.insert(OrderItem::Cart, "cart");
-
-#ifdef STATIC_COLOR_MODEL
-
-#endif
 }
 
 RvAPI::~RvAPI()
@@ -251,7 +244,7 @@ void RvAPI::requestError(QNetworkReply::NetworkError code)
 void RvAPI::uploadProgress(qint64 bytes, qint64 total)
 {
     quint8 p;
-    //QNetworkReply * reply = qobject_cast<QNetworkReply*>(sender());    
+    //QNetworkReply * reply = qobject_cast<QNetworkReply*>(sender());
 
     if (total==0 || bytes==0)
         p=0;
@@ -559,7 +552,7 @@ void RvAPI::parseErrorResponse(int code, QNetworkReply::NetworkError e, RequestO
         emit requestFailure(500, QNetworkReply::UnknownServerError, tr("Invalid server response"));
         return;
     }
-    QVariantMap data=v.value("data").toMap();    
+    QVariantMap data=v.value("data").toMap();
 
     if (op==AuthLogin || code==403) {
         setAuthentication(false);
@@ -608,32 +601,26 @@ void RvAPI::parseErrorResponse(int code, QNetworkReply::NetworkError e, RequestO
     emit requestFailure(code, e, m_msg);
 }
 
-void RvAPI::parseCategoryMap(const QString key, CategoryModel &model, QVariantMap &tmp)
-{
-    CategoryModel::FeatureFlags flags;
+#define checkFlag(_key, _flag) { if (tmp.contains(_key)) flags.setFlag(_flag, tmp.value(_key).toBool()); }
 
+void RvAPI::parseCategoryMap(const QString key, CategoryModel &model, QVariantMap &tmp, CategoryModel::FeatureFlags flags)
+{    
     //QString id=tmp.value("id").toString();
 
-    if (tmp.value("hasSize").toBool())
-        flags|=CategoryModel::HasSize;
-    if (tmp.value("hasWeight").toBool())
-        flags|=CategoryModel::HasWeight;
-    if (tmp.value("hasColor").toBool())
-        flags|=CategoryModel::HasColor;
-    if (tmp.value("hasStock").toBool())
-        flags|=CategoryModel::HasStock;
-    if (tmp.value("hasAuthor").toBool())
-        flags|=CategoryModel::HasAuthor;
-    if (tmp.value("hasMakeAndModel").toBool())
-        flags|=CategoryModel::HasMakeAndModel;
-    if (tmp.value("hasISBN").toBool())
-        flags|=CategoryModel::HasISBN;
-    if (tmp.value("hasEAN").toBool())
-        flags|=CategoryModel::HasEAN;
-    if (tmp.value("hasPrice").toBool())
-        flags|=CategoryModel::HasPrice;
-    if (tmp.value("hasValue").toBool())
-        flags|=CategoryModel::HasValue;
+    checkFlag("hasSize", CategoryModel::HasSize);
+    checkFlag("hasWeight", CategoryModel::HasWeight);
+    checkFlag("hasColor", CategoryModel::HasColor);
+
+    checkFlag("hasStock", CategoryModel::HasStock);
+    checkFlag("hasAuthor", CategoryModel::HasAuthor);
+    checkFlag("hasMakeAndModel", CategoryModel::HasMakeAndModel);
+
+    checkFlag("hasISBN", CategoryModel::HasISBN);
+    checkFlag("hasEAN", CategoryModel::HasEAN);
+
+    checkFlag("hasPrice", CategoryModel::HasPrice);
+    checkFlag("hasValue", CategoryModel::HasValue);
+    checkFlag("hasPurpose", CategoryModel::HasPurpose);
 
     model.addCategory(key, tmp.value("name").toString(), flags);
 
@@ -645,7 +632,7 @@ void RvAPI::parseCategoryMap(const QString key, CategoryModel &model, QVariantMa
             i.next();
             QVariantMap cmap=i.value().toMap();
 
-            parseCategoryMap(i.key(), *cm, cmap);
+            parseCategoryMap(i.key(), *cm, cmap, flags);
         }
         m_subcategorymodels.insert(key, cm);
     }
@@ -795,8 +782,9 @@ bool RvAPI::parseCategoryData(QVariantMap &data)
     while (i.hasNext()) {
         i.next();
         QVariantMap cmap=i.value().toMap();
+        CategoryModel::FeatureFlags default_flags;
 
-        parseCategoryMap(i.key(), m_categorymodel, cmap);
+        parseCategoryMap(i.key(), m_categorymodel, cmap, default_flags);
     }
 
     return true;

@@ -462,7 +462,7 @@ private:
     bool parseLogin(QVariantMap &data);
     bool parseLogout();
     bool parseFileDownload(const QByteArray &data);
-    void parseCategoryMap(const QString key, CategoryModel &model, QVariantMap &tmp);    
+    void parseCategoryMap(const QString key, CategoryModel &model, QVariantMap &tmp, CategoryModel::FeatureFlags flags);
     bool parseOrderCreated(QVariantMap &data);
     bool parseOrders(QVariantMap &data);    
     bool parseOrderStatusUpdate(QVariantMap &data);
