@@ -15,9 +15,12 @@ ToolBar {
     // Automatic page pop on back button. Set to false to get signal instead
     property bool enableBackPop: true
 
+    property alias backIcon: backButton.icon.source
+
     property alias enableActionButton: actionBtn.enabled
     property alias visibleActionButton: actionBtn.visible
     property alias actionIcon: actionBtn.icon.source
+    property alias actionText: actionBtn.text
 
     property alias enableMenuButton: menuBtn.enabled
     property alias visibleMenuButton: menuBtn.visible
