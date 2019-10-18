@@ -5,6 +5,7 @@ import QtQuick.Layouts 1.3
 RowLayout {
     Layout.fillHeight: false
     Layout.alignment: Qt.AlignTop
+    Layout.margins: 4
     spacing: 8
 
     property alias model: productColor.model
