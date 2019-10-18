@@ -253,6 +253,7 @@ ApplicationWindow {
             anchors.fill: parent
             spacing: 16
             Image {
+                id: rwLogo
                 Layout.fillWidth: true
                 source: "qrc:/images/logo.png"
                 smooth: true
@@ -265,20 +266,21 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 visible: isLogged
                 anchors.margins: 8
-                font.pixelSize: 22
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                text: qsTr("Welcome")
-            }
-
-            Label {
-                Layout.fillWidth: true
-                visible: isLogged
-                anchors.margins: 8
                 font.pixelSize: 20
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
-                text: root.username
+                text: qsTr("Welcome") + " " + root.username
+            }
+
+            Image {
+                id: orgLogo
+                visible: isLogged
+                Layout.fillWidth: true
+                source: imageLogo
+                smooth: true
+                sourceSize.width: 64
+                sourceSize.height: 64
+                fillMode: Image.PreserveAspectFit
             }
 
             Label {
