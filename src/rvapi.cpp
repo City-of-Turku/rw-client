@@ -23,7 +23,6 @@
 //#define DATA_DEBUG 1
 //#define JSON_DEBUG 1
 //#define SECURE_DEBUG 1
-//#define DUMMY_CATEGORIES 1
 
 // We disable network cache as there seem to be some issues with stale data when network errors happen
 //#define ENABLE_CACHE 1
@@ -110,28 +109,6 @@ RvAPI::RvAPI(QObject *parent) :
 
     m_isonline=m_netconf->isOnline();
     emit isOnlineChanged(m_isonline);
-
-    // Dummy categories for development purposes
-#ifdef DUMMY_CATEGORIES
-    m_categorymodel.addCategory("", "", CategoryModel::InvalidCategory);
-    m_categorymodel.addCategory("huonekalu", "Huonekalu", CategoryModel::HasSize | CategoryModel::HasWeight | CategoryModel::HasColor);
-    m_categorymodel.addCategory("sekalaista", "Sekalaista", 0);
-
-    CategoryModel *cm;
-    cm=new CategoryModel("huonekalu", this);
-    cm->addCategory("tuoli", "Tuoli", CategoryModel::HasSize | CategoryModel::HasWeight| CategoryModel::HasColor);
-    cm->addCategory("hylly", "Hylly", CategoryModel::HasSize | CategoryModel::HasWeight| CategoryModel::HasColor);
-    cm->addCategory("poyta", "Pöytä", CategoryModel::HasSize | CategoryModel::HasWeight| CategoryModel::HasColor);
-    cm->addCategory("sohva", "Sohva", CategoryModel::HasSize | CategoryModel::HasWeight| CategoryModel::HasColor);
-    cm->addCategory("lipasto", "Lipasto", CategoryModel::HasSize | CategoryModel::HasWeight| CategoryModel::HasColor);
-    cm->addCategory("pulpetti", "Pulpetti", CategoryModel::HasSize | CategoryModel::HasWeight| CategoryModel::HasColor);
-    cm->addCategory("kaappi", "Kaappi", CategoryModel::HasSize | CategoryModel::HasWeight| CategoryModel::HasColor);
-    cm->addCategory("rulokaappi", "Kaappi/Rulokaappi", CategoryModel::HasSize | CategoryModel::HasWeight| CategoryModel::HasColor);
-    cm->addCategory("hyllykaappi", "Kaappi/Hyllykaappi", CategoryModel::HasSize | CategoryModel::HasWeight| CategoryModel::HasColor);
-    cm->addCategory("vaatekaappi", "Kaappi/Vaatekaappi", CategoryModel::HasSize | CategoryModel::HasWeight| CategoryModel::HasColor);
-    cm->addCategory("huonemuu", "Muu", CategoryModel::HasSize | CategoryModel::HasWeight| CategoryModel::HasColor);
-    m_subcategorymodels.insert("huonekalu", cm);
-#endif
 
     // Valid product attributes
     m_attributes << "width" << "height" << "depth" << "weight" << "color" << "ean" << "isbn" << "purpose" << "manufacturer" << "model" << "author" << "location" << "locationdetail";
