@@ -40,6 +40,7 @@ include(profile.pri)
 HEADERS += \
     src/coloritem.h \
     src/colormodel.h \
+    src/eanvalidator.h \
     src/organizationitem.h \
     src/organizationmodel.h \
     src/rvapi.h \
@@ -60,6 +61,7 @@ HEADERS += \
 SOURCES += src/main.cpp \
     src/coloritem.cpp \
     src/colormodel.cpp \
+    src/eanvalidator.cpp \
     src/organizationitem.cpp \
     src/organizationmodel.cpp \
     src/rvapi.cpp \
