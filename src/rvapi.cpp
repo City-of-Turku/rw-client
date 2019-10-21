@@ -133,7 +133,8 @@ RvAPI::RvAPI(QObject *parent) :
     m_subcategorymodels.insert("huonekalu", cm);
 #endif
 
-    m_attributes << "width" << "height" << "depth" << "weight" << "color" << "ean" << "isbn" << "purpose" << "make" << "model" << "author" << "location" << "locationdetail";
+    // Valid product attributes
+    m_attributes << "width" << "height" << "depth" << "weight" << "color" << "ean" << "isbn" << "purpose" << "manufacturer" << "model" << "author" << "location" << "locationdetail";
 
     m_taxes << "0%" << "24%" << "14%" << "10%";
     m_tax_model.setStringList(m_taxes);
@@ -1454,7 +1455,7 @@ void RvAPI::addCommonProductParameters(QHttpMultiPart *mp, ProductItem *product)
         addParameter(mp, QStringLiteral("price"), num.setNum(p,'f',2));
         addParameter(mp, QStringLiteral("tax"), product->getTax());
     }
-    // Add attributes
+    // Validate and add attributes
     // XXX: We don't check for category required attributes here, should we bother ?
     for (int i = 0; i < m_attributes.size(); i++) {
         QString a=m_attributes.at(i);
