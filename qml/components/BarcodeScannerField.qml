@@ -21,6 +21,7 @@ RowLayout {
     property alias placeholderText: barcodeText.placeholderText
     property alias validator: barcodeText.validator
     property alias acceptableInput: barcodeText.acceptableInput
+    property alias inputMethodHints: barcodeText.inputMethodHints
 
     BarcodeField {
         id: barcodeText
@@ -45,6 +46,15 @@ RowLayout {
         icon.source: "qrc:/images/icon_camera.png"
         onClicked: {
             rootStack.push(cameraScanner);
+        }
+    }
+
+    RoundButton {
+        text: qsTr("Clear")
+        visible: barcodeText.acceptableInput
+        icon.source: "qrc:/images/icon_delete.png"
+        onClicked: {
+            barcodeText.clear()
         }
     }
 
