@@ -641,6 +641,7 @@ Page {
                             TextField {
                                 id: productTitle
                                 Layout.fillWidth: true
+                                selectByMouse: true
                                 leftPadding: 4
                                 inputMethodHints: Qt.ImhNoPredictiveText
                                 placeholderText: qsTr("Product summary, title")
@@ -679,6 +680,7 @@ Page {
                                     id: productDescription
                                     textFormat: TextEdit.PlainText
                                     wrapMode: TextEdit.Wrap
+                                    selectByMouse: true
                                     width: parent.width
                                     placeholderText: qsTr("Enter product description")
                                 }
@@ -700,6 +702,7 @@ Page {
                 // Images and capture interface
                 ColumnLayout {
                     id: images
+                    Layout.margins: 4
 
                     property bool isActive: SwipeView.isCurrentItem;
                     property bool isFirstVisit: true;
@@ -851,8 +854,6 @@ Page {
                 // Extra attributes
                 ColumnLayout {
                     id: attributes
-                    Layout.fillWidth: true
-                    Layout.fillHeight: false
                     Layout.alignment: Qt.AlignTop
 
                     Text {
@@ -924,9 +925,8 @@ Page {
 
                 // Extras
                 ColumnLayout {
-                    Layout.fillWidth: true
-                    Layout.fillHeight: false
                     Layout.alignment: Qt.AlignTop
+                    Layout.margins: 4
 
                     ColumnLayout {
                         id: makeAndModel
@@ -1117,10 +1117,10 @@ Page {
         }
 
         if (categoryHasMakeAndModel) {
-            if (productMake.editText!='') {
-                p.setAttribute("manufacturer", productMake.editText)
-                if (find(productMake.editText) === -1)
-                    productMake.model.append({text: productMake.editText})
+            if (productMake.currentText!='') {
+                p.setAttribute("manufacturer", productMake.currentText)
+                if (find(productMake.currentText) === -1)
+                    productMake.model.append({text: productMake.currentText})
             }
 
             if (productModel.text!='')
