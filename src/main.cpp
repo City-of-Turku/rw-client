@@ -17,6 +17,7 @@
 
 #include "rwnetworkaccessmanagerfactory.h"
 #include "rvapi.h"
+#include "eanvalidator.h"
 #include "itemlistmodel.h"
 #include "settings.h"
 #include "apputility.h"
@@ -90,6 +91,7 @@ int main(int argc, char *argv[])
     qmlRegisterType<OrderItem>("net.ekotuki", 1,0, "OrderItem");
     qmlRegisterType<OrderLineItem>("net.ekotuki", 1,0, "OrderLineItem");
     qmlRegisterType<RvAPI>("net.ekotuki", 1,0, "ServerApi");
+    qmlRegisterType<EANValidator>("net.ekotuki", 1,0, "EanValidator");
 
     qmlRegisterUncreatableType<CategoryModel>("net.ekotuki", 1, 0, "CategoryModel", "Used in C++ only");
     qmlRegisterUncreatableType<ItemListModel>("net.ekotuki", 1, 0, "ItemModel", "Used in C++ only");
