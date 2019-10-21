@@ -11,12 +11,12 @@ ListModel {
 
     ListElement { manufacturer: "Acer"; }
     ListElement { manufacturer: "Lenovo"; }
-    ListElement { manufacturer: "Hewlett Packard"; }
-    ListElement { manufacturer: "Lenovo"; }
+    ListElement { manufacturer: "Hewlett Packard"; }    
     ListElement { manufacturer: "Canon"; }
     ListElement { manufacturer: "Casio"; }
     ListElement { manufacturer: "Sony"; }
     ListElement { manufacturer: "Onkyo"; }
+    ListElement { manufacturer: "Integra"; }
     ListElement { manufacturer: "Yamaha"; }
 
     ListElement { manufacturer: "QOMO"; }
@@ -25,6 +25,7 @@ ListModel {
     ListElement { manufacturer: "Electrolux"; }
     ListElement { manufacturer: "AEG"; }
     ListElement { manufacturer: "Bosch"; }
+    ListElement { manufacturer: "Braun"; }
     ListElement { manufacturer: "Zebra"; }
     ListElement { manufacturer: "Samsung"; }
     ListElement { manufacturer: "LG"; }
