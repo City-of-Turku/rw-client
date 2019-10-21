@@ -978,9 +978,8 @@ Page {
                                 scannerEnabled: categoryHasEAN
                                 isOptional: true
                                 placeholderText: qsTr("Type or scan EAN")
-                                validator: RegExpValidator {
-                                    regExp: /[0-9]{10,13}/
-                                }
+                                inputMethodHints:  Qt.ImhNoPredictiveText | Qt.ImhPreferNumbers
+                                validator: EanValidator { }
                             }
                         }
                         RowLayout {
@@ -990,9 +989,8 @@ Page {
                                 isOptional: true
                                 placeholderText: qsTr("Type or scan ISBN")
                                 scannerEnabled: categoryHasISBN
-                                validator: RegExpValidator {
-                                    regExp: /[0-9]{10,13}/
-                                }
+                                inputMethodHints:  Qt.ImhNoPredictiveText | Qt.ImhPreferNumbers
+                                validator: EanValidator { }
                             }
                         }
                     }
