@@ -469,6 +469,8 @@ private:
     bool parseCart(QVariantMap &data);
     bool parseCartCheckout(QVariantMap &data);
 
+    void clearSession();
+
     void setBusy(bool busy);       
 
     const QUrl createRequestUrl(const QString &endpoint, const QString &detail=nullptr);

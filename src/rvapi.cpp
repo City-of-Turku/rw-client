@@ -148,7 +148,7 @@ RvAPI::RvAPI(QObject *parent) :
 
 RvAPI::~RvAPI()
 {    
-    clearProductStore();
+    clearSession();
 }
 
 void RvAPI::clearCache()
@@ -1250,7 +1250,9 @@ bool RvAPI::createSimpleAuthenticatedPutRequest(const QString opurl, RequestOps 
  *
  */
 bool RvAPI::login()
-{    
+{
+    clearSession();
+
     if (m_url.isEmpty()) {
         qWarning("API urls is not set ");
         return false;
@@ -1296,6 +1298,8 @@ bool RvAPI::loginCancel()
  */
 bool RvAPI::logout()
 {
+    clearSession();
+
     if (isRequestActive(AuthLogout))
         return false;
 
@@ -1310,6 +1314,25 @@ bool RvAPI::logout()
     queueRequest(post(request, mp), AuthLogout);
 
     return true;
+}
+
+void RvAPI::clearSession()
+{
+    clearProductStore();
+    clearProductFilters();
+
+    m_categorymodel.clear();
+
+    m_cartmodel.clear();
+    m_ordersmodel.clear();
+    m_orders.clear();
+
+    m_locations.clear();
+    m_color_model.clear();
+    m_roles.clear();
+
+    m_cappversion=0;
+    m_apk.clear();
 }
 
 bool RvAPI::hasRole(const QString &role)
