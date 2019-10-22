@@ -106,9 +106,7 @@ RvAPI::RvAPI(QObject *parent) :
     // Monitor network connection
     m_netconf=new QNetworkConfigurationManager();
     QObject::connect(m_netconf, SIGNAL(onlineStateChanged(bool)), this, SLOT(onNetworkOnlineChanged(bool)));
-
-    m_isonline=m_netconf->isOnline();
-    emit isOnlineChanged(m_isonline);
+    onNetworkOnlineChanged(m_netconf->isOnline());
 
     // Valid product attributes
     m_attributes << "width" << "height" << "depth" << "weight" << "color" << "ean" << "isbn" << "purpose" << "manufacturer" << "model" << "author" << "location" << "locationdetail";
