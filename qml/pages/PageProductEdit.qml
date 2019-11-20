@@ -803,9 +803,20 @@ Page {
                                 rotation: appUtil.getImageRotation(image);
                             }
 
+                            // Visualy show image load error, for example on Android if storage permissions arent granted properly
+                            Rectangle {
+                                anchors.fill: parent;
+                                color: "red"
+                                visible: thumb.status==Image.Error
+                                Text {
+                                    anchors.centerIn: parent
+                                    text: qsTr("Image load error")
+                                }
+                            }
+
                             Menu {
                                 id: imageMenu
-                                title: "Product image"
+                                title:  qsTr("Image")
                                 modal: true
                                 dim: true
                                 x: parent.width/3
