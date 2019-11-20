@@ -25,6 +25,18 @@
 #ifdef Q_OS_ANDROID
 #include "androidhelper.h"
 #include <QtAndroidExtras/QtAndroid>
+
+const QVector<QString> required_permissions(
+{
+            "android.permission.ACCESS_COARSE_LOCATION",
+            "android.permission.ACCESS_FINE_LOCATION",
+            "android.permission.CAMERA",
+            "android.permission.INTERNET",
+            "android.permission.ACCESS_NETWORK_STATE",
+            "android.permission.WRITE_EXTERNAL_STORAGE",
+            "android.permission.READ_EXTERNAL_STORAGE"
+});
+static QVariantMap checked_permissions;
 #endif
 
 #define VERSION "0.0.13"
@@ -100,20 +112,41 @@ int main(int argc, char *argv[])
     qmlRegisterUncreatableType<ColorModel>("net.ekotuki", 1, 0, "ColorModel", "Used in C++ only");
     qmlRegisterUncreatableType<OrganizationModel>("net.ekotuki", 1, 0, "OrganizationModel", "Used in C++ only");
 
-#ifdef Q_OS_ANDROID
-    AndroidHelper android;
-    engine.rootContext()->setContextProperty("android", &android);
-#endif
-
     engine.rootContext()->setContextProperty("settings", &settings);
     engine.rootContext()->setContextProperty("appVersion", appversion);
     engine.rootContext()->setContextProperty("appName", QCoreApplication::applicationName());
     engine.rootContext()->setContextProperty("appTitle", apptitle);
-    engine.rootContext()->setContextProperty("appVersionCode", appvcode);    
+    engine.rootContext()->setContextProperty("appVersionCode", appvcode);
     engine.rootContext()->setContextProperty("appUtil", &apputil);
 
     // For setting API key for custom QtQuick NetworkAccessManagerFactory
     engine.rootContext()->setContextProperty("appNAM", nam);
+
+#ifdef Q_OS_ANDROID
+    AndroidHelper android;
+    engine.rootContext()->setContextProperty("android", &android);
+
+    for (const QString &permission : required_permissions) {
+        auto result = QtAndroid::checkPermission(permission);
+
+        qDebug() << "AndroidPermissionCheck" << permission << (result==QtAndroid::PermissionResult::Granted ? "Granted" : "Denied");
+
+        if (result == QtAndroid::PermissionResult::Denied) {
+            auto resultHash = QtAndroid::requestPermissionsSync(QStringList({permission}));
+            if (resultHash[permission] == QtAndroid::PermissionResult::Denied) {
+                checked_permissions.insert(permission, false);
+            } else {
+                checked_permissions.insert(permission, true);
+            }
+        } else {
+            checked_permissions.insert(permission, true);
+        }
+    }
+    qDebug() << "Android permissions" << checked_permissions;
+    engine.rootContext()->setContextProperty("permissions", checked_permissions);
+#else
+
+#endif
 
     engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 
