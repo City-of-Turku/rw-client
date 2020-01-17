@@ -14,6 +14,8 @@ Page {
     property alias username: textUsername.text
     property alias password: textPassword.text
 
+    property bool canLogin: root.home!='' && textUsername.acceptableInput && textPassword.acceptableInput
+
     signal loginRequested(string username, string password)
     signal loginCanceled()
 
@@ -120,24 +122,18 @@ Page {
                         model: api.orgModel
                         Layout.fillWidth: true
                         onActivated: {
-                            var tmp=model.get(currentIndex);
-                            console.debug(tmp.code)
-                            root.setOrganization(tmp)
-                            console.debug(currentIndex)
-                        }
-                        onCurrentIndexChanged: console.debug(currentIndex)
+                            var tmp=model.get(currentIndex);                            
+                            root.setOrganization(tmp);
+                        }                        
                         Component.onDestruction: model=undefined; // Note: We must clear it, otherwise fails second time around
                         Component.onCompleted: {
-                            var i=model.indexKey(root.home)                            
-                            console.debug("ORG: "+i)
-                            currentIndex=i-1; // XXX Hmm,
-
-                            console.debug("ORG: "+root.home)
+                            var i=model.indexKey(root.home);
+                            currentIndex=i-1;
                         }
                     }
 
                     Button {
-                        visible: !api.authenticated && root.apiRegistrationUrl!=''
+                        visible: !api.authenticated && root.apiRegistrationUrl!='' && !loginActive
                         text: qsTr("Register")
                         Layout.alignment: Qt.AlignHCenter | Qt.AlignTop
                         onClicked: {
@@ -157,7 +153,7 @@ Page {
                     TextField {
                         id: textUsername
                         Layout.alignment: Qt.AlignHCenter
-                        enabled: !loginActive && orgSelector.currentIndex!=-1
+                        enabled: !loginActive && root.home!=''
                         placeholderText: qsTr("Your username")
                         focus: true                        
                         inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText | Qt.ImhEmailCharactersOnly
@@ -184,7 +180,7 @@ Page {
                     }
                     TextField {
                         id: textPassword
-                        enabled: !loginActive && orgSelector.currentIndex!=-1
+                        enabled: textUsername.enabled
                         maximumLength: 32
                         placeholderText: qsTr("Your Password")
                         Layout.alignment: Qt.AlignHCenter
@@ -211,7 +207,7 @@ Page {
                         Button {
                             text: qsTr("Login")
                             Layout.fillWidth: true;
-                            enabled: textUsername.acceptableInput && textPassword.acceptableInput && !loginActive
+                            enabled: canLogin && !loginActive
                             onClicked: {
                                 doLogin();
                             }
