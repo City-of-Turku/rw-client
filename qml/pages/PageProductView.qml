@@ -258,10 +258,11 @@ Page {
                             visible: product.stock!=1
                             value: product.stock
                         }
+                        // Physical size display, in Width/Depth/Height order
                         DetailItem {
-                            label: qsTr("Size (WxHxD)")
+                            label: qsTr("Size (WxDxH)")
                             visible: product.hasAttribute("depth") && product.hasAttribute("width") && product.hasAttribute("height")
-                            value: product.getAttribute("width")+"cm x " + product.getAttribute("height")+"cm x " + product.getAttribute("depth")+"cm"
+                            value: product.getAttribute("width")+"cm x " + product.getAttribute("depth")+"cm x" + product.getAttribute("height")+"cm"
                         }
                         DetailItem {
                             label: qsTr("Weight")
