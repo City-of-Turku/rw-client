@@ -199,7 +199,7 @@ Page {
 
         // Browse mode
         Label {
-            visible: searchResults.count==0 && !searchVisible && !isInitialView
+            visible: searchResults.count==0 && !searchVisible && !isInitialView && !api.busy
             text: qsTr("No products available in selected category")
             wrapMode: Text.Wrap
             font.pixelSize: 32
@@ -207,7 +207,7 @@ Page {
         }
 
         Label {
-            visible: searchResults.count==0 && searchString.length!=0 && !searchActive && !isInitialView
+            visible: searchResults.count==0 && searchString.length!=0 && !searchActive && !isInitialView && !api.busy
             text: qsTr("No products found")
             wrapMode: Text.Wrap
             font.pixelSize: 32
@@ -215,7 +215,7 @@ Page {
         }
 
         Label {
-            visible: searchResults.count==0 && isInitialView
+            visible: searchResults.count==0 && isInitialView && !api.busy
             text: qsTr("No products available")
             wrapMode: Text.Wrap
             font.pixelSize: 32
