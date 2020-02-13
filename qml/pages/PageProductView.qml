@@ -255,7 +255,7 @@ Page {
                         }
                         DetailItem {
                             label: qsTr("Stock")
-                            visible: product.stock!=1
+                            visible: product.stock>0
                             value: product.stock
                         }
                         // Physical size display, in Width/Depth/Height order
