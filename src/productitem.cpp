@@ -22,6 +22,7 @@ ProductItem::ProductItem(const QString &barcode, const QString &title, const QSt
     , m_title(title)        
     , m_description(description)
     , m_stock(1)
+    , m_warehouse(0)
     , m_tax(0)
     , m_price(0.0)
     , m_keepImages(true)
@@ -43,6 +44,11 @@ ProductItem* ProductItem::fromVariantMap(QVariantMap &data, QObject *parent)
         qWarning() << "Failed to get product ID, invalid data ? " << data;
 
     p->m_uid=data["uid"].toString().toUInt();
+
+    if (data.contains("warehouse"))
+        p->m_warehouse=data["warehouse"].toString().toUInt();
+    else
+        p->m_warehouse=0;
 
     if (data.contains("stock"))
         p->m_stock=data["stock"].toString().toDouble();
@@ -125,6 +131,11 @@ uint ProductItem::getOwner() const
 uint ProductItem::getStock() const
 {
     return m_stock;
+}
+
+uint ProductItem::getWarehouse() const
+{
+    return m_warehouse;
 }
 
 QDateTime ProductItem::getCreated() const

@@ -14,7 +14,7 @@ Page {
     property bool landscape: height<width
 
     property bool toolsEnabled: true
-    property bool editEnabled: false
+    property bool editEnabled: api.hasRole("product")
     property bool cartDisabled: false
     property bool cartEnabled: api.hasRole("order") && !cartDisabled
 
@@ -38,7 +38,7 @@ Page {
                 visible: enabled
                 enabled: editEnabled
                 onClicked: {
-                    rootStack.push(productEdit)
+                    rootStack.push(productEdit, { "product": product })
                 }
             }
             ToolButton {

@@ -21,7 +21,8 @@ class ProductItem : public QObject
     Q_PROPERTY(QString thumbnail READ thumbnail NOTIFY thumbnailChanged)
     Q_PROPERTY(QString category READ category WRITE setCategory NOTIFY categoryChanged)
     Q_PROPERTY(QString subCategory READ subCategory WRITE setSubCategory NOTIFY subCategoryChanged)
-    Q_PROPERTY(uint stock READ getStock NOTIFY stockChanged)    
+    Q_PROPERTY(uint stock READ getStock NOTIFY stockChanged)
+    Q_PROPERTY(uint warehouse READ getWarehouse NOTIFY warehouseChanged)
 
     // XXX:
     Q_PROPERTY(double price READ getPrice WRITE setPrice NOTIFY priceChanged)
@@ -44,6 +45,7 @@ public:
     Q_INVOKABLE const QString getDescription() const;
     Q_INVOKABLE uint getOwner() const;
     Q_INVOKABLE uint getStock() const;
+    Q_INVOKABLE uint getWarehouse() const;
     Q_INVOKABLE QDateTime getCreated() const;
 
     Q_INVOKABLE void addImage(const QVariant image, const ImageSource source);
@@ -135,6 +137,8 @@ signals:
 
     void stockChanged(uint stock);
 
+    void warehouseChanged(uint warehouse);
+
     void attributesChanged(const QString key, const QVariant value);
 
     void taxChanged(uint tax);
@@ -176,6 +180,7 @@ private:
     QString m_thumbnail;
 
     uint m_stock;
+    uint m_warehouse;
 
     uint m_tax;
     double m_price;

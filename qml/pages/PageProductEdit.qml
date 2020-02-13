@@ -120,6 +120,13 @@ Page {
         return false;
     }
 
+    Component.onCompleted: {
+        barcodeText.forceActiveFocus();
+        if (product) {
+            populateProduct(product);
+        }
+    }
+
     onLocationIDChanged: {
         var l=locationPopup.model.getId(locationID)
         console.debug(l)
@@ -138,7 +145,7 @@ Page {
                 locationID=defaultWarehouse;
             }
         }
-    }
+    }        
 
     function saveInProgress() {
         isSaving=true;
@@ -260,10 +267,6 @@ Page {
         onRejected: {
             console.debug("*** Save canceled");
         }
-    }
-
-    Component.onCompleted: {
-        barcodeText.forceActiveFocus();
     }
 
     MessagePopup {
@@ -503,11 +506,16 @@ Page {
                                 placeHolder: qsTr("Category")
                                 Layout.fillWidth: true
 
+                                // Main category can NOT be changed so don't allow it when editing existing product
+                                enabled: !hasProduct
+
+                                model: root.api.getCategoryModel();
+
                                 // XXX lets allow always?
                                 // enabled: barcodeText.acceptableInput
                                 textRole: "category"
                                 Component.onCompleted: {
-                                    model=root.api.getCategoryModel();
+                                    //model=f
                                 }
                                 onCurrentIndexChanged: {
                                     console.debug("CategoryIndex: "+currentIndex)
@@ -688,7 +696,7 @@ Page {
                             SpinBoxLabel {
                                 id: productStock
                                 visible: categoryHasStock
-                                value: hasProduct ? product.stock : 1
+                                value: 1
                                 from: 1
                                 to: 500
                                 label: qsTr("Stock amount")
@@ -829,6 +837,7 @@ Page {
 
                                 MenuItem {
                                     text: qsTr("Remove image")
+                                    enabled: !hasProduct
                                     onClicked: {
                                         // XXX: Remove the file itself too
                                         imageModel.remove(index)
@@ -836,7 +845,7 @@ Page {
                                 }
 
                                 MenuItem {
-                                    enabled: false
+                                    enabled: false && !hasProduct
                                     text: "Edit"
                                     onClicked: {
 
@@ -881,11 +890,9 @@ Page {
                         Layout.alignment: Layout.Center
 
                         PriceField {
-                            Layout.minimumWidth: 120
-                            Layout.maximumWidth: 200
-
                             id: productPrice
-                            text: hasProduct ? product.price : ''
+                            Layout.minimumWidth: 120
+                            Layout.maximumWidth: 200                                                        
                         }
                         ComboBox {
                             id: productTax
@@ -901,9 +908,8 @@ Page {
                         Layout.alignment: Layout.Center
 
                         PriceField {
-                            Layout.fillWidth: true
                             id: productValue
-                            text: hasProduct ? product.value : ''
+                            Layout.fillWidth: true
                             isOptional: true;
                             placeholderText: qsTr("Product value")
                         }
@@ -1024,7 +1030,7 @@ Page {
         anchors.rightMargin: 32
         anchors.bottomMargin: 32
         height: 32
-        property bool maybeVisible: images.isActive && canAddImages
+        property bool maybeVisible: images.isActive && canAddImages && !hasProduct
         visible: maybeVisible && imageModel.count>0
         opacity: maybeVisible ? 1 : 0;
         RoundButton {
@@ -1058,6 +1064,83 @@ Page {
         onLocationIDChanged: productEditPage.locationID=locationID
         onRefresh: api.requestLocations();
         hasLocationDetail: categoryHasLocationDetail
+    }
+
+    function populateProduct(p) {
+        productTitle.text=p.title;
+        productDescription.text=p.description;
+        barcodeText.text=p.barcode;
+
+        // We let the magic do it
+        //categoryID=p.category;
+        //categorySubID=p.subCategory;
+
+        // XXX rewrite when categorymodel uses the genericmodel as base!!!
+        var cm=root.api.getCategoryModel();
+        var cmc=cm.count;
+
+        for (var i=0;i<cmc;i++) {            
+            var c=cm.get(i);
+
+            console.debug(i+" "+p.category+" "+c.cid)
+
+            if (c.cid===p.category) {
+                console.debug("FOUND! "+c.category)
+                categorySelection.currentIndex=i;
+                break;
+            }
+        }
+
+        // xxx images?
+        for (var i=0;i<p.images.length;i++) {
+            console.debug("Image: "+p.images[i]);
+            imageModel.addImage(p.images[i], Product.RemoteSource);
+        }
+
+        if (categoryHasPurpose && p.hasAttribute("purpose"))
+            purposeID=p.getAttribute("purpose")
+
+        // XXX API does not give this... duh
+        if (categoryHasLocation) {
+            //locationID=p.getAttribute("location")
+            //if (categoryHasLocationDetail)
+            //    locationDetail=p.getAttribute("locationdetail")
+        }
+
+        // XXX
+        if (categoryHasColor && p.hasAttribute("color")) {
+            var tmp=p.getAttribute("color");
+            var col=tmp.split(";");
+            for (var i=0;i<col.length;i++) {
+                console.debug(col[i])
+            }
+        }
+
+        if (categoryHasEAN && p.hasAttribute("ean"))
+            productEAN.text=p.getAttribute("ean")
+
+        if (categoryHasISBN && p.hasAttribute("isbn"))
+            productISBN.text=p.getAttribute("isbn")
+
+        if (categoryHasSize && p.hasAttribute("width")) {
+            productSize.itemWidth=p.getAttribute("width")
+            productSize.itemHeight=p.getAttribute("height")
+            productSize.itemDepth=p.getAttribute("depth")
+        }
+        if (categoryHasWeight && p.hasAttribute("weight")) {
+            productSize.itemWeight=p.getAttribute("weight")
+        }
+
+        if (categoryHasValue && p.hasAttribute("value")) {
+            productValue.price=p.getAttribute("value")
+        }
+
+        if (categoryHasStock) {
+            productStock.value=p.getStock();
+        } else {
+            productStock.value=1;
+        }
+
     }
 
     function createProduct() {

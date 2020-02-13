@@ -903,7 +903,7 @@ bool RvAPI::parseLogin(QVariantMap &data)
     m_lastlogin=QDateTime::fromSecsSinceEpoch(data["access"].toString().toLong());
 
     // We only care about the string values
-    m_roles=data.value("roles").toList();
+    m_roles=data.value("roles").toList();    
 
     setAuthentication(true);
     emit loginSuccesfull();
