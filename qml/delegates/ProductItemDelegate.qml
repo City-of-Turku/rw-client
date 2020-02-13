@@ -99,26 +99,30 @@ Rectangle {
             height: ic.height+16
         }
 
-        Column {
+        ColumnLayout {
             id: ic
             spacing: 2
             width: r.width-32
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.margins: 8
-            //leftPadding: 4
-            //rightPadding: 4
             anchors.bottom: r.bottom
 
-            Text {
-                //Layout.alignment: Qt.AlignTop
-                width: parent.width
-                text: productTitle
-                font.pixelSize: 18
-                //wrapMode: Text.Wrap
-                //maximumLineCount: 2
-                elide: Text.ElideRight
+            RowLayout {
+                id: ns
+                Text {
+                    Layout.fillWidth: true
+                    text: productTitle
+                    font.pixelSize: 18
+                    //wrapMode: Text.Wrap
+                    //maximumLineCount: 2
+                    elide: Text.ElideRight
+                }
+                Badge {
+                    Layout.fillWidth: false
+                    text: stock
+                }
             }
-            Text {                
+            Text {
                 text: price.toFixed(2)+ " €"
                 visible: price>0
                 font.pixelSize: 12
@@ -134,14 +138,6 @@ Rectangle {
                 maximumLineCount: 1
                 fontSizeMode: Text.HorizontalFit
                 minimumPixelSize: 12
-            }
-            Text {
-                // visible: stock>1 && !compact
-                font.pixelSize: 12
-                minimumPixelSize: 10
-                fontSizeMode: Text.HorizontalFit
-                color: "#181818"
-                text: qsTr("Stock: ")+stock
             }
         }
 
