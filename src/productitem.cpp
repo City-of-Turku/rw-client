@@ -38,6 +38,7 @@ ProductItem* ProductItem::fromVariantMap(QVariantMap &data, QObject *parent)
     p->setTitle(data["title"].toString());
     p->setCategory(data["category"].toString());
     p->setSubCategory(data["subcategory"].toString());
+    p->setDescription(data["description"].toString());
 
     p->m_id=data["id"].toString().toUInt();
     if (p->m_id==0)
@@ -45,8 +46,8 @@ ProductItem* ProductItem::fromVariantMap(QVariantMap &data, QObject *parent)
 
     p->m_uid=data["uid"].toString().toUInt();
 
-    if (data.contains("warehouse"))
-        p->m_warehouse=data["warehouse"].toString().toUInt();
+    if (data.contains("location"))
+        p->m_warehouse=data["location"].toString().toUInt();
     else
         p->m_warehouse=0;
 
@@ -111,6 +112,11 @@ ProductItem* ProductItem::fromVariantMap(QVariantMap &data, QObject *parent)
         p->setAttribute("manufacturer", data["manufacturer"].toString());
 
     return p;
+}
+
+bool ProductItem::isNew() const
+{
+    return m_id==0 ? true : false;
 }
 
 ProductItem::~ProductItem()
