@@ -106,7 +106,8 @@ Page {
         isSaving=false;
         if (saved) {
             savingPopup.close();
-            if (addMoreEnabled) {
+            // Ask for more only if it was a new product
+            if (addMoreEnabled && !hasProduct) {
                 addMoreProducts.open();
                 return false;
             }
@@ -1091,7 +1092,6 @@ Page {
             }
         }
 
-        // xxx images?
         for (var i=0;i<p.images.length;i++) {
             console.debug("Image: "+p.images[i]);
             imageModel.addImage(p.images[i], Product.RemoteSource);
@@ -1100,11 +1100,15 @@ Page {
         if (categoryHasPurpose && p.hasAttribute("purpose"))
             purposeID=p.getAttribute("purpose")
 
-        // XXX API does not give this... duh
         if (categoryHasLocation) {
-            //locationID=p.getAttribute("location")
-            //if (categoryHasLocationDetail)
-            //    locationDetail=p.getAttribute("locationdetail")
+            locationID=p.getWarehouse();
+            var i=locationsModel.findLocationByID(locationID);
+            console.debug("Location index is: "+i)
+            if (i>-1)
+                locationPopup.currentIndex=i;
+
+            if (categoryHasLocationDetail && p.hasAttribute("locationdetail"))
+                locationDetail=p.getAttribute("locationdetail")
         }
 
         // XXX
@@ -1140,22 +1144,39 @@ Page {
         } else {
             productStock.value=1;
         }
-
     }
 
+    // Create a new product from filled data
     function createProduct() {
-        var p=productTemplate.createObject(null, {
-                                               title: productTitle.text,
-                                               description: productDescription.text,
-                                               barcode: barcodeText.text,
-                                               category: categoryID,
-                                               subCategory: categorySubID
-                                           })
-        p.keepImages=keepImages;
+        var p=newProduct();
+        fillProduct(p);
+        return p;
+    }
 
+    // Create a new product item
+    function newProduct() {
+        return productTemplate.createObject(null, {});
+    }
+
+    function addProductImages(p) {
         for (var i=0;i<imageModel.count;i++) {
             var s=imageModel.get(i);
             p.addImage(s.image, s.source);
+        }
+    }
+
+    // Fill product with filled data
+    function fillProduct(p) {
+        p.title=productTitle.text;
+        p.description=productDescription.text;
+
+        // Set information that can be changed only for new items
+        if (p.isNew()) {
+            p.barcode=barcodeText.text;
+            p.category=categoryID;
+            p.subCategory=categorySubID;
+            p.keepImages=keepImages;
+            addProductImages(p)
         }
 
         if (categoryHasPurpose)

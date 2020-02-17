@@ -38,7 +38,7 @@ Page {
                 visible: enabled
                 enabled: editEnabled
                 onClicked: {
-                    rootStack.push(productEdit, { "product": product })
+                    rootStack.push(productEdit, { "product": product, "locationsModel": api.getLocationsModel() })
                 }
             }
             ToolButton {
@@ -50,7 +50,7 @@ Page {
                     if (!api.addToCart(product.barcode, 1)) {
                         messagePopup.show(qsTr("Cart error"), qsTr("Failed to add product to cart"))
                     } else {
-
+                        editEnabled=false;
                     }
                 }
             }
@@ -60,7 +60,26 @@ Page {
     Component {
         id: productEdit
         PageProductEdit {
+            id: modifyPage
             product: productView.product
+            keepImages: true
+            addMoreEnabled: false            
+
+            onRequestProductSave: {
+                console.debug("*** Product update save")
+                product=modifyPage.fillProduct(product);
+
+                console.debug("*** Updating product to API")
+                var rs=api.updateProduct(product);
+                if (rs)
+                    modifyPage.saveInProgress();
+                else
+                    modifyPage.saveFailed();
+            }
+
+            Component.onCompleted: {
+                api.getLocationsModel().clearFilter();
+            }
         }
     }
 
@@ -137,7 +156,8 @@ Page {
             id: f
             clip: true
             contentHeight: c.height
-            width: productView.width
+            //contentWidth: c.width
+            //width: productView.width
             flickableDirection: Flickable.VerticalFlick
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -148,19 +168,19 @@ Page {
                 id: c
                 Layout.alignment: Qt.AlignTop | Qt.AlignLeft
                 width: parent.width
+                spacing: 4
 
                 RowLayout {
                     id: imageRow
-                    Layout.minimumHeight: productView.height/2
+                    Layout.minimumHeight: productView.height/3
                     Layout.maximumHeight: productView.height/1.5
-                    width: parent.width
-                    Layout.fillHeight: true
+                    Layout.fillHeight: true                    
 
                     ListView {
                         id: productImagesList
                         clip: true
                         Layout.fillWidth: true
-                        Layout.minimumHeight: productView.height/2
+                        Layout.minimumHeight: productView.height/3
                         Layout.maximumHeight: productView.height/1.4
                         orientation: ListView.Horizontal
                         model: productImagesModel
@@ -168,7 +188,6 @@ Page {
                         snapMode: ListView.SnapOneItem
                         highlightRangeMode: ListView.StrictlyEnforceRange
                         ScrollIndicator.horizontal: ScrollIndicator { }
-
                         PageIndicator {
                             count: productImagesList.model.count
                             currentIndex: productImagesList.currentIndex
@@ -187,7 +206,7 @@ Page {
                                 id: thumbnail
                                 asynchronous: true
                                 sourceSize.width: 512
-                                anchors.fill: parent                                                              
+                                anchors.fill: parent
                                 //fillMode: Image.PreserveAspectCrop
                                 fillMode: Image.PreserveAspectFit
                                 source: api.getImageUrl(productImage)
@@ -196,8 +215,8 @@ Page {
                                 MouseArea {
                                     anchors.fill: parent
                                     enabled: thumbnail.status==Image.Ready
-                                    onClicked: {                                        
-                                        rootStack.push(imageDisplayPageComponent, { image: thumbnail.source })                                        
+                                    onClicked: {
+                                        rootStack.push(imageDisplayPageComponent, { image: thumbnail.source })
                                     }
                                     onPressAndHold: {
 
@@ -215,34 +234,37 @@ Page {
                     }
                 }
 
-                Pane {
-                    //title: "Product description"
+                Frame {
                     visible: product.description!==''
                     Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    Text {
-                        id: productDescription
-                        Layout.fillWidth: true
-                        text: product.description
-                        maximumLineCount: 10
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-
+                    ColumnLayout {
+                        width: parent.width
+                        Text {
+                            Layout.fillWidth: true
+                            id: productDescription
+                            text: product.description
+                            maximumLineCount: 3
+                            anchors.margins: 16
+                            font.pixelSize: 18
+                            wrapMode: Text.WordWrap
+                            elide: Text.ElideRight
+                            textFormat: Text.PlainText
+                            MouseArea {
+                                anchors.fill: parent
+                                onClicked: {
+                                    productDescription.maximumLineCount=999;
+                                }
                             }
                         }
                     }
                 }
 
-                Pane {
+                Frame {
                     id: attributes
-                    // title: qsTr("Product attributes")
-                    visible: product.hasAttributes();
                     Layout.fillWidth: true
-                    Layout.fillHeight: true
+                    visible: product.hasAttributes();
                     ColumnLayout {
-                        Layout.alignment: Qt.AlignTop
-                        Layout.fillWidth: true
+                        width: parent.width
                         DetailItem {
                             label: qsTr("Price")
                             visible: product.price>0
@@ -274,7 +296,7 @@ Page {
                             label: qsTr("Color");
                             visible: product.hasAttribute("color")
                             value: getColorString(product.getAttribute("color"))
-                            function getColorString(ca) {                                
+                            function getColorString(ca) {
                                 if (!ca)
                                     return 'N/A'
                                 else
