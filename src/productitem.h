@@ -39,6 +39,7 @@ public:
 
     enum ImageSource { UnknownSource=0, CameraSource, GallerySource, RemoteSource };
 
+    Q_INVOKABLE bool isNew() const;
     Q_INVOKABLE uint getID() const;
     Q_INVOKABLE const QString getBarcode() const;
     Q_INVOKABLE const QString getTitle() const;
