@@ -200,6 +200,12 @@ bool ProductItem::clearAttribute(const QString key)
     return r;
 }
 
+QVariantMap ProductItem::getAttributes() const
+{
+    qDebug() << m_attributes;
+    return m_attributes;
+}
+
 void ProductItem::setStock(uint stock)
 {
     if (m_stock==stock)

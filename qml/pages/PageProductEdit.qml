@@ -84,9 +84,13 @@ Page {
     property int purposeID: 0
     property string colorID: ""
 
-    property string colorsIdentifiers: productColor.colorID+";"+productColor2.colorID+";"+productColor3.colorID
+    property string colorsIdentifiers: makeColorIdentified(productColor.colorID, productColor2.colorID, productColor3.colorID);
 
-    onColorsIdentifiersChanged: console.debug(colorsIdentifiers)
+    function makeColorIdentified(c1,c2,c3) {
+        if (c1=='')
+            return '';
+        return c1+";"+c2+";"+c3;
+    }
 
     property int locationID;
     property string locationDetail: ""   
@@ -101,11 +105,14 @@ Page {
     // Ask to add more similar items
     property bool addMoreEnabled: true
 
+    property variant colorEditors: []
+
     // The requestProductSave() handler should call this function to signal if the operation was a success or not
     function confirmProductSave(saved, product, msg) {
         isSaving=false;
-        if (saved) {
-            savingPopup.close();
+        savingPopup.close();
+
+        if (saved) {            
             // Ask for more only if it was a new product
             if (addMoreEnabled && !hasProduct) {
                 addMoreProducts.open();
@@ -117,15 +124,22 @@ Page {
         }
         console.debug("*** Saved failed")
         messagePopup.show(qsTr("Saving failed"),msg, 500); //XXX
-        savingPopup.close();
+
         return false;
     }
 
-    Component.onCompleted: {
-        barcodeText.forceActiveFocus();
+    Component.onCompleted: {        
+        colorEditors[0]=productColor;
+        colorEditors[1]=productColor2;
+        colorEditors[2]=productColor3;
+
         if (product) {
-            populateProduct(product);
+            if (populateProduct(product)==false) {
+                messagePopup.show(qsTr("Internal error"), qsTr("Failed to populate product fields"), 0);
+            }
         }
+
+        barcodeText.forceActiveFocus();
     }
 
     onLocationIDChanged: {
@@ -288,7 +302,7 @@ Page {
 
     onCategorySubIDChanged: {
         console.debug(categorySubID)
-    }
+    }        
 
     Component {
         id: pictureCamera
@@ -506,22 +520,39 @@ Page {
                                 invalidIndex: 0
                                 placeHolder: qsTr("Category")
                                 Layout.fillWidth: true
-
                                 // Main category can NOT be changed so don't allow it when editing existing product
                                 enabled: !hasProduct
-
-                                model: root.api.getCategoryModel();
-
-                                // XXX lets allow always?
-                                // enabled: barcodeText.acceptableInput
+                                model: root.api.getCategoryModel();                                
                                 textRole: "category"
-                                Component.onCompleted: {
-                                    //model=f
-                                }
                                 onCurrentIndexChanged: {
-                                    console.debug("CategoryIndex: "+currentIndex)
+                                    console.debug("onCurrentIndexChanged: "+currentIndex)
                                     updateCategoryData();
                                 }
+
+                                function selecteCategory(cid, scid) {
+                                    var cmc=model.count;
+
+                                    for (var i=0;i<cmc;i++) {
+                                        var c=model.get(i);
+
+                                        console.debug(i+" "+cid+" "+c.cid)
+
+                                        if (c.cid===cid) {
+                                            console.debug("CategoryFound! "+c.category)
+                                            categorySelection.currentIndex=i;
+                                            updateCategoryData();
+                                            break;
+                                        }
+                                    }
+
+                                    if (subCategorySelection.model) {
+                                        console.debug("Sub category model is available and sub category is: "+scid)
+                                        subCategorySelection.selecteCategory(scid)
+                                    } else {
+
+                                    }
+                                }
+
                                 function updateCategoryData() {
                                     var cdata=categorySelection.model.get(currentIndex);
                                     if (!cdata || currentIndex==0) {
@@ -550,7 +581,7 @@ Page {
                             // This is the specific category
                             ComboBoxLabel {
                                 id: subCategorySelection
-                                visible: enabled && model && model.count>0
+                                visible: model && model.count>0
                                 enabled: categorySelection.enabled && categorySelection.currentIndex>0 && model
                                 textRole: "category"
                                 placeHolder: qsTr("Subcategory")
@@ -572,6 +603,22 @@ Page {
                                     categoryFlags=cdata.flags;
                                     categorySubID=cdata.cid;
                                     productTitle.setDefaultProductTitle("", cdata.category)
+                                }
+                                function selecteCategory(cid) {
+                                    var cmc=model.count;
+
+                                    for (var i=0;i<cmc;i++) {
+                                        var c=model.get(i);
+
+                                        console.debug(i+" "+cid+" "+c.cid)
+
+                                        if (c.cid===cid) {
+                                            console.debug("SubCategoryFound: "+c.category)
+                                            subCategorySelection.currentIndex=i;
+                                            updateSubcategory();
+                                            break;
+                                        }
+                                    }
                                 }
                             }
 
@@ -1072,25 +1119,13 @@ Page {
         productDescription.text=p.description;
         barcodeText.text=p.barcode;
 
+        p.getAttributes();
+
         // We let the magic do it
         //categoryID=p.category;
         //categorySubID=p.subCategory;
 
-        // XXX rewrite when categorymodel uses the genericmodel as base!!!
-        var cm=root.api.getCategoryModel();
-        var cmc=cm.count;
-
-        for (var i=0;i<cmc;i++) {            
-            var c=cm.get(i);
-
-            console.debug(i+" "+p.category+" "+c.cid)
-
-            if (c.cid===p.category) {
-                console.debug("FOUND! "+c.category)
-                categorySelection.currentIndex=i;
-                break;
-            }
-        }
+        categorySelection.selecteCategory(p.category, p.subCategory)
 
         for (var i=0;i<p.images.length;i++) {
             console.debug("Image: "+p.images[i]);
@@ -1113,10 +1148,13 @@ Page {
 
         // XXX
         if (categoryHasColor && p.hasAttribute("color")) {
-            var tmp=p.getAttribute("color");
-            var col=tmp.split(";");
+            var col=p.getAttribute("color");
+            console.debug(col)
+            console.debug(col.length)
             for (var i=0;i<col.length;i++) {
-                console.debug(col[i])
+                console.debug(i+" "+col[i])
+                var ri=colorEditors[i].setColor(col[i]);
+                console.debug(ri)
             }
         }
 
@@ -1144,6 +1182,8 @@ Page {
         } else {
             productStock.value=1;
         }
+
+        return true;
     }
 
     // Create a new product from filled data
@@ -1167,6 +1207,9 @@ Page {
 
     // Fill product with filled data
     function fillProduct(p) {
+
+        p.getAttributes();
+
         p.title=productTitle.text;
         p.description=productDescription.text;
 
@@ -1179,8 +1222,9 @@ Page {
             addProductImages(p)
         }
 
-        if (categoryHasPurpose)
+        if (categoryHasPurpose && purposeID>0) {
             p.setAttribute("purpose", purposeID)
+        }
 
         if (categoryHasLocation) {
             p.setAttribute("location", locationID)
@@ -1189,16 +1233,7 @@ Page {
         }
 
         if (categoryHasColor) {
-            var c;
-            if (productColor.colorID!='') {
-                c=productColor.colorID;
-                if (productColor2.colorID!='')
-                    c+=";"+productColor2.colorID;
-                if (productColor2.colorID!='' && productColor3.colorID!='')
-                    c+=";"+productColor3.colorID;
-
-                p.setAttribute("color", c)
-            }
+            p.setAttribute("color", colorsIdentifiers)
         }
 
         if (categoryHasEAN && productEAN.text!='')

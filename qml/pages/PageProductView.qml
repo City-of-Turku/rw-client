@@ -69,12 +69,26 @@ Page {
                 console.debug("*** Product update save")
                 product=modifyPage.fillProduct(product);
 
+                console.debug(product.getAttributes())
+
                 console.debug("*** Updating product to API")
                 var rs=api.updateProduct(product);
                 if (rs)
                     modifyPage.saveInProgress();
                 else
                     modifyPage.saveFailed();
+            }
+
+            Connections {
+                target: api
+                onProductSaved: {
+                    if (modifyPage.confirmProductSave(true, null, "")) {
+
+                    }
+                }
+                onProductFail: {
+                    modifyPage.confirmProductSave(false, null, msg);
+                }
             }
 
             Component.onCompleted: {
@@ -205,7 +219,7 @@ Page {
                             Image {
                                 id: thumbnail
                                 asynchronous: true
-                                sourceSize.width: 512
+                                sourceSize.width: 1024
                                 anchors.fill: parent
                                 //fillMode: Image.PreserveAspectCrop
                                 fillMode: Image.PreserveAspectFit
@@ -237,6 +251,7 @@ Page {
                 Frame {
                     visible: product.description!==''
                     Layout.fillWidth: true
+                    Layout.margins: 8
                     ColumnLayout {
                         width: parent.width
                         Text {
@@ -248,11 +263,11 @@ Page {
                             font.pixelSize: 18
                             wrapMode: Text.WordWrap
                             elide: Text.ElideRight
-                            textFormat: Text.PlainText
+                            textFormat: Text.PlainText                            
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: {
-                                    productDescription.maximumLineCount=999;
+                                    productDescription.maximumLineCount=(productDescription.maximumLineCount==3 ? undefined : 3);
                                 }
                             }
                         }
@@ -262,6 +277,7 @@ Page {
                 Frame {
                     id: attributes
                     Layout.fillWidth: true
+                    Layout.margins: 8
                     visible: product.hasAttributes();
                     ColumnLayout {
                         width: parent.width

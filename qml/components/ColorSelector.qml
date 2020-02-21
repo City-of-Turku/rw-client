@@ -12,6 +12,18 @@ RowLayout {
     property string colorID;
     property alias colorIndex: productColor.currentIndex
 
+    function setColor(cid) {        
+        for (var i=0;i<model.count;i++) {
+            var tmp=model.get(i);
+            if (tmp.cid===cid) {
+                colorID=tmp.cid;
+                productColor.currentIndex=i;
+                return i;
+            }
+        }
+        return -1;
+    }
+
     Rectangle {
         id: colorIndicator
         height: productColor.height

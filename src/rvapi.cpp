@@ -1502,12 +1502,14 @@ bool RvAPI::addProduct(ProductItem *product)
  * @return
  *
  * Update information of given ProductItem. The product must have a valid barcode to identify it.
- * XXX: Untested at this time
  *
  */
 bool RvAPI::updateProduct(ProductItem *product)
 {
     if (!m_authenticated)
+        return false;
+
+    if (product->getBarcode().isEmpty())
         return false;
 
     if (isRequestActive(ProductUpdate))
@@ -1521,11 +1523,8 @@ bool RvAPI::updateProduct(ProductItem *product)
 
     addCommonProductParameters(mp, product);
 
-    // XXX: Needs to be implemented fully
-    // XXX: How to handle images add/remove ?
-
     request.setUrl(url);
-    queueRequest(put(request, mp), ProductUpdate);
+    queueRequest(post(request, mp), ProductUpdate);
 
     return true;
 }

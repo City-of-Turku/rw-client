@@ -57,6 +57,7 @@ public:
     Q_INVOKABLE QVariant getAttribute(const QString key) const;
     Q_INVOKABLE void setAttribute(const QString key, const QVariant value);
     Q_INVOKABLE bool clearAttribute(const QString key);
+    Q_INVOKABLE QVariantMap getAttributes() const;
 
     Q_INVOKABLE void setStock(uint stock);
     Q_INVOKABLE void setTitle(QString title);

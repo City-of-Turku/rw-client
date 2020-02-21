@@ -43,6 +43,7 @@ RowLayout {
     RoundButton {
         text: qsTr("Scan")
         enabled: !barcodeText.acceptableInput && scannerEnabled
+        visible: scannerEnabled
         icon.source: "qrc:/images/icon_camera.png"
         onClicked: {
             rootStack.push(cameraScanner);
@@ -51,7 +52,7 @@ RowLayout {
 
     RoundButton {
         text: qsTr("Clear")
-        visible: barcodeText.acceptableInput
+        visible: barcodeText.acceptableInput && scannerEnabled
         icon.source: "qrc:/images/icon_delete.png"
         onClicked: {
             barcodeText.clear()

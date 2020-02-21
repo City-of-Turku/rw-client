@@ -56,7 +56,13 @@ bool ItemListModel::append(const QString barcode)
 
 bool ItemListModel::update(ProductItem *item)
 {
-    Q_UNUSED(item)
+    if (!m_data.contains(item->barcode()))
+            return false;
+
+    beginResetModel();
+
+    endResetModel();
+
     return false;
 }
 
