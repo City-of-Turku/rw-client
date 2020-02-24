@@ -60,7 +60,7 @@ Rectangle {
                 anchors.left: i.left
                 anchors.margins: 4
                 size: i.width/4
-                purpose: model.purpose;
+                purpose: model.purpose!=undefined ? model.purpose : 0;
             }
             ProgressBar {
                 width: i.width/2
