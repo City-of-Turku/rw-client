@@ -211,6 +211,8 @@ void RvAPI::requestError(QNetworkReply::NetworkError code)
         break;
     case QNetworkReply::OperationCanceledError:
         break;
+    case QNetworkReply::ProtocolInvalidOperationError:
+        break;
     default:
         qWarning() << "Unhandled request error: " << code;
         break;
@@ -823,15 +825,22 @@ bool RvAPI::parseProductData(QVariantMap &data, const QNetworkAccessManager::Ope
         emit productDeleted(data["barcode"].toString());
         return true;
     case QNetworkAccessManager::GetOperation: {
-
         ProductItem *p=ProductItem::fromVariantMap(data, this);
         m_product_store.insert(p->barcode(), p);
+        if (m_itemsmodel.contains(p->barcode()))
+            m_itemsmodel.update(p);
+        else
+            m_itemsmodel.append(p);
         emit productFound(p);
     }
         return true;
     case QNetworkAccessManager::PostOperation: {
         ProductItem *p=ProductItem::fromVariantMap(data, this);
         m_product_store.insert(p->barcode(), p);
+        if (m_itemsmodel.contains(p->barcode()))
+            m_itemsmodel.update(p);
+        else
+            m_itemsmodel.prepend(p);
         emit productSaved(p, true);
     }
         return true;
@@ -980,8 +989,10 @@ bool RvAPI::parseOKResponse(RequestOps op, const QByteArray &response, const QNe
     }
     case RvAPI::Product:
     case RvAPI::ProductAdd:
-    case RvAPI::ProductUpdate:
-        return parseProductData(data, method);
+    case RvAPI::ProductUpdate: {
+        QVariantMap product=data.value("response").toMap();
+        return parseProductData(product, method);
+    }
     case RvAPI::Products: {
         bool r=parseProductsData(data);
         emit searchCompleted(m_hasMore, r);

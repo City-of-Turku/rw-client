@@ -59,9 +59,11 @@ bool ItemListModel::update(ProductItem *item)
     if (!m_data.contains(item->barcode()))
             return false;
 
-    beginResetModel();
+    int i=m_data.indexOf(item->barcode());
 
-    endResetModel();
+    QModelIndex index=createIndex(i,1);
+
+    emit dataChanged(index, index);
 
     return false;
 }
