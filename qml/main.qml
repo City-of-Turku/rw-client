@@ -578,6 +578,15 @@ ApplicationWindow {
                 if (!tempProduct) {
                     console.debug("*** Failed to get product!")
                     editPage.saveFailed();
+                    messagePopup.show(qsTr("Saving failed"), qsTr("Product creation failed"), 500);
+                    return;
+                }
+
+                if (api.getItemModel().contains(tempProduct.barcode)) {
+                    console.debug("*** Product with barcode "+tempProduct.barcode+" already exists")
+                    editPage.saveFailed();
+                    messagePopup.show(qsTr("Saving failed"), qsTr("Product barcode must be unique"), 409);
+                    tempProduct.destroy();
                     return;
                 }
 

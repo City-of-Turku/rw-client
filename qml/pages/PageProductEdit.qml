@@ -123,7 +123,7 @@ Page {
             return true;
         }
         console.debug("*** Saved failed")
-        messagePopup.show(qsTr("Saving failed"),msg, 500); //XXX
+        messagePopup.show(qsTr("Saving failed"), msg, 500); //XXX
 
         return false;
     }
