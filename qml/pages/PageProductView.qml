@@ -292,6 +292,11 @@ Page {
                             value: product.getCreated().toLocaleDateString();
                         }
                         DetailItem {
+                            label: qsTr("Modified")
+                            visible: product.getCreated()<product.getModified()
+                            value: product.getModified().toLocaleDateString();
+                        }
+                        DetailItem {
                             label: qsTr("Stock")
                             visible: product.stock>0
                             value: product.stock

@@ -48,6 +48,7 @@ public:
     Q_INVOKABLE uint getStock() const;
     Q_INVOKABLE uint getWarehouse() const;
     Q_INVOKABLE QDateTime getCreated() const;
+    Q_INVOKABLE QDateTime getModified() const;
 
     Q_INVOKABLE void addImage(const QVariant image, const ImageSource source);
     Q_INVOKABLE void removeImages();
@@ -177,6 +178,7 @@ private:
     QString m_subcategory;
 
     QDateTime m_created;
+    QDateTime m_modified;
 
     QVariantMap m_attributes;
     QString m_thumbnail;

@@ -67,6 +67,7 @@ ProductItem* ProductItem::fromVariantMap(QVariantMap &data, QObject *parent)
         p->m_tax=0;
 
     p->m_created=QDateTime::fromSecsSinceEpoch(data["created"].toString().toLong());
+    p->m_modified=QDateTime::fromSecsSinceEpoch(data["modified"].toString().toLong());
 
     if (data.contains("value"))
         p->setAttribute("value", data["value"].toUInt());
@@ -147,6 +148,11 @@ uint ProductItem::getWarehouse() const
 QDateTime ProductItem::getCreated() const
 {
     return m_created;
+}
+
+QDateTime ProductItem::getModified() const
+{
+    return m_modified;
 }
 
 const QString ProductItem::getBarcode() const
