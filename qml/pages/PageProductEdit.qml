@@ -582,7 +582,7 @@ Page {
                             ComboBoxLabel {
                                 id: subCategorySelection
                                 visible: model && model.count>0
-                                enabled: categorySelection.enabled && categorySelection.currentIndex>0 && model
+                                enabled: (hasProduct || categorySelection.enabled) && categorySelection.currentIndex>0 && model
                                 textRole: "category"
                                 placeHolder: qsTr("Subcategory")
                                 Layout.fillWidth: true
@@ -1216,11 +1216,13 @@ Page {
         // Set information that can be changed only for new items
         if (p.isNew()) {
             p.barcode=barcodeText.text;
-            p.category=categoryID;
-            p.subCategory=categorySubID;
+            p.category=categoryID;            
             p.keepImages=keepImages;
             addProductImages(p)
         }
+
+        // Sub category can be changed
+        p.subCategory=categorySubID;
 
         if (categoryHasPurpose && purposeID>0) {
             p.setAttribute("purpose", purposeID)
