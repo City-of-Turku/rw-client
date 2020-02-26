@@ -24,7 +24,7 @@ Page {
 
     property bool isInitialView: true
 
-    property alias model: searchResults.model    
+    property alias model: searchResults.model
 
     signal searchRequested(string str, string category, int sort);
     signal searchBarcodeRequested(string barcode);
@@ -93,15 +93,15 @@ Page {
             searchResults.maybeTriggerLoadMore();
             event.accepted=true;
             break;
-        case Qt.Key_Space:            
+        case Qt.Key_Space:
             searchResults.flick(0, -searchResults.maximumFlickVelocity)
             event.accepted=true;
             break;
-        case Qt.Key_PageDown:            
+        case Qt.Key_PageDown:
             searchResults.flick(0, -searchResults.maximumFlickVelocity)
             event.accepted=true;
             break;
-        case Qt.Key_PageUp:            
+        case Qt.Key_PageUp:
             searchResults.flick(0, searchResults.maximumFlickVelocity)
             event.accepted=true;
             break;
@@ -112,8 +112,8 @@ Page {
         }
     }
 
-    Component.onCompleted: {        
-        model=root.api.getItemModel();        
+    Component.onCompleted: {
+        model=root.api.getItemModel();
         searchResults.currentIndex=-1;
         if (searchString.length>0) {
             console.debug("Created with pre-populated search string: "+searchString)
@@ -128,7 +128,7 @@ Page {
     Component.onDestruction: {
         console.debug("*** Destroy: "+objectName)
         //model.clear();
-    }      
+    }
 
     footer: ToolBar {
         RowLayout {
@@ -256,7 +256,7 @@ Page {
                 ProductItemDelegate {
                     width: searchResults.cellWidth
                     height: searchResults.cellHeight
-                    onClicked: {                        
+                    onClicked: {
                         productMenu.popup();
                     }
 
@@ -264,7 +264,7 @@ Page {
                         openProductAtIndex(index)
                     }
 
-                    onPressandhold: {                        
+                    onPressandhold: {
                         popupProductImageAtIndex(index);
                     }
 
@@ -298,7 +298,7 @@ Page {
                     }
 
                     function addProductAtIndexToCart(index) {
-                        var p=searchPage.model.get(index);                        
+                        var p=searchPage.model.get(index);
                         if (!api.addToCart(p.barcode, 1)) {
 
                         }
@@ -318,7 +318,7 @@ Page {
 
                     function popupProductImageAtIndex(index) {
                         var p=searchPage.model.get(index);
-                        imagePopup.showPopupImage(p.thumbnail)
+                        imagePopup.showPopupImage(p.title, p.thumbnail)
                     }
 
                     function popupProductImageClose() {
@@ -385,9 +385,11 @@ Page {
         rightMargin: 32
 
         property alias source: popupImage.source
+        property alias title: popupTitle.text
 
-        function showPopupImage(s) {
+        function showPopupImage(t, s) {
             console.debug("PopupImage: "+s)
+            popupTitle.text=t;
             popupImage.source=s;
             imagePopup.open();
         }
@@ -402,54 +404,61 @@ Page {
         x: Math.round((parent.width - width) / 2)
         y: Math.round((parent.height - height) / 2)
 
-        /* Text {
-            id: name
-            text: qsTr("Problem loading image")
-            font.pixelSize: 26
-            anchors.centerIn: parent
-            visible: popupImage.status==Image.Error
-        }*/
-
-        Image {
-            id: popupImage            
+        ColumnLayout {
             anchors.fill: parent
-            asynchronous: true
-            cache: false
-            smooth: true            
-            sourceSize.width: searchPage.width-64
-            sourceSize.height: searchPage.height-64
 
-            property double ratio: width/height
+            Text {
+                id: popupTitle
+                Layout.fillWidth: true
+                text: productTitle
+                horizontalAlignment: Text.AlignHCenter
+                font.pixelSize: 18
+                elide: Text.ElideMiddle
+            }
 
-            onStatusChanged: {
-                console.debug("popupImage:"+status)
-                switch (status) {
-                case Image.Ready:
-                    console.debug("Loaded")
-                    imagePopup.y=searchPage.height/2-imagePopup.height/2
-                    break;
-                case Image.Error:
-                    console.debug("Failed to load")
-                    //imagePopup.close();
-                    break;
-                case Image.Loading:
-                    console.debug("Loading")
-                    break;
+            Image {
+                id: popupImage
+                //anchors.fill: parent
+                Layout.fillWidth: true
+                asynchronous: true
+                cache: false
+                smooth: true
+                sourceSize.width: searchPage.width-64
+                sourceSize.height: searchPage.height-64
+
+                property double ratio: width/height
+
+                onStatusChanged: {
+                    console.debug("popupImage:"+status)
+                    switch (status) {
+                    case Image.Ready:
+                        console.debug("Loaded")
+                        imagePopup.y=searchPage.height/2-imagePopup.height/2
+                        break;
+                    case Image.Error:
+                        console.debug("Failed to load")
+                        //imagePopup.close();
+                        break;
+                    case Image.Loading:
+                        console.debug("Loading")
+                        break;
+                    }
+
                 }
 
+                MouseArea {
+                    anchors.fill: parent
+                    onReleased: imagePopup.close()
+                }
+                ProgressBar {
+                    width: popupImage.width/2
+                    height: 64
+                    anchors.centerIn: parent
+                    visible: popupImage.status==Image.Loading
+                    value: popupImage.progress
+                }
             }
 
-            MouseArea {
-                anchors.fill: parent
-                onReleased: imagePopup.close()
-            }
-            ProgressBar {
-                width: popupImage.width/2
-                height: 64
-                anchors.centerIn: parent
-                visible: popupImage.status==Image.Loading
-                value: popupImage.progress
-            }
         }
 
         onOpened: {
@@ -457,7 +466,7 @@ Page {
             forceActiveFocus();
         }
 
-        onClosed: {            
+        onClosed: {
             popupImage.source='';
         }
     }
@@ -523,7 +532,7 @@ Page {
             onValidSearchCriteriasChanged: console.debug("CanSearch: "+validSearchCriterias)
 
             function activateSearch() {
-                if (!validSearchCriterias) {                    
+                if (!validSearchCriterias) {
                     return false;
                 }
 
@@ -531,7 +540,7 @@ Page {
                 if (api.validateBarcode(searchString))
                     searchBarcodeRequested(searchString);
                 else
-                    searchRequested(searchString, categorySearchID, sortOrder);                
+                    searchRequested(searchString, categorySearchID, sortOrder);
                 return true;
             }
 
@@ -634,7 +643,7 @@ Page {
                             searchDrawer.close()
                     }
                 }
-                RoundButton {                    
+                RoundButton {
                     text: qsTr("Scan")
                     icon.source: "qrc:/images/icon_camera.png"
                     Layout.alignment: Qt.AlignCenter
@@ -677,7 +686,7 @@ Page {
         anchors.bottom: parent.bottom
         anchors.rightMargin: 16
         anchors.bottomMargin: 16
-        height: 48        
+        height: 48
         RoundButton {
             id: buttonUp
             text: qsTr("Up")
@@ -693,7 +702,7 @@ Page {
             id: buttonDown
             text: qsTr("Down")
             icon.source: "qrc:/images/icon_down.png"
-            property bool maybeVisible: searchResults.model && searchResults.model.count>10 && !searchResults.atYEnd            
+            property bool maybeVisible: searchResults.model && searchResults.model.count>10 && !searchResults.atYEnd
             visible: maybeVisible
             opacity: maybeVisible ? 1 : 0;
             onClicked: {
@@ -701,7 +710,7 @@ Page {
                 searchResults.maybeTriggerLoadMore();
             }
         }
-    }        
+    }
 
     BusyIndicator {
         id: busyIndicator
