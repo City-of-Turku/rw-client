@@ -316,12 +316,28 @@ Page {
                         DetailItem {
                             label: qsTr("Color");
                             visible: product.hasAttribute("color")
-                            value: getColorString(product.getAttribute("color"))
+                            value: "" // getColorString(product.getAttribute("color"))
                             function getColorString(ca) {
+                                console.debug(ca)
                                 if (!ca)
                                     return 'N/A'
                                 else
                                     return ca.join(); // XXX
+                            }
+                            Repeater {
+                                id: colorRepeater
+                                model: product.getAttribute("color")
+                                delegate: Rectangle {
+                                    width: 20
+                                    height: 20
+                                    color: colorRepeater.getColorCode(modelData)
+                                }
+                                function getColorCode(cid) {
+                                    var c=api.getColorModel().getKey(cid);
+                                    if (c)
+                                        return c.code;
+                                    return '';
+                                }
                             }
                         }
                         DetailItem {
