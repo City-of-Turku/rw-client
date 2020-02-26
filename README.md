@@ -8,31 +8,38 @@ barcodes for tracking products.
 Products can be just about anything, but in the scope of this project includes
 furniture, devices, etc
 
-Currently implemented features are:
+## Currently implemented features are:
 
-* Browsing available products
-* Searching of products
+* Search and browsing of available products
 * Adding products (picture, barcode, attributes)
+* Editing products (attributes)
+* Shopping cart and making orders (partial support)
+* Managing orders (role specific, all or your own)
 
-Planned features include
-* Making orders
-* Managing orders
+## Planned features:
 
-The client application is meant for Android devices, but should run as a desktop application too.
+* Editing of taken pictures (crop, contrast, brightness, gamma)
 
-The Android version has also been tested to run on deviecs with Android runtimes (Sailfish OS & BlackBerry 10)
+## Supported environments
+
+The client application is meant for Android devices, but runs just as well as 
+a desktop (Windows, Linux, macOS) application too. It should run on iOS devices.
+
+## External components
 
 Contains: 
+
 * A copy of qexifimageheader, originaly from Qt Extended 4.5
 * Pre-built Android armv7/aarch64 OpenSSL library binaries
 * Subway icons, https://github.com/mariuszostrowski/subway, CC-SA 4.0
 
 Requires (submodule):
+
 * qt5-barcodevideofilter, https://github.com/oniongarlic/qt5-barcodevideofilter
 
 # Background
 
-Part of a City of Turku internal furniture recycling pilot project, funded by City of Turku and Sitra.
+Part of a City of Turku internal recycling pilot project, funded by City of Turku and Sitra.
 
 # Requirements
 
@@ -61,16 +68,16 @@ See http://doc.qt.io/qt-5/qcoreapplication.html#applicationName-prop
 
 ## Building
 
-* Linux environment (not tested on OS X/Windows, but should work)
-* Qt 5.12.4 or later
+* Linux environment (Windows or macOS should work too)
+* Qt 5.12.7 or later
 * Android SDK & NDK
 
 ## Kits
 
-Configure the project to use Desktop 5.12.4 & Android armv7/aarch64/x86 5.12.4 Qt kits.
+Configure the project to use Desktop 5.12.7 & Android armv7/aarch64/x86 5.12.7 Qt kits.
 
 The source tree contains a pre-built OpenSSL 1.1.1 for armv7 and aarch64 Android that needs to be
-included when packaged for https connections to work.
+included when packaged for secure https connections to work.
 
 ## Debug build
 
