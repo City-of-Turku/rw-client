@@ -291,6 +291,7 @@ Page {
                         }
                         MenuItem {
                             text: qsTr("Add to cart")
+                            enabled: searchPage.model.get(index).stock>0
                             onClicked: {
                                 addProductAtIndexToCart(index);
                             }
