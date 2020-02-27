@@ -44,8 +44,8 @@ Page {
             ToolButton {
                 text: qsTr("Add to cart")
                 icon.source: "qrc:/images/icon_cart.png"
-                visible: enabled
-                enabled: cartEnabled
+                visible: cartEnabled
+                enabled: cartEnabled && product.stock>0
                 onClicked: {
                     if (!api.addToCart(product.barcode, 1)) {
                         messagePopup.show(qsTr("Cart error"), qsTr("Failed to add product to cart"))
