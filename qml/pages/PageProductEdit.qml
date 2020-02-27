@@ -1158,11 +1158,20 @@ Page {
             }
         }
 
+        if (categoryHasMakeAndModel) {
+            productMake.editText=p.getAttribute("manufacturer")
+            productModel.text=p.getAttribute("model")
+        }
+
         if (categoryHasEAN && p.hasAttribute("ean"))
             productEAN.text=p.getAttribute("ean")
 
         if (categoryHasISBN && p.hasAttribute("isbn"))
             productISBN.text=p.getAttribute("isbn")
+
+        if (categoryHasAuthor && p.hasAttribute("author")) {
+            productAuthor.text=p.getAttribute("author")
+        }
 
         if (categoryHasSize && p.hasAttribute("width")) {
             productSize.itemWidth=p.getAttribute("width")
