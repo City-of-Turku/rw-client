@@ -149,8 +149,10 @@ void ItemListModel::clear()
 
 ProductItem *ItemListModel::get(int index)
 {
-    if (index>m_data.size())
+    if (index>m_data.size() || index<0) {
+        qWarning() << "Invalid index" << index;
         return nullptr;
+    }
 
     const QString k=m_data.at(index);
     ProductItem *item=m_productstore->value(k);
@@ -160,8 +162,10 @@ ProductItem *ItemListModel::get(int index)
 
 bool ItemListModel::remove(int index)
 {
-    if (index>m_data.size() || index<0)
+    if (index>m_data.size() || index<0) {
+        qWarning() << "Invalid index" << index;
         return false;
+    }
 
     beginResetModel();
     m_data.removeAt(index);
