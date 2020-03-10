@@ -115,6 +115,24 @@ ProductItem* ProductItem::fromVariantMap(QVariantMap &data, QObject *parent)
     return p;
 }
 
+ProductItem* ProductItem::fromProduct(ProductItem &pi, QObject *parent)
+{
+    ProductItem *p=new ProductItem(parent);
+
+    p->setTitle(pi.title());
+    p->setCategory(pi.category());
+    p->setSubCategory(pi.subCategory());
+    p->setDescription(pi.description());
+
+    p->m_price=pi.m_price;
+    p->m_tax=pi.m_tax;
+    p->m_stock=pi.m_stock;
+    p->m_warehouse=pi.m_warehouse;
+    p->m_attributes=pi.m_attributes;
+
+    return p;
+}
+
 bool ProductItem::isNew() const
 {
     return m_id==0 ? true : false;

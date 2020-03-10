@@ -36,6 +36,7 @@ public:
     ~ProductItem();
 
     static ProductItem* fromVariantMap(QVariantMap &data, QObject *parent = nullptr);
+    static ProductItem *fromProduct(ProductItem &data, QObject *parent = nullptr);
 
     enum ImageSource { UnknownSource=0, CameraSource, GallerySource, RemoteSource };
 
