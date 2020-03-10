@@ -154,6 +154,7 @@ for(tsfile, TRANSLATIONS) {
 #QMAKE_EXTRA_TARGETS ''= ts-all
 
 DISTFILES += \
+    qml/components/BadgePrice.qml \
     qml/pages/PageCart.qml
 
 

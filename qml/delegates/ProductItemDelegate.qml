@@ -121,16 +121,12 @@ Rectangle {
                     Layout.fillWidth: false
                     text: stock
                 }
-            }
-            Text {
-                text: price.toFixed(2)+ " €"
-                visible: price>0
-                font.pixelSize: 12
-                color: "#181818"
-                maximumLineCount: 1
-                fontSizeMode: Text.HorizontalFit
-                minimumPixelSize: 12
-            }
+                BadgePrice {
+                    Layout.fillWidth: false
+                    amount: price
+                    visible: price>0
+                }
+            }            
             Text {
                 text: barcode
                 font.pixelSize: 12
