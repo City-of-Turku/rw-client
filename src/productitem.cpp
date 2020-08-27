@@ -1,6 +1,7 @@
 #include "productitem.h"
 
 #include <QDebug>
+#include <QFile>
 
 ProductItem::ProductItem(QObject *parent)
     : QObject(parent)
