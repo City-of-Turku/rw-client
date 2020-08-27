@@ -69,12 +69,12 @@ See http://doc.qt.io/qt-5/qcoreapplication.html#applicationName-prop
 ## Building
 
 * Linux environment (Windows or macOS should work too)
-* Qt 5.12.7 or later
+* Qt 5.15 or later
 * Android SDK & NDK
 
 ## Kits
 
-Configure the project to use Desktop 5.12.7 & Android armv7/aarch64/x86 5.12.7 Qt kits.
+Configure the project to use Desktop 5.15 & Android armv7/aarch64/x86 Qt kits.
 
 The source tree contains a pre-built OpenSSL 1.1.1 for armv7 and aarch64 Android that needs to be
 included when packaged for secure https connections to work.
