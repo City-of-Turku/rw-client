@@ -157,4 +157,6 @@ DISTFILES += \
     qml/components/BadgePrice.qml \
     qml/pages/PageCart.qml
 
+ANDROID_ABIS = armeabi-v7a arm64-v8a
+
 
