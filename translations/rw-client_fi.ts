@@ -960,22 +960,22 @@
         <translation>Paino</translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageProductView.qml" line="328"/>
+        <location filename="../qml/pages/PageProductView.qml" line="344"/>
         <source>EAN</source>
         <translation>EAN</translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageProductView.qml" line="333"/>
+        <location filename="../qml/pages/PageProductView.qml" line="349"/>
         <source>ISBN</source>
         <translation>ISBN</translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageProductView.qml" line="338"/>
+        <location filename="../qml/pages/PageProductView.qml" line="354"/>
         <source>Manufacturer</source>
         <translation>Valmistaja</translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageProductView.qml" line="343"/>
+        <location filename="../qml/pages/PageProductView.qml" line="359"/>
         <source>Model</source>
         <translation>Malli</translation>
     </message>
@@ -1000,7 +1000,7 @@
 <context>
     <name>PageSearch</name>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="628"/>
+        <location filename="../qml/pages/PageSearch.qml" line="638"/>
         <source>Search</source>
         <translation>Hae</translation>
     </message>
@@ -1066,12 +1066,12 @@
         <translation>Lisää ostoskoriin</translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="648"/>
+        <location filename="../qml/pages/PageSearch.qml" line="658"/>
         <source>Reset</source>
         <translation>Peru</translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="694"/>
+        <location filename="../qml/pages/PageSearch.qml" line="704"/>
         <source>Down</source>
         <translation>Alas</translation>
     </message>
@@ -1090,57 +1090,57 @@
         <translation>Näytä tuote</translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="367"/>
+        <location filename="../qml/pages/PageSearch.qml" line="368"/>
         <source>No more items.</source>
         <translation>Ei lisää tuotteita.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="487"/>
+        <location filename="../qml/pages/PageSearch.qml" line="497"/>
         <source>Type search string here</source>
         <translation>Kirjoita hakusana tähän</translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="512"/>
+        <location filename="../qml/pages/PageSearch.qml" line="522"/>
         <source>Clear</source>
         <translation>Tyhjennä</translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="571"/>
+        <location filename="../qml/pages/PageSearch.qml" line="581"/>
         <source>Sort order</source>
         <translation>Järjestä</translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="581"/>
+        <location filename="../qml/pages/PageSearch.qml" line="591"/>
         <source>Latest first</source>
         <translation>Vanhin ensin</translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="587"/>
+        <location filename="../qml/pages/PageSearch.qml" line="597"/>
         <source>Oldest first</source>
         <translation>Uusin ensin</translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="596"/>
+        <location filename="../qml/pages/PageSearch.qml" line="606"/>
         <source>Title A-Z</source>
         <translation>Nimi A-Ö</translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="602"/>
+        <location filename="../qml/pages/PageSearch.qml" line="612"/>
         <source>Title Z-A</source>
         <translation>Nimi Ö-A</translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="612"/>
+        <location filename="../qml/pages/PageSearch.qml" line="622"/>
         <source>Price high-low</source>
         <translation>Hinta korkea-matala</translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="618"/>
+        <location filename="../qml/pages/PageSearch.qml" line="628"/>
         <source>Price low-high</source>
         <translation>Hinta matala-korkea</translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="638"/>
+        <location filename="../qml/pages/PageSearch.qml" line="648"/>
         <source>Scan</source>
         <translation>Lue</translation>
     </message>
@@ -1158,7 +1158,7 @@
         <translation type="vanished">Hakutulokset</translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="683"/>
+        <location filename="../qml/pages/PageSearch.qml" line="693"/>
         <source>Up</source>
         <translation>Ylös</translation>
     </message>

@@ -739,22 +739,22 @@
         <translation>Färg</translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageProductView.qml" line="328"/>
+        <location filename="../qml/pages/PageProductView.qml" line="344"/>
         <source>EAN</source>
         <translation>EAN</translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageProductView.qml" line="333"/>
+        <location filename="../qml/pages/PageProductView.qml" line="349"/>
         <source>ISBN</source>
         <translation>ISBN</translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageProductView.qml" line="338"/>
+        <location filename="../qml/pages/PageProductView.qml" line="354"/>
         <source>Manufacturer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageProductView.qml" line="343"/>
+        <location filename="../qml/pages/PageProductView.qml" line="359"/>
         <source>Model</source>
         <translation type="unfinished"></translation>
     </message>
@@ -762,7 +762,7 @@
 <context>
     <name>PageSearch</name>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="628"/>
+        <location filename="../qml/pages/PageSearch.qml" line="638"/>
         <source>Search</source>
         <translation>Sök</translation>
     </message>
@@ -831,57 +831,57 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="512"/>
+        <location filename="../qml/pages/PageSearch.qml" line="522"/>
         <source>Clear</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="571"/>
+        <location filename="../qml/pages/PageSearch.qml" line="581"/>
         <source>Sort order</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="581"/>
+        <location filename="../qml/pages/PageSearch.qml" line="591"/>
         <source>Latest first</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="587"/>
+        <location filename="../qml/pages/PageSearch.qml" line="597"/>
         <source>Oldest first</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="596"/>
+        <location filename="../qml/pages/PageSearch.qml" line="606"/>
         <source>Title A-Z</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="602"/>
+        <location filename="../qml/pages/PageSearch.qml" line="612"/>
         <source>Title Z-A</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="612"/>
+        <location filename="../qml/pages/PageSearch.qml" line="622"/>
         <source>Price high-low</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="618"/>
+        <location filename="../qml/pages/PageSearch.qml" line="628"/>
         <source>Price low-high</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="638"/>
+        <location filename="../qml/pages/PageSearch.qml" line="648"/>
         <source>Scan</source>
         <translation type="unfinished">Läs</translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="648"/>
+        <location filename="../qml/pages/PageSearch.qml" line="658"/>
         <source>Reset</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="694"/>
+        <location filename="../qml/pages/PageSearch.qml" line="704"/>
         <source>Down</source>
         <translation type="unfinished"></translation>
     </message>
@@ -890,12 +890,12 @@
         <translation type="vanished">Laddar...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="367"/>
+        <location filename="../qml/pages/PageSearch.qml" line="368"/>
         <source>No more items.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="487"/>
+        <location filename="../qml/pages/PageSearch.qml" line="497"/>
         <source>Type search string here</source>
         <translation type="unfinished"></translation>
     </message>
@@ -904,7 +904,7 @@
         <translation type="vanished">Avbryt</translation>
     </message>
     <message>
-        <location filename="../qml/pages/PageSearch.qml" line="683"/>
+        <location filename="../qml/pages/PageSearch.qml" line="693"/>
         <source>Up</source>
         <translation type="unfinished"></translation>
     </message>
