@@ -847,8 +847,8 @@ ApplicationWindow {
             errorMessage(error, msg);
 
             // XXX: This should not be required
-            if (rootStack.currentItem.objectName=="productEdit")
-                rootStack.currentItem.confirmProductSave(false, 0, msg);
+            //if (rootStack.currentItem.objectName=="productEdit")
+            //    rootStack.currentItem.confirmProductSave(false, 0, msg);
 
             if (rootStack.currentItem.objectName=="login") {
                 rootStack.currentItem.reportLoginFailed();
