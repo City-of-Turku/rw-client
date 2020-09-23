@@ -28,9 +28,9 @@ defineTest(minQtVersion) {
     return(false)
 }
 
-!minQtVersion(5, 12, 0) {
+!minQtVersion(5, 14, 0) {
     message("Cannot build RW-Client with Qt version $${QT_VERSION}.")
-    error("Use at least Qt 5.12.0.")
+    error("Use at least Qt 5.14.0.")
 }
 
 # Create your own build profile first, copy profile.pri.sample to profile.pri
@@ -157,6 +157,7 @@ DISTFILES += \
     qml/components/BadgePrice.qml \
     qml/pages/PageCart.qml
 
-ANDROID_ABIS = armeabi-v7a arm64-v8a
+ANDROID_ABIS = armeabi-v7a
 
 
+android: include(/home/milang/Android/Sdk/android_openssl/openssl.pri)
