@@ -49,9 +49,16 @@ Page {
         Text {
             Layout.fillWidth: true
             horizontalAlignment: Text.AlignHCenter
-            font.pixelSize: 16
+            font.pixelSize: 14
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             text: "Uses icons from the Subway icon set\nCC BY 4.0"
+        }
+        Text {
+            Layout.fillWidth: true
+            horizontalAlignment: Text.AlignHCenter
+            font.pixelSize: 14
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+            text: "Maps © OpenStreetMap contributors\nODbL"
         }
         ColumnLayout {
             visible: root.updateAvailable
