@@ -213,6 +213,8 @@ void RvAPI::requestError(QNetworkReply::NetworkError code)
         break;
     case QNetworkReply::ProtocolInvalidOperationError:
         break;
+    case QNetworkReply::TimeoutError:
+        break;
     default:
         qWarning() << "Unhandled request error: " << code;
         break;
@@ -514,11 +516,37 @@ void RvAPI::parseErrorResponse(int code, QNetworkReply::NetworkError e, RequestO
             else
                 emit requestFailure(500, e, tr("Network operation was canceled"));
             return;
-        case QNetworkReply::UnknownNetworkError:
-            emit requestFailure(500, e, tr("Unknown network error"));
+        case QNetworkReply::ContentAccessDenied:
+        case QNetworkReply::ContentOperationNotPermittedError:
+            emit requestFailure(403, e, tr("Access denied"));
+            return;
+        case QNetworkReply::ContentNotFoundError:
+            emit requestFailure(404, e, tr("API endpoint not found"));
+            return;
+        case QNetworkReply::TimeoutError:
+            emit requestFailure(500, e, tr("Server connection timeout"));
             return;
         case QNetworkReply::ConnectionRefusedError:
             emit requestFailure(500, e, tr("Server connection error"));
+            return;
+        case QNetworkReply::RemoteHostClosedError:
+            emit requestFailure(500, e, tr("Server closed connection error"));
+            return;
+        case QNetworkReply::HostNotFoundError:
+            emit requestFailure(500, e, tr("Server not found"));
+            return;
+        case QNetworkReply::SslHandshakeFailedError:
+            emit requestFailure(500, e, tr("Failed to establish secure connection"));
+            return;
+        case QNetworkReply::ProxyConnectionRefusedError:
+        case QNetworkReply::ProxyConnectionClosedError:
+        case QNetworkReply::ProxyNotFoundError:
+        case QNetworkReply::ProxyTimeoutError:
+        case QNetworkReply::ProxyAuthenticationRequiredError:
+            emit requestFailure(500, e, tr("Proxy error"));
+            return;
+        case QNetworkReply::UnknownNetworkError:
+            emit requestFailure(500, e, tr("Unknown network error"));
             return;
         default:;
         }
