@@ -319,7 +319,7 @@ ApplicationWindow {
                     icon.width: 32
                     icon.height: 32
                     font.pointSize: 22;                    
-                    enabled: role=="" || api.hasRole(role) || !(home=='' && role=='home');
+                    enabled: role=="" || api.hasRole(role) // || !(home=='' && role=='home');
                     display: AbstractButton.TextBesideIcon
                     onClicked: {
                         console.debug("DrawerMenu click: "+model.viewId)
@@ -357,7 +357,7 @@ ApplicationWindow {
         ListElement { title: qsTr("Products"); viewId: 4; role: "product"; image: "qrc:/images/icon_gallery.png" }
         ListElement { title: qsTr("Add product"); viewId: 3; role: "products"; image: "qrc:/images/icon_plus.png"; }
 
-        ListElement { title: qsTr("Cart"); viewId: 8; role: "order"; image: "qrc:/images/icon_cart.png"; }
+        ListElement { title: qsTr("Cart"); viewId: 8; role: "cart"; image: "qrc:/images/icon_cart.png"; }
         ListElement { title: qsTr("Orders"); viewId: 9; role: "orders"; image: "qrc:/images/icon_bag.png"; }
 
         ListElement { title: qsTr("Messages"); viewId: 10; role: ""; image: "qrc:/images/icon_messages.png";  }
@@ -370,7 +370,7 @@ ApplicationWindow {
     ListModel {
         id: actionModel2
         // ListElement { title: qsTr("Login"); viewId: 1; role: ""; image: "qrc:/images/icon_login.png"; }
-        ListElement { title: qsTr("Messages"); viewId: 10; role: "home"; image: "qrc:/images/icon_messages.png"; }
+        ListElement { title: qsTr("Messages"); viewId: 10; role: ""; image: "qrc:/images/icon_messages.png"; }
         ListElement { title: qsTr("About"); viewId: 7; role: ""; image: "qrc:/images/icon_at.png"; }
     }
 

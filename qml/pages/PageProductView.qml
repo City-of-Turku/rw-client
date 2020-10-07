@@ -14,9 +14,9 @@ Page {
     property bool landscape: height<width
 
     property bool toolsEnabled: true
-    property bool editEnabled: api.hasRole("product")
+    property bool editEnabled: api.hasRole("products")
     property bool cartDisabled: false
-    property bool cartEnabled: api.hasRole("order") && !cartDisabled
+    property bool cartEnabled: api.hasRole("cart") && !cartDisabled
 
     Keys.onReleased: {
         if (event.key === Qt.Key_Back) {
