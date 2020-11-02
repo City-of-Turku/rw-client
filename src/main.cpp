@@ -39,8 +39,8 @@ const QVector<QString> required_permissions(
 static QVariantMap checked_permissions;
 #endif
 
-#define VERSION "0.0.15"
-#define VERSION_CODE 15
+#define VERSION "0.0.15.1"
+#define VERSION_CODE 16
 
 int main(int argc, char *argv[])
 {
