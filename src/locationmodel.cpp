@@ -130,6 +130,7 @@ bool LocationListModel::search(const QString string)
     m_filter=s;
 
     int num=s.toInt(&isNumeric, 10);
+    Q_UNUSED(num)
 
     beginResetModel();
 
