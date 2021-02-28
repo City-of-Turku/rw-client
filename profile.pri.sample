@@ -1,2 +1,11 @@
+
+DEFINES+= APP_DOMAIN=\\\"fi.turku.kiertoon\\\"
+DEFINES+= APP_ORG=\\\"Turku\\\"
+DEFINES+= APP_NAME=\\\"rwtku\\\"
+DEFINES+= APP_TITLE=\\\"TavaratKiertoon\\\"
+
 # Point this to build profile
 include(profiles/sample-profile.pri)
+
+# Development sandbox
+#include(../rw-sandbox-profile/sandbox-profile.pri)
