@@ -99,7 +99,7 @@ ProductItem* ProductItem::fromVariantMap(QVariantMap &data, QObject *parent)
         p->setAttribute("purpose", data["purpose"].toString().toDouble());
 
     if (data.contains("material"))
-        p->setAttribute("materil", data["material"].toString().toDouble());
+        p->setAttribute("material", data["material"].toString().toDouble());
 
     if (data.contains("ean"))
         p->setAttribute("ean", data["ean"].toString());
