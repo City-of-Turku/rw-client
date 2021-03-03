@@ -1015,7 +1015,9 @@ bool RvAPI::parseOKResponse(RequestOps op, const QByteArray &response, const QNe
         emit searchCompleted(m_hasMore, r);
         return r;
     }
-    case RvAPI::Product:
+    case RvAPI::Product: {
+        return parseProductData(data, method);
+    }
     case RvAPI::ProductAdd:
     case RvAPI::ProductUpdate: {
         QVariantMap product=data.value("response").toMap();
@@ -1049,6 +1051,12 @@ bool RvAPI::parseOKResponse(RequestOps op, const QByteArray &response, const QNe
     case RvAPI::AddToCart:
         if (method==QNetworkAccessManager::PostOperation) {
             emit productAddedToCart();
+            return true; //xxx
+        }
+        break;
+    case RvAPI::RemoveFromCart:
+        if (method==QNetworkAccessManager::PostOperation) {
+            emit productRemovedFromCart();
             return true; //xxx
         }
         break;
@@ -1723,7 +1731,17 @@ bool RvAPI::addToCart(const QString sku, int quantity)
 
 bool RvAPI::removeFromCart(const QString sku)
 {
-    return false;
+    if (!m_authenticated)
+        return false;
+
+    if (isRequestActive(RemoveFromCart))
+        return false;
+
+    QVariantMap r;
+    r.insert("sku", sku);
+    r.insert("quantity", -1);
+
+    return createSimpleAuthenticatedPostRequest(op_removefromcart, RemoveFromCart, &r);
 }
 
 /**

@@ -261,6 +261,7 @@ signals:
     void cartCheckout();
 
     void productAddedToCart();
+    void productRemovedFromCart();
     void productOutOfStock();
     void cartCleared();
     void cartProductOutOfStock();
@@ -332,7 +333,7 @@ private:
         AuthLogin, AuthLogout,
         ProductSearch, ProductSearchBarcode, ProductAdd, ProductUpdate, Product, Products,
         Order, Orders, OrderUpdateStatus,
-        Cart, ClearCart, AddToCart, CheckoutCart,
+        Cart, ClearCart, AddToCart, RemoveFromCart, CheckoutCart,
         Categories, Locations, Colors,
         DownloadAPK,
     };
@@ -355,6 +356,7 @@ private:
     const QString op_clearcart=QStringLiteral("cart");
     const QString op_checkoutcart=QStringLiteral("cart/checkout");
     const QString op_addtocart=QStringLiteral("cart/item");
+    const QString op_removefromcart=QStringLiteral("cart/item");
 
     // Search endpoints
     const QString op_product_barcode=QStringLiteral("products/barcode");
