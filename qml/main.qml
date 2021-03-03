@@ -788,6 +788,10 @@ ApplicationWindow {
             root.showCart();
         }
 
+        onProductRemovedFromCart: {
+            api.getUserCart();
+        }
+
         onProductOutOfStock: {
             //xxx
             messagePopup.show(qsTr("Unable to add product to cart"), qsTr("Product is out of stock"))
