@@ -164,6 +164,7 @@ Page {
                         validator: RegExpValidator {
                             regExp: /.+/
                         }
+                        onFocusChanged: if (focus) selectAll(); else deselect();
 
                         onAccepted: {
                             textPassword.forceActiveFocus();
@@ -172,7 +173,7 @@ Page {
                             color: parent.enabled ? "#ffffff" : "#353535"
                             border.color: parent.focus ? "#20ae20" : "#000000"
                             border.width: 1
-                        }
+                        }                        
                     }
                     Label {
                         text: qsTr("Password")
@@ -188,9 +189,11 @@ Page {
                         Layout.fillHeight: false;
                         padding: 4
                         echoMode: TextInput.Password
+                        passwordMaskDelay: 100;
                         validator: RegExpValidator {
                             regExp: /.+/
                         }
+                        onFocusChanged: if (focus) selectAll(); else deselect();
 
                         onAccepted: {
                             doLogin();
