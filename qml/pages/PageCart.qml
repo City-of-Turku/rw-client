@@ -245,7 +245,7 @@ Page {
 
         onProductFound: {
             console.debug("PageCart: Product found!")
-            rootStack.push(productView, { "product": product, "cartDisabled": true })
+            rootStack.push(productView, { "product": product, "toolsEnabled": false })
         }
 
         onProductNotFound: {
@@ -261,7 +261,7 @@ Page {
 
         Text {
             Layout.fillWidth: true
-            visible: orderCart.model.count===0
+            visible: orderCart.model.count===0 && !api.busy
             text: qsTr("Cart is empty")
             horizontalAlignment: Text.AlignHCenter
             wrapMode: Text.Wrap
@@ -270,7 +270,7 @@ Page {
 
         ListViewRefresh {
             id: orderCart
-            enabled: !searchActive
+            enabled: !searchActive || !api.busy
             clip: true
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -300,33 +300,33 @@ Page {
                         dim: true
                         x: parent.width/3
                         MenuItem {
-                            text: qsTr("Details")
+                            text: qsTr("Details")                            
                             onClicked: {
                                 openProductAtIndex(index)
                             }
                         }
 
                         MenuItem {
-                            text: qsTr("Remove")
-                            enabled: false
+                            text: qsTr("Remove from cart")
                             onClicked: {
-                                orderCart.model.remove(index);
+                                removeProductFromCartAtIndex(index);
                             }
                         }
+                    }
+
+                    function removeProductFromCartAtIndex(index) {
+                        var o=orderCart.model.getItem(index);
+                        api.removeFromCart(o.sku);                        
                     }
 
                     function openProductAtIndex(index) {
                         var o=orderCart.model.getItem(index);
                         orderCart.currentIndex=index;
+                        console.debug("CartProduct: "+o.sku)
                         var p=api.getProduct(o.sku, true)
-                        // XXX: Check return value
-                    }
-
-                    function openProductImageAtIndex(index) {
-                        var p=orderCart.model.get(index);
-                        orderCart.currentIndex=index;
-                        rootStack.push(imageDisplayPageComponent, { image: p.thumbnail })
-                    }
+                        if (!p)
+                            messagePopup.show(qsTr("Network error"), qsTr("Failed to query product"), 500);                        
+                    }                    
                 }
             }
         }
