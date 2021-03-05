@@ -105,12 +105,10 @@ ApplicationWindow {
         } else {
             console.debug("*** organization is "+home)
 
-            var i=api.orgModel.indexKey(home);
-            var o=api.orgModel.get(i-1);
+            var o=api.orgModel.getKey(home);
 
             if (o) {
                 setOrganization(o);
-
                 username=settings.getSettingsStr(home+"/username", "");
                 password=settings.getSettingsStr(home+"/password", "");
             } else {
@@ -702,7 +700,7 @@ ApplicationWindow {
 
     NewsModel {
         id: newsFeedModel
-        source: home!='' && api.url!='' ? api.url+"news" : ''
+        source: api.isonline && api.authenticated && home!='' && api.url!='' ? api.url+"news" : ''
         onLatestEntryDateChanged: {
             var ts=settings.getSettingsStr(home+"/newsStamp", "");
             if (ts!=latestEntryDate) {
