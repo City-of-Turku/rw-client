@@ -60,8 +60,7 @@ Page {
     Component {
         id: productEdit
         PageProductEdit {
-            id: modifyPage
-            product: productView.product
+            id: modifyPage            
             keepImages: true
             addMoreEnabled: false            
 
@@ -80,7 +79,8 @@ Page {
                 target: api
                 onProductSaved: {
                     if (modifyPage.confirmProductSave(true, null, "")) {
-
+                        // refresh our current product with the saved one
+                        modifyPage.product=product
                     }
                 }
                 onProductFail: {
