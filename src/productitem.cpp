@@ -204,6 +204,13 @@ bool ProductItem::hasAttributes() const
     return m_attributes.size()==0 ? false : true;
 }
 
+QVariant ProductItem::getAttribute(const QString key, const QVariant defaultValue) const
+{
+    if (m_attributes.contains(key))
+        return m_attributes.value(key);
+    return defaultValue;
+}
+
 QVariant ProductItem::getAttribute(const QString key) const
 {
     return m_attributes.value(key);
@@ -223,6 +230,11 @@ bool ProductItem::clearAttribute(const QString key)
         emit attributesChanged(key, QVariant());
 
     return r;
+}
+
+void ProductItem::clearAttributes()
+{
+    m_attributes.clear();
 }
 
 QVariantMap ProductItem::getAttributes() const

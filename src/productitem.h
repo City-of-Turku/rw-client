@@ -56,9 +56,11 @@ public:
 
     Q_INVOKABLE bool hasAttribute(const QString key) const;
     Q_INVOKABLE bool hasAttributes() const;
+    Q_INVOKABLE QVariant getAttribute(const QString key, const QVariant defaultValue) const;
     Q_INVOKABLE QVariant getAttribute(const QString key) const;
     Q_INVOKABLE void setAttribute(const QString key, const QVariant value);
     Q_INVOKABLE bool clearAttribute(const QString key);
+    Q_INVOKABLE void clearAttributes();
     Q_INVOKABLE QVariantMap getAttributes() const;
 
     Q_INVOKABLE void setStock(uint stock);
