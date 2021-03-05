@@ -94,7 +94,7 @@ RvAPI::RvAPI(QObject *parent) :
         }
         QVariantMap profileMap=json.object().toVariantMap();
 
-        OrganizationItem *org=new OrganizationItem();
+        OrganizationItem *org=new OrganizationItem(this);
         foreach(const QString &field, fields) {
             // qDebug() << field << profileMap.value(field).toString();
             org->setProperty(field.toLocal8Bit(), profileMap.value(field).toString());
