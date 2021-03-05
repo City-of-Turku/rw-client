@@ -66,12 +66,9 @@ Page {
             addMoreEnabled: false            
 
             onRequestProductSave: {
-                console.debug("*** Product update save")
+                product.clearAttributes();
                 product=modifyPage.fillProduct(product);
 
-                console.debug(product.getAttributes())
-
-                console.debug("*** Updating product to API")
                 var rs=api.updateProduct(product);
                 if (rs)
                     modifyPage.saveInProgress();
@@ -342,23 +339,23 @@ Page {
                         }
                         DetailItem {
                             label: qsTr("EAN")
-                            visible: product.hasAttribute("ean") && product.getAttribute("ean")!==''
-                            value: product.getAttribute("ean")
+                            visible: product.hasAttribute("ean") && product.getAttribute("ean", "")!==''
+                            value: product.getAttribute("ean", "")
                         }
                         DetailItem {
                             label: qsTr("ISBN")
                             visible: product.hasAttribute("isbn")
-                            value: product.getAttribute("isbn")
+                            value: product.getAttribute("isbn", "")
                         }
                         DetailItem {
                             label: qsTr("Manufacturer")
                             visible: product.hasAttribute("manufacturer")
-                            value: product.getAttribute("manufacturer")
+                            value: product.getAttribute("manufacturer", "")
                         }
                         DetailItem {
                             label: qsTr("Model")
                             visible: product.hasAttribute("model")
-                            value: product.getAttribute("model")
+                            value: product.getAttribute("model", "")
                         }
                     }
                 }
