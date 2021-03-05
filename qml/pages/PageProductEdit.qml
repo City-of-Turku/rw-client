@@ -270,7 +270,7 @@ Page {
         icon: StandardIcon.Question
         standardButtons: StandardButton.Save | StandardButton.Cancel
         title: qsTr("Save product ?")
-        text: qsTr("Save product:")
+        text: hasProduct ? qsTr("Save changes to product:") : qsTr("Save new product:")
         informativeText: productTitle.text
 
         onAccepted: {
@@ -1119,8 +1119,6 @@ Page {
         productDescription.text=p.description;
         barcodeText.text=p.barcode;
 
-        p.getAttributes();
-
         // We let the magic do it
         //categoryID=p.category;
         //categorySubID=p.subCategory;
@@ -1217,18 +1215,16 @@ Page {
     // Fill product with filled data
     function fillProduct(p) {
 
-        p.getAttributes();
-
-        p.title=productTitle.text;
-        p.description=productDescription.text;
-
-        // Set information that can be changed only for new items
+        // Set these only if it is a new product
         if (p.isNew()) {
             p.barcode=barcodeText.text;
             p.category=categoryID;            
             p.keepImages=keepImages;
             addProductImages(p)
         }
+
+        p.title=productTitle.text;
+        p.description=productDescription.text;
 
         // Sub category can be changed
         p.subCategory=categorySubID;
@@ -1294,7 +1290,10 @@ Page {
             p.setStock(productStock.value);
         } else {
             p.setStock(1);
-        }     
+        }
+
+        // Show what we got
+        p.getAttributes();
 
         return p;
     }
