@@ -26,6 +26,13 @@ Page {
         }
     }
 
+    onProductChanged: {        
+        if (product)
+            productAttributeModel.refresh();
+        else
+            productAttributeModel.clear();
+    }
+
     header: ToolbarBasic {
         enableMenuButton: false
     }
@@ -57,12 +64,55 @@ Page {
         }
     }
 
+    ListModel {
+        id: productAttributeModel
+        dynamicRoles: true
+
+        function refresh() {
+            productAttributeModel.clear();
+
+            productAttributeModel.append({"label": qsTr("Added"), "value": product.getCreated().toLocaleDateString() })
+            productAttributeModel.append({"label": qsTr("Modified"), "value": product.getModified().toLocaleDateString() })
+
+            if (product.price>0)
+                productAttributeModel.append({"label": qsTr("Price"), "value": product.price.toFixed(2)+" €" })
+
+            if (product.stock>0)
+                productAttributeModel.append({"label": qsTr("Stock"), "value": product.stock })
+
+            if (product.hasAttribute("width"))
+                productAttributeModel.append({"label": qsTr("Size (WxDxH)"), "value": product.getAttribute("width")+"cm x " + product.getAttribute("depth")+"cm x " + product.getAttribute("height")+"cm" })
+
+            if (product.hasAttribute("weight"))
+                productAttributeModel.append({"label": qsTr("Weight"), "value": product.getAttribute("weight")+ "Kg" })
+
+            if (product.hasAttribute("ean"))
+                productAttributeModel.append({"label": qsTr("EAN"), "value": product.getAttribute("ean", "") })
+            if (product.hasAttribute("isbn"))
+                productAttributeModel.append({"label": qsTr("ISBN"), "value": product.getAttribute("isbn", "") })
+            if (product.hasAttribute("manufacturer"))
+                productAttributeModel.append({"label": qsTr("Manufacturer"), "value": product.getAttribute("manufacturer", "")  })
+            if (product.hasAttribute("model"))
+                productAttributeModel.append({"label": qsTr("Model"), "value": product.getAttribute("model", "") })
+            if (product.hasAttribute("color"))
+                productAttributeModel.append({"label": qsTr("Color"), "value": getColorString(product.getAttribute("color")) })
+
+        }
+
+        function getColorString(ca) {
+            if (!ca)
+                return 'N/A'
+            else
+                return ca.join(); // XXX
+        }
+    }
+
     Component {
         id: productEdit
         PageProductEdit {
-            id: modifyPage            
+            id: modifyPage
             keepImages: true
-            addMoreEnabled: false            
+            addMoreEnabled: false
 
             onRequestProductSave: {
                 product.clearAttributes();
@@ -80,7 +130,7 @@ Page {
                 onProductSaved: {
                     if (modifyPage.confirmProductSave(true, null, "")) {
                         // refresh our current product with the saved one
-                        modifyPage.product=product
+                        productView.product=product
                     }
                 }
                 onProductFail: {
@@ -185,7 +235,7 @@ Page {
                     id: imageRow
                     Layout.minimumHeight: productView.height/3
                     Layout.maximumHeight: productView.height/1.5
-                    Layout.fillHeight: true                    
+                    Layout.fillHeight: true
 
                     ListView {
                         id: productImagesList
@@ -260,7 +310,7 @@ Page {
                             font.pixelSize: 18
                             wrapMode: Text.WordWrap
                             elide: Text.ElideRight
-                            textFormat: Text.PlainText                            
+                            textFormat: Text.PlainText
                             MouseArea {
                                 anchors.fill: parent
                                 onClicked: {
@@ -278,49 +328,18 @@ Page {
                     visible: product.hasAttributes();
                     ColumnLayout {
                         width: parent.width
-                        DetailItem {
-                            label: qsTr("Price")
-                            visible: product.price>0
-                            value: product.price.toFixed(2)+" €"
+                        Repeater {
+                            model: productAttributeModel
+                            delegate: DetailItem {
+                                label: model.label
+                                value: model.value
+                            }
                         }
-                        DetailItem {
-                            label: qsTr("Added")
-                            //visible: product.price>0
-                            value: product.getCreated().toLocaleDateString();
-                        }
-                        DetailItem {
-                            label: qsTr("Modified")
-                            visible: product.getCreated()<product.getModified()
-                            value: product.getModified().toLocaleDateString();
-                        }
-                        DetailItem {
-                            label: qsTr("Stock")
-                            visible: product.stock>0
-                            value: product.stock
-                        }
-                        // Physical size display, in Width/Depth/Height order
-                        DetailItem {
-                            label: qsTr("Size (WxDxH)")
-                            visible: product.hasAttribute("depth") && product.hasAttribute("width") && product.hasAttribute("height")
-                            value: product.getAttribute("width")+"cm x " + product.getAttribute("depth")+"cm x " + product.getAttribute("height")+"cm"
-                        }
-                        DetailItem {
-                            label: qsTr("Weight")
-                            property int weight: product.hasAttribute("weight") ? product.getAttribute("weight") : 0;
-                            visible: weight>0;
-                            value: weight+" Kg"
-                        }
+
                         DetailItem {
                             label: qsTr("Color");
-                            visible: product.hasAttribute("color")
-                            value: "" // getColorString(product.getAttribute("color"))
-                            function getColorString(ca) {
-                                console.debug(ca)
-                                if (!ca)
-                                    return 'N/A'
-                                else
-                                    return ca.join(); // XXX
-                            }
+                            visible: product && product.hasAttribute("color")
+                            value: ""
                             Repeater {
                                 id: colorRepeater
                                 model: product.getAttribute("color")
@@ -331,31 +350,14 @@ Page {
                                 }
                                 function getColorCode(cid) {
                                     var c=api.getColorModel().getKey(cid);
+                                    console.debug(c.code)
+                                    console.debug(c.color)
+                                    console.debug(c.cid)
                                     if (c)
                                         return c.code;
                                     return '';
                                 }
                             }
-                        }
-                        DetailItem {
-                            label: qsTr("EAN")
-                            visible: product.hasAttribute("ean") && product.getAttribute("ean", "")!==''
-                            value: product.getAttribute("ean", "")
-                        }
-                        DetailItem {
-                            label: qsTr("ISBN")
-                            visible: product.hasAttribute("isbn")
-                            value: product.getAttribute("isbn", "")
-                        }
-                        DetailItem {
-                            label: qsTr("Manufacturer")
-                            visible: product.hasAttribute("manufacturer")
-                            value: product.getAttribute("manufacturer", "")
-                        }
-                        DetailItem {
-                            label: qsTr("Model")
-                            visible: product.hasAttribute("model")
-                            value: product.getAttribute("model", "")
                         }
                     }
                 }
