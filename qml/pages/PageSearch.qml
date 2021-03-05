@@ -380,10 +380,10 @@ Page {
         padding: 0
         closePolicy: Popup.CloseOnPressOutside | Popup.CloseOnEscape
         modal: true
-        bottomMargin: 32
-        topMargin: 32
-        leftMargin: 32
-        rightMargin: 32
+        bottomMargin: 16
+        topMargin: 16
+        leftMargin: 16
+        rightMargin: 16
 
         property alias source: popupImage.source
         property alias title: popupTitle.text
@@ -402,16 +402,14 @@ Page {
             NumberAnimation { property: "opacity"; duration: 200; easing.type: Easing.OutQuad; from: 1.0; to: 0.0 }
         }
 
-        x: Math.round((parent.width - width) / 2)
-        y: Math.round((parent.height - height) / 2)
+        anchors.centerIn: parent
 
         ColumnLayout {
             anchors.fill: parent
 
             Text {
                 id: popupTitle
-                Layout.fillWidth: true
-                text: productTitle
+                Layout.fillWidth: true                
                 horizontalAlignment: Text.AlignHCenter
                 font.pixelSize: 18
                 elide: Text.ElideMiddle
@@ -424,8 +422,8 @@ Page {
                 asynchronous: true
                 cache: false
                 smooth: true
-                sourceSize.width: searchPage.width-64
-                sourceSize.height: searchPage.height-64
+                sourceSize.width: searchPage.width-32
+                sourceSize.height: searchPage.height-32
 
                 property double ratio: width/height
 
