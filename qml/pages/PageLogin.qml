@@ -115,20 +115,18 @@ Page {
                         Layout.alignment: Qt.AlignHCenter
                     }
                     ComboBoxLabel {
-                        id: orgSelector                        
+                        id: orgSelector
                         textRole: "name"
                         placeHolder: qsTr("Select organization")
                         enabled: !loginActive
                         model: api.orgModel
                         Layout.fillWidth: true
                         onActivated: {
-                            var tmp=model.get(currentIndex);                            
-                            root.setOrganization(tmp);
+                            root.setOrganization(model.get(currentIndex));
                         }                        
                         Component.onDestruction: model=undefined; // Note: We must clear it, otherwise fails second time around
                         Component.onCompleted: {
-                            var i=model.indexKey(root.home);
-                            currentIndex=i-1;
+                            currentIndex=model.indexKey(root.home);
                         }
                     }
 
