@@ -1562,13 +1562,51 @@ bool RvAPI::updateProduct(ProductItem *product)
     if (isRequestActive(ProductUpdate))
         return false;
 
-    QUrl url=createRequestUrl(op_products, product->getBarcode());
+    QString bc=product->getBarcode();
+    QUrl url=createRequestUrl(op_products, bc);
     QNetworkRequest request;
+    bool r;
     setAuthenticationHeaders(&request);
 
     QHttpMultiPart *mp = new QHttpMultiPart(QHttpMultiPart::FormDataType);
 
     addCommonProductParameters(mp, product);
+
+    // Image updates, we go trough the images and their flags,
+    // in case status says deleted, we submit a list of image identifiers to remove from the product.
+    QMap<QVariant, QVariantMap> imf=product->getAllImageData();
+    QMapIterator<QVariant, QVariantMap> i(imf);
+    while (i.hasNext()) {
+        i.next();
+        QVariantMap tmp=i.value();
+
+        QString id=tmp.value("id").toString();
+        QString img=tmp.value("image").toString();
+        QVariant vs=tmp.value("status");
+        ProductItem::ImageStatus status=vs.value<ProductItem::ImageStatus>();
+
+        switch (status) {
+        case ProductItem::ImageDeleted:
+            addParameter(mp, QStringLiteral("imagerm[]"), id);
+            break;
+        case ProductItem::ImageNew: {
+            QUrl fu(img);
+            if (!fu.isLocalFile()) {
+                qWarning("File is not local, can not use!");
+                continue;
+            }
+
+            r=addFilePart(mp, "sku-"+bc+"-", fu.toLocalFile());
+            if (!r) {
+                qWarning() << "Failed to open file for uploading: " << fu;
+            }
+        }
+            break;
+        case ProductItem::ImageOld:
+            qDebug() << "Old image, do nothing " << id;
+            break;
+        }
+    }
 
     request.setUrl(url);
     queueRequest(post(request, mp), ProductUpdate);

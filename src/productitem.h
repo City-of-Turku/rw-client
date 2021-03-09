@@ -12,6 +12,7 @@ class ProductItem : public QObject
     Q_OBJECT
 
     Q_ENUMS(ImageSource)
+    Q_ENUMS(ImageStatus)
 
     Q_PROPERTY(uint productID READ getID NOTIFY productIDChanged)
     Q_PROPERTY(QString title READ title WRITE setTitle NOTIFY titleChanged)
@@ -39,6 +40,7 @@ public:
     static ProductItem *fromProduct(ProductItem &data, QObject *parent = nullptr);
 
     enum ImageSource { UnknownSource=0, CameraSource, GallerySource, RemoteSource };
+    enum ImageStatus { UnknownStatus=0, ImageNew, ImageOld, ImageDeleted };
 
     Q_INVOKABLE bool isNew() const;
     Q_INVOKABLE uint getID() const;
@@ -51,7 +53,12 @@ public:
     Q_INVOKABLE QDateTime getCreated() const;
     Q_INVOKABLE QDateTime getModified() const;
 
-    Q_INVOKABLE void addImage(const QVariant image, const ImageSource source);
+    Q_INVOKABLE QVariantList images() const;
+    QMap<QVariant, QVariantMap> getAllImageData() const;
+    Q_INVOKABLE QString thumbnail() const;
+
+    Q_INVOKABLE void addImage(const QVariant id, const QVariant image, const ImageSource source);
+    Q_INVOKABLE void removeImageById(const QVariant id);
     Q_INVOKABLE void removeImages();
 
     Q_INVOKABLE bool hasAttribute(const QString key) const;
@@ -88,13 +95,6 @@ public:
     {
         return m_description;
     }
-
-    Q_INVOKABLE QVariantList images() const
-    {
-        return m_images;
-    }
-
-    Q_INVOKABLE QString thumbnail() const;
 
     Q_INVOKABLE QString category() const
     {
@@ -133,7 +133,7 @@ signals:
 
     void descriptionChanged(QString description);
 
-    void imagesChanged(QVariantList images);
+    void imagesChanged();
 
     void thumbnailChanged(QString thumbnail);
 
@@ -172,9 +172,8 @@ private:
     // Longer description
     QString m_description;
 
-    // List of images, and image sources
-    QVariantList m_images;
-    QMap<QVariant, ImageSource> m_imagesource;
+    // List of images, and image sources    
+    QMap<QVariant, QVariantMap> m_images;
 
     // Category identifier
     QString m_category;
@@ -183,8 +182,7 @@ private:
     QDateTime m_created;
     QDateTime m_modified;
 
-    QVariantMap m_attributes;
-    QString m_thumbnail;
+    QVariantMap m_attributes;    
 
     uint m_stock;
     uint m_warehouse;
@@ -193,5 +191,8 @@ private:
     double m_price;
     bool m_keepImages;
 };
+
+Q_DECLARE_METATYPE(ProductItem::ImageSource)
+Q_DECLARE_METATYPE(ProductItem::ImageStatus)
 
 #endif // PRODUCTITEM_H

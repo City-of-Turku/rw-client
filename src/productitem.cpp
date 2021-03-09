@@ -73,6 +73,10 @@ ProductItem* ProductItem::fromVariantMap(QVariantMap &data, QObject *parent)
     if (data.contains("value"))
         p->setAttribute("value", data["value"].toUInt());
 
+    if (data.contains("imagesData")) {
+        QVariantMap tmp=data["imagesData"].toMap();
+        qDebug() << tmp;
+    }
     if (data.contains("images")) {
         QVariantList tmp=data["images"].toList();
         p->setImages(tmp);
@@ -190,8 +194,12 @@ const QString ProductItem::getDescription() const
 }
 
 QString ProductItem::thumbnail() const
-{    
-    return m_images.isEmpty() ? "" : m_images.first().toString();
+{
+    if (m_images.empty())
+        return "";
+    QVariantMap img=m_images.first();
+
+    return img.value("image").toString();
 }
 
 bool ProductItem::hasAttribute(const QString key) const
@@ -279,42 +287,74 @@ void ProductItem::setDescription(QString description)
     emit descriptionChanged(description);
 }
 
-void ProductItem::addImage(const QVariant image, const ImageSource source)
+void ProductItem::addImage(const QVariant id, const QVariant image, const ImageSource source)
 {
-    m_images.append(image);
-    m_imagesource.insert(image, source);
-    emit imagesChanged(m_images);
+    QVariantMap tmp;
+
+    tmp.insert("image", image);
+    tmp.insert("source", source);
+    if (source==RemoteSource)
+        tmp.insert("status", ImageOld);
+    else
+        tmp.insert("status", ImageNew);
+    m_images.insert(id, tmp);
+
+    emit imagesChanged();
+}
+
+void ProductItem::removeImageById(const QVariant id)
+{
+    if (!m_images.contains(id))
+        return;
+
+    QVariantMap tmp=m_images.value(id);
+    QVariant v=tmp.value("source", UnknownSource);
+    QString f=tmp.value("image").toString();
+
+    ImageSource is=v.value<ProductItem::ImageSource>();
+
+    switch (is) {
+    case RemoteSource: // Existing image on server, we mark it with status so save can handle it
+        tmp.insert("status", ImageDeleted);
+        break;
+    case CameraSource: // New image, just remove it from the list and from fs if so requested
+        m_images.remove(id);
+        if (QFile::exists(f) && m_keepImages==false) {
+            qDebug() << "Removing file: " << f;
+            QFile::remove(f);
+        }
+        break;
+    case GallerySource: // Existing image, local. Remove from list only.
+        m_images.remove(id);
+        break;
+    default:
+        break;
+    }
+
+    qDebug() << m_images;
+
+    emit imagesChanged();
 }
 
 void ProductItem::removeImages()
 {
-    if (!m_keepImages) {
-        for (int i = 0; i < m_images.size(); i++) {
-            QString f=m_images.at(i).toString();
-
-            ImageSource is=m_imagesource.value(f, UnknownSource);
-            if (is!=CameraSource)
-                continue;
-
-            if (!QFile::exists(f))
-                continue;
-
-            qDebug() << "Removing file: " << f;
-            QFile::remove(f);
-        }
+    QMapIterator<QVariant, QVariantMap> i(m_images);
+    while (i.hasNext()) {
+        i.next();
+        removeImageById(i.key());
     }
     m_images.clear();
-    m_imagesource.clear();
+    emit imagesChanged();
 }
 
 void ProductItem::setImages(QVariantList images)
 {    
-    if (m_images==images)
-        return;
+    for (int i = 0; i < images.size(); i++) {
+        QString f=images.at(i).toString();
+        addImage(f, f, RemoteSource);
+    }
 
-    m_imagesource.clear();
-    m_images = images;
-    emit imagesChanged(images);
+    emit imagesChanged();
     emit thumbnailChanged(images.isEmpty() ? "" : images.first().toString());
 }
 
@@ -361,4 +401,24 @@ void ProductItem::setKeepImages(bool keepImages)
 
     m_keepImages = keepImages;
     emit keepImagesChanged(keepImages);
+}
+
+QVariantList ProductItem::images() const
+{
+    QVariantList images;
+
+    QMapIterator<QVariant, QVariantMap> i(m_images);
+    while (i.hasNext()) {
+        i.next();
+        QVariantMap tmp=i.value();
+
+        images.append(tmp.value("image"));
+    }
+
+    return images;
+}
+
+QMap<QVariant, QVariantMap> ProductItem::getAllImageData() const
+{
+    return m_images;
 }

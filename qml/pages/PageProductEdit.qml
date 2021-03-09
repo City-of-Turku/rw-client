@@ -67,7 +67,7 @@ Page {
     property int maxImages: 6;
 
     property bool canAddImages: imageModel.count<maxImages;
-    property bool hasImages: imageModel.count>0;
+    property bool hasImages: imageModel.count>0 && imageModel.deleted<imageModel.count;
 
     // Handler needs to requst the Product object and save it.
     signal requestProductSave()
@@ -93,7 +93,7 @@ Page {
     }
 
     property int locationID;
-    property string locationDetail: ""   
+    property string locationDetail: ""
 
     // Are we adding/editing multiple entries of the same product ? If so
     // we need to enable a bit more complex interface for barcodes.
@@ -112,7 +112,7 @@ Page {
         isSaving=false;
         savingPopup.close();
 
-        if (saved) {            
+        if (saved) {
             // Ask for more only if it was a new product
             if (addMoreEnabled && !hasProduct) {
                 addMoreProducts.open();
@@ -128,7 +128,7 @@ Page {
         return false;
     }
 
-    Component.onCompleted: {        
+    Component.onCompleted: {
         colorEditors[0]=productColor;
         colorEditors[1]=productColor2;
         colorEditors[2]=productColor3;
@@ -160,7 +160,7 @@ Page {
                 locationID=defaultWarehouse;
             }
         }
-    }        
+    }
 
     function saveInProgress() {
         isSaving=true;
@@ -302,7 +302,7 @@ Page {
 
     onCategorySubIDChanged: {
         console.debug(categorySubID)
-    }        
+    }
 
     Component {
         id: pictureCamera
@@ -365,11 +365,46 @@ Page {
 
     ListModel {
         id: imageModel
+
+        // Keep count of deleted files. XXX: If we ever add adding of files then we need to work a bit more
+        property int deleted: 0;
+        property bool imagesValid: count-deleted>0 ? true : false;
+
         function addImage(file, src) {
             imageModel.append({
+                                  "id": file,
                                   "image": file,
+                                  "status": Product.ImageNew,
                                   "source": src
                               })
+        }
+        function undeleteImage(i) {
+            imageModel.get(i).status=Product.ImageOld;
+            deleted--;
+        }
+        function removeImage(i) {
+            var id=imageModel.get(i);
+            console.debug(id.image +" is from "+ id.source)
+            switch (id.source) {
+            case Product.CameraSource:
+                // Image is from camera.
+                // XXX: Prompt user if image file should also be removed
+                imageModel.remove(i);
+                break;
+            case Product.GallerySource:
+                // Image is picked from gallery, remove from model only
+                imageModel.remove(i);
+                break;
+            case Product.RemoteSource:
+                // Image is remote, in that case we don't remove it from the model, instead mark it as deleted
+                imageModel.setProperty(i, "status", Product.ImageDeleted)
+                deleted++;
+                // XXX:
+                console.debug(imageModel.get(i).status)
+                break;
+            default:
+                console.debug("Unknown image source ?")
+            }
         }
     }
 
@@ -426,20 +461,20 @@ Page {
                         color: hasImages ? "#19e600" : "#b92929"
                     }
                     icon.source: "qrc:/images/icon_camera.png"
-                }                
+                }
                 // Attributes
                 TabButton {
                     background: Rectangle {
                         color: validAttributes ? "#19e600" : "#d9e006"
                     }
-                    icon.source: "qrc:/images/icon_tag.png"                    
+                    icon.source: "qrc:/images/icon_tag.png"
                 }
                 // Extras
                 TabButton {
                     background: Rectangle {
                         color: "#19e600"
                     }
-                    icon.source: "qrc:/images/icon_plus.png"                    
+                    icon.source: "qrc:/images/icon_plus.png"
                 }
             }
 
@@ -449,7 +484,7 @@ Page {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 Layout.alignment: Qt.AlignTop
-                currentIndex: bar.currentIndex                
+                currentIndex: bar.currentIndex
 
                 ScrollView {
                     id: basicDataSV
@@ -522,7 +557,7 @@ Page {
                                 Layout.fillWidth: true
                                 // Main category can NOT be changed so don't allow it when editing existing product
                                 enabled: !hasProduct
-                                model: root.api.getCategoryModel();                                
+                                model: root.api.getCategoryModel();
                                 textRole: "category"
                                 onCurrentIndexChanged: {
                                     console.debug("onCurrentIndexChanged: "+currentIndex)
@@ -782,9 +817,9 @@ Page {
                                 font.pointSize: 18
                                 wrapMode: Text.Wrap
                                 horizontalAlignment: Text.AlignHCenter
-                            }                            
+                            }
 
-                            RoundButton {                                
+                            RoundButton {
                                 text: qsTr("Take picture")
                                 icon.source: "qrc:/images/icon_camera.png"
                                 enabled: canAddImages && imageModel.count==0
@@ -810,7 +845,7 @@ Page {
                     GridView {
                         id: productImages
                         clip: true
-                        visible: imageModel.count>0                        
+                        visible: imageModel.count>0
                         Layout.fillHeight: true
                         Layout.fillWidth: true
                         highlightFollowsCurrentItem: true
@@ -827,12 +862,23 @@ Page {
                         id: listHeaderImages
                         Rectangle {
                             width: parent.width
-                            height: ht.height
-                            Text {
-                                id: ht                                
-                                anchors.centerIn: parent
-                                text: qsTr("Images: ")+imageModel.count+" / " + maxImages;
-                                font.pixelSize: 16
+                            height: clht.height
+                            ColumnLayout {
+                                id: clht
+                                width: parent.width
+                                Text {
+                                    Layout.fillWidth: true
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    text: qsTr("Images: ")+imageModel.count+" / " + maxImages;
+                                    font.pixelSize: 16
+                                }
+                                Text {
+                                    Layout.fillWidth: true
+                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    visible: imageModel.deleted>0
+                                    text: qsTr("Marked for removal: ")+imageModel.deleted;
+                                    font.pixelSize: 16
+                                }
                             }
                         }
                     }
@@ -870,12 +916,24 @@ Page {
                                 }
                             }
 
+                            Rectangle {
+                                anchors.fill: parent
+                                color: "grey"
+                                visible: model.status==Product.ImageDeleted;
+                                opacity: 0.5
+                                Image {
+                                    id: name
+                                    anchors.centerIn: parent
+                                    source: "qrc:/images/icon_delete.png"
+                                }
+                            }
+
                             Menu {
                                 id: imageMenu
                                 title:  qsTr("Image")
                                 modal: true
                                 dim: true
-                                x: parent.width/3
+                                x: parent.width/2
                                 MenuItem {
                                     text: qsTr("View image")
                                     onClicked: {
@@ -884,16 +942,23 @@ Page {
                                 }
 
                                 MenuItem {
-                                    text: qsTr("Remove image")
-                                    enabled: !hasProduct
+                                    text: model.source==Product.RemoteSource ? qsTr("Mark image for removal") : qsTr("Remove image")
+                                    enabled: model.status!=Product.ImageDeleted // && !hasProduct
                                     onClicked: {
-                                        // XXX: Remove the file itself too
-                                        imageModel.remove(index)
+                                        imageModel.removeImage(index)
                                     }
                                 }
 
                                 MenuItem {
-                                    enabled: false && !hasProduct
+                                    text: qsTr("Unmark image removal")
+                                    enabled: model.status==Product.ImageDeleted && model.source==Product.RemoteSource
+                                    onClicked: {
+                                        imageModel.undeleteImage(index)
+                                    }
+                                }
+
+                                MenuItem {
+                                    enabled: model.status==Product.ImageNew && false && !hasProduct
                                     text: "Edit"
                                     onClicked: {
 
@@ -940,7 +1005,7 @@ Page {
                         PriceField {
                             id: productPrice
                             Layout.minimumWidth: 120
-                            Layout.maximumWidth: 200                                                        
+                            Layout.maximumWidth: 200
                         }
                         ComboBox {
                             id: productTax
@@ -984,7 +1049,7 @@ Page {
                         Layout.alignment: Qt.AlignTop
                         visible: categoryHasSize
                         //enabled: sizeSwitch.checked
-                        Layout.fillWidth: true                        
+                        Layout.fillWidth: true
                     }
                 }
 
@@ -1090,7 +1155,7 @@ Page {
                 igs.startSelector();
             }
         }
-        RoundButton {            
+        RoundButton {
             icon.source: "qrc:/images/icon_camera.png"
             enabled: canAddImages
             onClicked: {
@@ -1107,7 +1172,7 @@ Page {
     }
 
     LocationPopup {
-        id: locationPopup        
+        id: locationPopup
         onLocationDetailChanged: productEditPage.locationDetail=locationDetail;
         onLocationIDChanged: productEditPage.locationID=locationID
         onRefresh: api.requestLocations();
@@ -1205,10 +1270,30 @@ Page {
         return productTemplate.createObject(null, {});
     }
 
+    // For new products, just add all image from our temporary image storage model
     function addProductImages(p) {
         for (var i=0;i<imageModel.count;i++) {
             var s=imageModel.get(i);
-            p.addImage(s.image, s.source);
+            // For new images we use the image name as the id as it does not matter
+            p.addImage(s.image, s.image, s.source);
+        }
+    }
+
+    // For old product, update the product images status information
+    function updateProductImages(p) {
+        for (var i=0;i<imageModel.count;i++) {
+            var s=imageModel.get(i);
+            switch (s.status) {
+            case Product.ImageDeleted:
+                p.removeImage(s.image);
+                break;
+            case Product.ImageNew:
+
+                break;
+            case Product.ImageOld:
+
+                break;
+            }
         }
     }
 
@@ -1218,9 +1303,11 @@ Page {
         // Set these only if it is a new product
         if (p.isNew()) {
             p.barcode=barcodeText.text;
-            p.category=categoryID;            
+            p.category=categoryID;
             p.keepImages=keepImages;
             addProductImages(p)
+        } else {
+            updateProductImages(p)
         }
 
         p.title=productTitle.text;
@@ -1252,7 +1339,7 @@ Page {
         if (categoryHasSize) {
             p.setAttribute("width", productSize.itemWidth)
             p.setAttribute("height", productSize.itemHeight)
-            p.setAttribute("depth", productSize.itemDepth)            
+            p.setAttribute("depth", productSize.itemDepth)
         }
         if (categoryHasWeight) {
             p.setAttribute("weight", productSize.itemWeight)
@@ -1267,8 +1354,8 @@ Page {
             p.setPrice(0.0);
         }
 
-        if (categoryHasValue && validValue) {            
-            p.setAttribute("value", productValue.price)            
+        if (categoryHasValue && validValue) {
+            p.setAttribute("value", productValue.price)
         }
 
         if (categoryHasMakeAndModel) {
@@ -1286,7 +1373,7 @@ Page {
             p.setAttribute("author", productAuthor.text)
         }
 
-        if (categoryHasStock) {            
+        if (categoryHasStock) {
             p.setStock(productStock.value);
         } else {
             p.setStock(1);
