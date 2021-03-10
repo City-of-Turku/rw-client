@@ -292,7 +292,7 @@ Page {
         id: igs
 
         onFileSelected: {
-            imageModel.addImage(src, Product.GallerySource);
+            imageModel.addImage(src, src, Product.GallerySource);
         }
     }
 
@@ -316,7 +316,7 @@ Page {
                 pCamera.startCamera();
             }
             onImageCaptured: {
-                imageModel.addImage("file:/"+path, Product.CameraSource);
+                imageModel.addImage(path, "file:/"+path, Product.CameraSource);
                 if (imageModel.count<maxImages) {
                     captureAnimation.start()
                 } else {
@@ -370,9 +370,9 @@ Page {
         property int deleted: 0;
         property bool imagesValid: count-deleted>0 ? true : false;
 
-        function addImage(file, src) {
+        function addImage(fid, file, src) {
             imageModel.append({
-                                  "id": file,
+                                  "id": fid,
                                   "image": file,
                                   "status": Product.ImageNew,
                                   "source": src
@@ -867,14 +867,12 @@ Page {
                                 id: clht
                                 width: parent.width
                                 Text {
-                                    Layout.fillWidth: true
-                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    Layout.fillWidth: true                                    
                                     text: qsTr("Images: ")+imageModel.count+" / " + maxImages;
                                     font.pixelSize: 16
                                 }
                                 Text {
-                                    Layout.fillWidth: true
-                                    anchors.horizontalCenter: parent.horizontalCenter
+                                    Layout.fillWidth: true                                    
                                     visible: imageModel.deleted>0
                                     text: qsTr("Marked for removal: ")+imageModel.deleted;
                                     font.pixelSize: 16
@@ -1143,7 +1141,7 @@ Page {
         anchors.rightMargin: 32
         anchors.bottomMargin: 32
         height: 32
-        property bool maybeVisible: images.isActive && canAddImages && !hasProduct
+        property bool maybeVisible: images.isActive && canAddImages // && !hasProduct
         visible: maybeVisible && imageModel.count>0
         opacity: maybeVisible ? 1 : 0;
         RoundButton {
@@ -1190,9 +1188,10 @@ Page {
 
         categorySelection.selecteCategory(p.category, p.subCategory)
 
-        for (var i=0;i<p.images.length;i++) {
-            console.debug("Image: "+p.images[i]);
-            imageModel.addImage(p.images[i], Product.RemoteSource);
+        var imagesData=p.images
+        for (var i=0;i<imagesData.length;i++) {
+            console.debug("Image: "+imagesData[i].id);
+            imageModel.addImage(imagesData[i].id, imagesData[i].image, Product.RemoteSource);
         }
 
         if (categoryHasPurpose && p.hasAttribute("purpose"))
@@ -1215,7 +1214,7 @@ Page {
             console.debug(col)
             console.debug(col.length)
             for (var i=0;i<col.length;i++) {
-                console.debug(i+" "+col[i])
+                console.debug("Color:"+i+" "+col[i])
                 var ri=colorEditors[i].setColor(col[i]);
                 console.debug(ri)
             }
@@ -1285,10 +1284,10 @@ Page {
             var s=imageModel.get(i);
             switch (s.status) {
             case Product.ImageDeleted:
-                p.removeImage(s.image);
+                p.removeImageById(s.id);
                 break;
             case Product.ImageNew:
-
+                p.addImage(s.image, s.image, s.source);
                 break;
             case Product.ImageOld:
 

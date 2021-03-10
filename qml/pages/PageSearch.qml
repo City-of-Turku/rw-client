@@ -256,6 +256,7 @@ Page {
                 ProductItemDelegate {
                     width: searchResults.cellWidth
                     height: searchResults.cellHeight
+                    thumbnail: model.thumbnail
                     onClicked: {
                         productMenu.popup();
                     }

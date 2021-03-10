@@ -27,10 +27,13 @@ Page {
     }
 
     onProductChanged: {        
-        if (product)
+        if (product) {
             productAttributeModel.refresh();
-        else
+            productImagesModel.refresh();
+        } else {
             productAttributeModel.clear();
+            productImagesModel.clear();
+        }
     }
 
     header: ToolbarBasic {
@@ -270,7 +273,7 @@ Page {
                                 anchors.fill: parent
                                 //fillMode: Image.PreserveAspectCrop
                                 fillMode: Image.PreserveAspectFit
-                                source: api.getImageUrl(productImage)
+                                source: api.getImageUrl(productImage.image)
                                 opacity: status==Image.Ready ? 1 : 0;
                                 Behavior on opacity { OpacityAnimator { duration: 400; } }
                                 MouseArea {
@@ -373,14 +376,17 @@ Page {
 
     ListModel {
         id: productImagesModel
+
+        function refresh() {
+            productImagesModel.clear();
+            for (var i=0;i<product.images.length;i++) {
+                productImagesModel.append({"productImage": product.images[i]});
+            }
+        }
     }
 
     Component.onCompleted: {
-        console.debug("*** Adding product image to model: "+product.images.length)
-        for (var i=0;i<product.images.length;i++) {
-            console.debug("Image: "+product.images[i]);
-            productImagesModel.append({"productImage": product.images[i]});
-        }
+        productImagesModel.refresh();
         f.forceActiveFocus();
     }
 }

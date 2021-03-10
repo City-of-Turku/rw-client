@@ -1575,12 +1575,13 @@ bool RvAPI::updateProduct(ProductItem *product)
     // Image updates, we go trough the images and their flags,
     // in case status says deleted, we submit a list of image identifiers to remove from the product.
     QMap<QVariant, QVariantMap> imf=product->getAllImageData();
+
     QMapIterator<QVariant, QVariantMap> i(imf);
     while (i.hasNext()) {
         i.next();
         QVariantMap tmp=i.value();
 
-        QString id=tmp.value("id").toString();
+        QString id=i.key().toString();
         QString img=tmp.value("image").toString();
         QVariant vs=tmp.value("status");
         ProductItem::ImageStatus status=vs.value<ProductItem::ImageStatus>();
@@ -1604,6 +1605,8 @@ bool RvAPI::updateProduct(ProductItem *product)
             break;
         case ProductItem::ImageOld:
             qDebug() << "Old image, do nothing " << id;
+            break;
+        default:
             break;
         }
     }

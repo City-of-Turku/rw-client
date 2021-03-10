@@ -75,9 +75,14 @@ ProductItem* ProductItem::fromVariantMap(QVariantMap &data, QObject *parent)
 
     if (data.contains("imagesData")) {
         QVariantMap tmp=data["imagesData"].toMap();
-        qDebug() << tmp;
-    }
-    if (data.contains("images")) {
+        QMapIterator<QString, QVariant> i(tmp);
+        while (i.hasNext()) {
+            i.next();
+            QVariantMap img=i.value().toMap();
+
+            p->addImage(img.value("id"), img.value("image"), ProductItem::RemoteSource);
+        }
+    } else if (data.contains("images")) {
         QVariantList tmp=data["images"].toList();
         p->setImages(tmp);
     }
@@ -304,18 +309,20 @@ void ProductItem::addImage(const QVariant id, const QVariant image, const ImageS
 
 void ProductItem::removeImageById(const QVariant id)
 {
-    if (!m_images.contains(id))
+    if (!m_images.contains(id)) {
+        qDebug() << "Image not found for removal: " << id;
         return;
+    }
 
     QVariantMap tmp=m_images.value(id);
-    QVariant v=tmp.value("source", UnknownSource);
-    QString f=tmp.value("image").toString();
-
-    ImageSource is=v.value<ProductItem::ImageSource>();
+    const QVariant v=tmp.value("source", UnknownSource);
+    const QString f=tmp.value("image").toString();
+    const ImageSource is=v.value<ProductItem::ImageSource>();
 
     switch (is) {
-    case RemoteSource: // Existing image on server, we mark it with status so save can handle it
+    case RemoteSource: // Existing image on server, we mark it with status so save can handle it        
         tmp.insert("status", ImageDeleted);
+        m_images.insert(id, tmp);
         break;
     case CameraSource: // New image, just remove it from the list and from fs if so requested
         m_images.remove(id);
@@ -330,8 +337,6 @@ void ProductItem::removeImageById(const QVariant id)
     default:
         break;
     }
-
-    qDebug() << m_images;
 
     emit imagesChanged();
 }
@@ -411,8 +416,8 @@ QVariantList ProductItem::images() const
     while (i.hasNext()) {
         i.next();
         QVariantMap tmp=i.value();
-
-        images.append(tmp.value("image"));
+        tmp.insert("id", i.key());
+        images.append(tmp);
     }
 
     return images;
