@@ -930,6 +930,16 @@ Page {
                                 }
                             }
 
+                            Image {
+                                id: imageUpload
+                                anchors.centerIn: parent
+                                width: parent.width/4
+                                height: width
+                                fillMode: Image.PreserveAspectFit
+                                visible: model.source!=Product.RemoteSource
+                                source: "qrc:/images/icon_up_box.png"
+                            }
+
                             Menu {
                                 id: imageMenu
                                 title:  qsTr("Image")
@@ -991,6 +1001,17 @@ Page {
                                     imageMenu.open();
                                 }
                             }
+
+                            RoundButton {
+                                anchors.left: parent.left
+                                anchors.top: parent.top
+                                icon.source: "qrc:/images/icon_menu.png"
+                                onClicked: {
+                                    imageMenu.open();
+                                }
+                            }
+
+
                         }
                     }
 
