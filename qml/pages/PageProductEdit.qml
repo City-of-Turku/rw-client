@@ -1295,8 +1295,12 @@ Page {
     // Create a new product from filled data
     function createProduct() {
         var p=newProduct();
-        fillProduct(p);
-        return p;
+        try {
+            fillProduct(p);
+            return p;
+        } catch (e) {
+            return false
+        }
     }
 
     // Create a new product item
