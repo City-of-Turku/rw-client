@@ -863,7 +863,7 @@ Page {
                         Rectangle {
                             width: parent.width
                             height: clht.height
-                            ColumnLayout {
+                            RowLayout {
                                 id: clht
                                 width: parent.width
                                 Text {
@@ -874,7 +874,7 @@ Page {
                                 Text {
                                     Layout.fillWidth: true                                    
                                     visible: imageModel.deleted>0
-                                    text: qsTr("Marked for removal: ")+imageModel.deleted;
+                                    text: qsTr("Removal: ")+imageModel.deleted;
                                     font.pixelSize: 16
                                 }
                             }
@@ -884,8 +884,10 @@ Page {
                     Component {
                         id: imageDelegate
                         Rectangle {
-                            color: ListView.isCurrentItem ? "#e0e0e0" : "#fafafa"
                             id: imageDelegateItem
+                            color: ListView.isCurrentItem ? "#e0e0e0" : "#fafafa"
+                            border.width: 2
+                            border.color: "#101010"
                             width: productImages.cellWidth
                             height: productImages.cellHeight
                             clip: true
@@ -894,7 +896,7 @@ Page {
                                 id: thumb
                                 sourceSize.height: 512
                                 anchors.fill: parent;
-                                anchors.margins: 8
+                                anchors.margins: 4
                                 asynchronous: true;
                                 smooth: true
                                 fillMode: Image.PreserveAspectFit
@@ -915,13 +917,15 @@ Page {
                             }
 
                             Rectangle {
-                                anchors.fill: parent
+                                anchors.fill: thumb
                                 color: "grey"
                                 visible: model.status==Product.ImageDeleted;
                                 opacity: 0.5
-                                Image {
-                                    id: name
+                                Image {                                    
                                     anchors.centerIn: parent
+                                    width: parent.width/4
+                                    height: width
+                                    fillMode: Image.PreserveAspectFit
                                     source: "qrc:/images/icon_delete.png"
                                 }
                             }
@@ -931,9 +935,17 @@ Page {
                                 title:  qsTr("Image")
                                 modal: true
                                 dim: true
-                                x: parent.width/2
+                                width: imageDelegateItem.width
+
+                                Image {
+                                    width: imageMenu.width
+                                    fillMode: Image.PreserveAspectFit
+                                    source: thumb.source
+                                }
+
                                 MenuItem {
                                     text: qsTr("View image")
+                                    icon.source: "qrc:/images/icon_gallery.png"
                                     onClicked: {
                                         rootStack.push(imageDisplayPageComponent, { "image": thumb.source } )
                                     }
@@ -942,6 +954,7 @@ Page {
                                 MenuItem {
                                     text: model.source==Product.RemoteSource ? qsTr("Mark image for removal") : qsTr("Remove image")
                                     enabled: model.status!=Product.ImageDeleted // && !hasProduct
+                                    icon.source: "qrc:/images/icon_delete.png"
                                     onClicked: {
                                         imageModel.removeImage(index)
                                     }
@@ -950,6 +963,7 @@ Page {
                                 MenuItem {
                                     text: qsTr("Unmark image removal")
                                     enabled: model.status==Product.ImageDeleted && model.source==Product.RemoteSource
+                                    icon.source: "qrc:/images/icon_cancel.png"
                                     onClicked: {
                                         imageModel.undeleteImage(index)
                                     }

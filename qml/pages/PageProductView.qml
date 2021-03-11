@@ -264,7 +264,7 @@ Page {
                         id: imageDelegate
                         Item {
                             width: productImagesList.width
-                            height: parent.height
+                            height: productImagesList.height
 
                             Image {
                                 id: thumbnail
