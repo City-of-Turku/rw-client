@@ -17,8 +17,9 @@ Rectangle {
 
     property int imageSize: width-8 // 4px margins
     property bool compact: false
-
     property bool showImage: true
+
+    property string thumbnail: ''
 
     Item {
         id: r
