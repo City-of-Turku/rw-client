@@ -157,7 +157,7 @@ DISTFILES += \
     qml/components/BadgePrice.qml \
     qml/pages/PageCart.qml
 
-ANDROID_ABIS = armeabi-v7a
+ANDROID_ABIS = armeabi-v7a arm64-v8a
 
 
 android: include(/home/milang/Android/Sdk/android_openssl/openssl.pri)
