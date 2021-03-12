@@ -27,5 +27,9 @@ ColumnLayout {
         Layout.fillWidth: true
         editable: true
         //textFromValue: function(value, locale) { return value+c.suffix; }
+        onFocusChanged: {
+            if (focus)
+                contentItem.selectAll();
+        }
     }
 }
