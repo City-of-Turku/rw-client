@@ -41,6 +41,13 @@ Page {
                 }
             }
             ToolButton {
+                text: qsTr("Fit")
+                onClicked: {
+                    i.scale=1.0;
+                    f.fitToScreen();
+                }
+            }
+            ToolButton {
                 text: "Zoom in"
                 enabled: i.scale<maxScale                
                 icon.source: "qrc:/images/icon_zoom_in.png"
