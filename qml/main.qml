@@ -206,6 +206,16 @@ ApplicationWindow {
                 onClicked: {
                     rootStack.currentItem.toggleSearch()
                 }
+                Rectangle {
+                    width: 8
+                    height: 8
+                    radius: 4
+                    color: "green"
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    anchors.margins: 8
+                    visible: isLogged && rootStack.currentItem && rootStack.currentItem.objectName=="search" && rootStack.currentItem.searchFiltered
+                }
             }
 
             ToolButton {

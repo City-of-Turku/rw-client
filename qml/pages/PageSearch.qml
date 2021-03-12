@@ -21,6 +21,7 @@ Page {
     objectName: "search"
 
     property bool searchActive: false;
+    property bool searchFiltered: false;
 
     property bool isInitialView: true
 
@@ -57,11 +58,13 @@ Page {
     // searchCancel
     function searchCanceled() {
         searchActive=false;
+        searchFiltered=false;
     }
 
     function searchBarcodeNotFound() {
         messagePopup.show(qsTr("Not found"), qsTr("No product matched given barcode"));
         searchActive=false;
+        searchFiltered=false;
     }
 
     // Wrapper to select the appropriate search method
@@ -76,6 +79,7 @@ Page {
     function resetSearch() {
         searchDrawerContainer.resetSearch();
         searchRequested('', '', sortOrder);
+        searchFiltered=false;
     }
 
     Keys.onReleased: {
@@ -541,6 +545,9 @@ Page {
                     searchBarcodeRequested(searchString);
                 else
                     searchRequested(searchString, categorySearchID, sortOrder);
+
+                searchFiltered=true;
+
                 return true;
             }
 
@@ -548,6 +555,7 @@ Page {
                 searchText.text=''
                 sortOrder=ServerApi.SortDateDesc
                 categorySelection.currentIndex=0;
+                searchFiltered=false;
             }
 
             ComboBox {
