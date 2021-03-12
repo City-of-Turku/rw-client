@@ -1515,22 +1515,25 @@ bool RvAPI::addProduct(ProductItem *product)
     addParameter(mp, QStringLiteral("barcode"), bc);
     addCommonProductParameters(mp, product);
 
-    // Add images
-    QVariantList imf=product->images();
+    QMap<QVariant, QVariantMap> imf=product->getAllImageData();
 
-    for (int i = 0; i < imf.size(); i++) {
-        bool r;
-        QString f=imf.at(i).toString();
-        QUrl fu(f);
+    // XXX For now, only check that we can upload a file, ignore any status information
+    // In the future we could be adding a product with existing (on server) images
+    QMapIterator<QVariant, QVariantMap> i(imf);
+    while (i.hasNext()) {
+        i.next();
+        QVariantMap tmp=i.value();
+        QString img=tmp.value("image").toString();
+
+        QUrl fu(img);
 
         if (!fu.isLocalFile()) {
-            qWarning("File is not local, can not use!");
+            qWarning() << "File is not local, can not use." << img << fu;
             continue;
         }
 
-        r=addFilePart(mp, "sku-"+bc+"-", fu.toLocalFile());
-        if (!r) {
-            qWarning() << "Failed to open file for uploading: " << f;
+        if (!addFilePart(mp, "sku-"+bc+"-", fu.toLocalFile())) {
+            qWarning() << "Failed to open file for uploading: " << img;
         }
     }
 
