@@ -634,6 +634,9 @@ void RvAPI::parseCategoryMap(const QString key, CategoryModel &model, QVariantMa
         QVariantMap smap=tmp.value("subcategories").toMap();
         QMapIterator<QString, QVariant> i(smap);
         CategoryModel *cm=new CategoryModel(key, this);
+
+        cm->addCategory("", "", CategoryModel::InvalidCategory);
+
         while (i.hasNext()) {
             i.next();
             QVariantMap cmap=i.value().toMap();
