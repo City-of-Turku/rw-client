@@ -569,16 +569,18 @@ ApplicationWindow {
             keepImages: settingsKeepImages
             addMoreEnabled: settingsAskMultiple
 
-            property Product tempProduct;
+            // property Product tempProduct;
+
+            onErrorFailedToCreateProduct: {
+                console.debug("*** Failed to get product!")
+                editPage.saveFailed();
+                messagePopup.show(qsTr("Saving failed"), qsTr("Product creation failed"), 500);
+            }
 
             onRequestProductSave: {
-                tempProduct=editPage.createProduct();
-                if (!tempProduct) {
-                    console.debug("*** Failed to get product!")
-                    editPage.saveFailed();
-                    messagePopup.show(qsTr("Saving failed"), qsTr("Product creation failed"), 500);
+                var tempProduct=editPage.createProduct();
+                if (!tempProduct)
                     return;
-                }
 
                 if (api.getItemModel().contains(tempProduct.barcode)) {
                     console.debug("*** Product with barcode "+tempProduct.barcode+" already exists")

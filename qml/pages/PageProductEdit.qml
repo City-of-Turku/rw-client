@@ -72,6 +72,8 @@ Page {
     // Handler needs to requst the Product object and save it.
     signal requestProductSave()
 
+    signal errorFailedToCreateProduct()
+
     property bool isSaving: false;
 
     property bool keepImages: true;
@@ -1299,6 +1301,9 @@ Page {
             fillProduct(p);
             return p;
         } catch (e) {
+            console.debug("fillProduct")
+            console.debug(e)
+            errorFailedToCreateProduct()
             return false
         }
     }
@@ -1385,7 +1390,7 @@ Page {
 
         if (categoryHasPrice && validPrice) {
             p.setPrice(productPrice.price)
-            if (hasTax) {
+            if (categoryHasTax) {
                 p.setTax(productTax.currentIndex)
             }
         } else {
