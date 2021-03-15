@@ -758,6 +758,7 @@ ApplicationWindow {
             requestLocations();
             requestCategories();
             requestColors();
+            //requestAddressbook();
         }
 
         onIsOnlineChanged: {

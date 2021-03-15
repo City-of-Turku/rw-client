@@ -647,6 +647,23 @@ void RvAPI::parseCategoryMap(const QString key, CategoryModel &model, QVariantMa
     }
 }
 
+bool RvAPI::parseUserAddressbookData(QVariantList &data)
+{
+    qDebug() << "Addressbook: " << data;
+
+    if (data.isEmpty())
+        return false;
+
+    QListIterator<QVariant> i(data);
+    while (i.hasNext()) {
+        auto ae=i.next().toMap();
+
+        qDebug() << ae;
+    }
+
+    return true;
+}
+
 bool RvAPI::parseColorsData(QVariantMap &data)
 {
     qDebug() << "ColorData: " << data;
@@ -1012,6 +1029,10 @@ bool RvAPI::parseOKResponse(RequestOps op, const QByteArray &response, const QNe
         return parseLogin(data);
     case RvAPI::AuthLogout:
         return parseLogout();
+    case RvAPI::UserAddressbook: {
+        QVariantList ab=v.value("data").toList();
+        return parseUserAddressbookData(ab);
+    }
     case RvAPI::ProductSearch:
     case RvAPI::ProductSearchBarcode: {
         bool r=parseProductsData(data);
@@ -1867,6 +1888,11 @@ bool RvAPI::requestLocations()
 bool RvAPI::requestCategories()
 {
     return createSimpleAuthenticatedRequest(op_categories, Categories);
+}
+
+bool RvAPI::requestAddressbook()
+{
+    return createSimpleAuthenticatedRequest(op_user_addressbook, UserAddressbook);
 }
 
 bool RvAPI::requestColors()

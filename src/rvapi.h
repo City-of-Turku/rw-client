@@ -150,6 +150,8 @@ public:
     Q_INVOKABLE bool loginCancel();
     Q_INVOKABLE bool logout();
 
+    Q_INVOKABLE bool requestAddressbook();
+
     Q_INVOKABLE void setAppVersion(uint ver);    
 
     Q_INVOKABLE bool searchCancel();
@@ -330,7 +332,7 @@ private slots:
 private:
     enum RequestOps {
         UnknownOperation,
-        AuthLogin, AuthLogout,
+        AuthLogin, AuthLogout, UserAddressbook,
         ProductSearch, ProductSearchBarcode, ProductAdd, ProductUpdate, Product, Products,
         Order, Orders, OrderUpdateStatus,
         Cart, ClearCart, AddToCart, RemoveFromCart, CheckoutCart,
@@ -344,6 +346,9 @@ private:
     // Authentication endpoints
     const QString op_auth_login=QStringLiteral("auth/login");
     const QString op_auth_logout=QStringLiteral("auth/logout");
+
+    // User specific
+    const QString op_user_addressbook=QStringLiteral("user/addressbook");
 
     // Product endpoint
     const QString op_products=QStringLiteral("products");
@@ -463,6 +468,7 @@ private:
     bool parseProductsData(QVariantMap &data);
     bool parseLogin(QVariantMap &data);
     bool parseLogout();
+    bool parseUserAddressbookData(QVariantList &data);
     bool parseFileDownload(const QByteArray &data);
     void parseCategoryMap(const QString key, CategoryModel &model, QVariantMap &tmp, CategoryModel::FeatureFlags flags);
     bool parseOrderCreated(QVariantMap &data);
