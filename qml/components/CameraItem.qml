@@ -51,6 +51,9 @@ Item {
                 console.debug("OpticalZoom: "+maximumOpticalZoom)
                 if (maximumOpticalZoom>1.0)
                     hasOpticalZoom=true;
+
+                console.debug(imageCapture.resolution)
+
                 break;
             }
         }
@@ -91,7 +94,7 @@ Item {
 
         Component.onCompleted: {
             console.debug("Camera is: "+deviceId)
-            console.debug("Camera orientation is: "+orientation)            
+            console.debug("Camera orientation is: "+orientation)
         }
     }
 
@@ -237,6 +240,100 @@ Item {
     }
 
     Popup {
+        id: isoPopup
+        modal: true
+        dim: false
+
+        ButtonGroup {
+            id: isoButtonGroup
+            onCheckedButtonChanged: {
+                var iso=checkedButton.text;
+                switch (iso) {
+                case 'Auto':
+                    camera.exposure.setAutoIsoSensitivity();
+                    break;
+                case '100':
+                    camera.exposure.manualIso=100;
+                    break;
+                case '200':
+                    camera.exposure.manualIso=200;
+                    break;
+                case '400':
+                    camera.exposure.manualIso=400;
+                    break;
+                case '800':
+                    camera.exposure.manualIso=800;
+                    break;
+                }
+                console.debug(camera.exposure.manualIso)
+            }
+        }
+
+        ColumnLayout {
+            RadioButton {
+                checked: true
+                text: "Auto"
+                ButtonGroup.group: isoButtonGroup
+            }
+            RadioButton {
+                text: "100"
+                ButtonGroup.group: isoButtonGroup
+            }
+            RadioButton {
+                text: "200"
+                ButtonGroup.group: isoButtonGroup
+            }
+            RadioButton {
+                text: "400"
+                ButtonGroup.group: isoButtonGroup
+            }
+            RadioButton {
+                text: "800"
+                ButtonGroup.group: isoButtonGroup
+            }
+        }
+    }
+
+    Popup {
+        id: resolutionPopup
+        modal: true
+        width: parent.width/2
+        height: parent.height/1.5
+        ListView {
+            id: resolutionList
+            anchors.fill: parent
+            clip: true
+            model: camera.imageCapture.supportedResolutions
+            ScrollIndicator.vertical: ScrollIndicator { }
+            delegate: Text {
+                id: ccr
+                color: resma.pressed ? "#101060" : "#000000"
+                text: modelData.width + " x " + modelData.height
+                font.bold: true
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideRight
+                font.pixelSize: 22
+                leftPadding: 4
+                rightPadding: 4
+                topPadding: 8
+                bottomPadding: 8
+                width: parent.width
+                MouseArea {
+                    id: resma
+                    anchors.fill: parent
+                    onClicked: {
+                        console.debug(modelData)
+                        camera.imageCapture.resolution=modelData
+                        resolutionPopup.close();
+                    }
+                }
+            }
+        }
+    }
+
+
+    Popup {
         id: cameraPopup
         modal: true
         x: parent.width/6
@@ -249,6 +346,7 @@ Item {
             anchors.fill: parent
             clip: true
             model: QtMultimedia.availableCameras
+            ScrollIndicator.vertical: ScrollIndicator { }
             delegate: Text {
                 id: c
                 color: cmlma.pressed ? "#101060" : "#000000"
@@ -320,6 +418,14 @@ Item {
         }
 
         Button {
+            text: "ISO"
+            visible: true
+            onClicked: {
+                isoPopup.open();
+            }
+        }
+
+        Button {
             text: cameraItem.flash ? "Auto" : "Off"
             onClicked: {
                 cameraItem.flash=!cameraItem.flash
@@ -382,6 +488,14 @@ Item {
     function selectCamera() {
         if (cameraSelectionEnabled && multipleCameras)
             cameraPopup.open();
+    }
+
+    function selectISO() {
+        isoPopup.open();
+    }
+
+    function selectResolution() {
+        resolutionPopup.open();
     }
 
     function zoomIn() {

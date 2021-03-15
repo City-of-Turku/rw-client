@@ -74,6 +74,14 @@ Page {
             enabled: camera.multipleCameras
             onTriggered: camera.selectCamera();
         }
+        MenuItem {
+            text: "ISO"
+            onTriggered: camera.selectISO();
+        }
+        MenuItem {
+            text: "Resolution"
+            onTriggered: camera.selectResolution();
+        }
     }
 
     footer: ToolBar {
