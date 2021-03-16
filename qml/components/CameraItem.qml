@@ -28,6 +28,8 @@ Item {
     // Flash, for simplicity we just use Off/Auto
     property bool flash: false
 
+    property bool hasFlashOptions: camera.flash.supportedModes.length>1
+
     signal barcodeFound(string data);
     signal imageCaptured(string path)
 
@@ -53,6 +55,7 @@ Item {
                     hasOpticalZoom=true;
 
                 console.debug(imageCapture.resolution)
+                console.debug(camera.flash.supportedModes.length)
 
                 break;
             }
@@ -90,11 +93,17 @@ Item {
             console.log("Error code: "+errorCode)
         }
 
-        flash.mode: cameraItem.flash ? Camera.FlashAuto : Camera.FlashOff
+        flash.mode: Camera.FlashOff // cameraItem.flash ? Camera.FlashAuto : Camera.FlashOff
 
         Component.onCompleted: {
             console.debug("Camera is: "+deviceId)
             console.debug("Camera orientation is: "+orientation)
+
+            if (scanOnly) {
+                camera.exposure.exposureMode=Camera.ExposureBarcode
+            } else {
+                camera.exposure.exposureMode=Camera.ExposureAuto
+            }
         }
     }
 
@@ -230,13 +239,49 @@ Item {
             visible: zoomDigitalSlider.pressed || zoomDigitalSlider.value>1.0
             text: zoomDigitalSlider.value.toFixed(1)
         }
-    }
-
+    }    
 
     BusyIndicator {
         anchors.centerIn: parent
         visible: running
         running: camera.lockStatus==Camera.Searching
+    }
+
+    Popup {
+        id: flashPopup
+        modal: true
+
+        width: parent.width/2
+        height: parent.height/1.5
+        ListView {
+            id: flashList
+            anchors.fill: parent
+            clip: true
+            model: camera.flash.supportedModes
+            ScrollIndicator.vertical: ScrollIndicator { }
+            delegate: Text {
+                id: ccr
+                text: modelData
+                font.bold: true
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                elide: Text.ElideRight
+                font.pixelSize: 22
+                leftPadding: 4
+                rightPadding: 4
+                topPadding: 8
+                bottomPadding: 8
+                width: parent.width
+                MouseArea {
+                    anchors.fill: parent
+                    onClicked: {
+                        console.debug(modelData)
+                        camera.flash.mode=modelData
+                        flashPopup.close();
+                    }
+                }
+            }
+        }
     }
 
     Popup {
@@ -494,6 +539,10 @@ Item {
         isoPopup.open();
     }
 
+    function selectFlash() {
+        flashPopup.open();
+    }
+
     function selectResolution() {
         resolutionPopup.open();
     }
@@ -508,6 +557,14 @@ Item {
 
     function zoomReset() {
         zoomDigitalSlider.value=1.0;
+    }
+
+    function setFullAuto() {
+        camera.exposure.setAutoAperture()
+        camera.exposure.setAutoIsoSensitivity()
+        camera.exposure.setAutoShutterSpeed()
+        camera.flash.setFlashMode(Camera.FlashAuto)
+        camera.exposure.exposureMode=Camera.ExposureAuto
     }
 
 }

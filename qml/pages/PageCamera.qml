@@ -75,12 +75,21 @@ Page {
             onTriggered: camera.selectCamera();
         }
         MenuItem {
-            text: "ISO"
-            onTriggered: camera.selectISO();
-        }
-        MenuItem {
             text: "Resolution"
             onTriggered: camera.selectResolution();
+        }
+        MenuItem {
+            text: "Flash"
+            enabled: camera.hasFlashOptions
+            onTriggered: camera.selectFlash();
+        }
+        MenuItem {
+            text: "ISO"
+            onTriggered: camera.selectISO();
+        }        
+        MenuItem {
+            text: "Full Auto"
+            onTriggered: camera.setFullAuto();
         }
     }
 
@@ -90,7 +99,8 @@ Page {
 
             ToolButton {                
                 Layout.alignment: Qt.AlignLeft
-                onClicked: camera.flash=!camera.flash                
+                enabled: camera.hasFlashOptions
+                onClicked: camera.selectFlash(); // camera.flash=!camera.flash
                 icon.source: "qrc:/images/icon_flash.png"
             }
 
