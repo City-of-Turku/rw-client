@@ -19,6 +19,8 @@
 
 #include <QDir>
 
+#include <QSysInfo>
+
 //#define LOGIN_DEBUG 1
 //#define DATA_DEBUG 1
 //#define JSON_DEBUG 1
@@ -1326,9 +1328,15 @@ bool RvAPI::login()
 
     addParameter(mp, QStringLiteral("username"), m_username);
     addParameter(mp, QStringLiteral("password"), m_password);
+
     addParameter(mp, QStringLiteral("apiversion"), m_apiversion);
     addParameter(mp, QStringLiteral("appversion"), m_appversion);
+
     addParameter(mp, QStringLiteral("locale"), QLocale().name());
+
+    addParameter(mp, QStringLiteral("machinename"), QSysInfo::machineHostName());
+    addParameter(mp, QStringLiteral("systemtype"), QSysInfo::productType());
+    addParameter(mp, QStringLiteral("systemversion"), QSysInfo::productVersion());
 
     queueRequest(post(request, mp), AuthLogin);
 
