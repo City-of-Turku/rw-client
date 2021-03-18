@@ -47,10 +47,12 @@ ProductItem* ProductItem::fromVariantMap(QVariantMap &data, QObject *parent)
 
     p->m_uid=data["uid"].toString().toUInt();
 
-    if (data.contains("location"))
+    if (data.contains("location")) {
         p->m_warehouse=data["location"].toString().toUInt();
-    else
+    } else {
+        qWarning() << "Failed to get location ID, invalid data ? " << data;
         p->m_warehouse=0;
+    }
 
     if (data.contains("stock"))
         p->m_stock=data["stock"].toString().toDouble();
