@@ -156,9 +156,9 @@ Page {
         visible: camera.flash
         opacity: 0.9
         anchors.top: camera.top
-        anchors.right: camera.right
+        anchors.left: camera.left
         onClicked: {
-            camera.flash=false;
+            camera.flashOff();
         }
     }
 

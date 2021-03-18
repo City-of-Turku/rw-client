@@ -25,8 +25,8 @@ Item {
     property variant metaLatitude;
     property variant metaLongitude;
 
-    // Flash, for simplicity we just use Off/Auto
-    property bool flash: false
+    // Flash off or on/auto
+    property bool flash: camera.flash.mode!=Camera.FlashOff
 
     property bool hasFlashOptions: camera.flash.supportedModes.length>1
 
@@ -93,7 +93,12 @@ Item {
             console.log("Error code: "+errorCode)
         }
 
-        flash.mode: Camera.FlashOff // cameraItem.flash ? Camera.FlashAuto : Camera.FlashOff
+        flash {
+            // mode: Camera.FlashOff
+            onFlashModeChanged: {
+                flashModes.refresh()
+            }
+        }
 
         Component.onCompleted: {
             console.debug("Camera is: "+deviceId)
@@ -103,6 +108,34 @@ Item {
                 camera.exposure.exposureMode=Camera.ExposureBarcode
             } else {
                 camera.exposure.exposureMode=Camera.ExposureAuto
+            }
+            flashModes.refresh()
+        }
+    }
+
+    // Sigh, Flash mode list is just a bunch of enums instead of camera or resolution lists,
+    // so create a model manually. Skip the modes that are not needed.
+    ListModel {
+        id: flashModes
+
+        function refresh(fm) {
+            flashModes.clear()
+            for (var i=0;i<camera.flash.supportedModes.length;i++) {
+                console.debug(camera.flash.supportedModes[i])
+                switch (camera.flash.supportedModes[i]) {
+                case Camera.FlashOff:
+                    flashModes.append({"mode": Camera.FlashOff, "name": "Off"})
+                    break;
+                case Camera.FlashOn:
+                    flashModes.append({"mode": Camera.FlashOn, "name": "On"})
+                    break;
+                case Camera.FlashAuto:
+                    flashModes.append({"mode": Camera.FlashAuto, "name": "Auto"})
+                    break;
+                case Camera.FlashFill:
+                    flashModes.append({"mode": Camera.FlashFill, "name": "Shadow fill"})
+                    break;
+                }
             }
         }
     }
@@ -168,7 +201,6 @@ Item {
                         camera.unlock();
                 }
             }
-
         }
 
         Text {
@@ -247,21 +279,21 @@ Item {
         running: camera.lockStatus==Camera.Searching
     }
 
+
     Popup {
         id: flashPopup
         modal: true
 
         width: parent.width/2
-        height: parent.height/1.5
+        height: parent.height/3
         ListView {
             id: flashList
             anchors.fill: parent
             clip: true
-            model: camera.flash.supportedModes
+            model: flashModes
             ScrollIndicator.vertical: ScrollIndicator { }
             delegate: Text {
-                id: ccr
-                text: modelData
+                text: name
                 font.bold: true
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
@@ -271,12 +303,11 @@ Item {
                 rightPadding: 4
                 topPadding: 8
                 bottomPadding: 8
-                width: parent.width
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        console.debug(modelData)
-                        camera.flash.mode=modelData
+                        console.debug("FlashMode: "+mode)
+                        camera.flash.setFlashMode(mode)
                         flashPopup.close();
                     }
                 }
@@ -342,8 +373,18 @@ Item {
     Popup {
         id: resolutionPopup
         modal: true
-        width: parent.width/2
+        width: parent.width/1.5
         height: parent.height/1.5
+
+        function getResolutionText(w,h) {
+            var m=Math.floor(w*h/1000/1000);
+            if (m>0) {
+                return w + " x " + h + " " + m + "Mbit"
+            } else {
+                return w + " x " + h
+            }
+        }
+
         ListView {
             id: resolutionList
             anchors.fill: parent
@@ -351,9 +392,8 @@ Item {
             model: camera.imageCapture.supportedResolutions
             ScrollIndicator.vertical: ScrollIndicator { }
             delegate: Text {
-                id: ccr
                 color: resma.pressed ? "#101060" : "#000000"
-                text: modelData.width + " x " + modelData.height
+                text: resolutionPopup.getResolutionText(modelData.width, modelData.height)
                 font.bold: true
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
@@ -541,6 +581,10 @@ Item {
 
     function selectFlash() {
         flashPopup.open();
+    }
+
+    function flashOff() {
+        camera.flash.setFlashMode(Camera.FlashOff)
     }
 
     function selectResolution() {
