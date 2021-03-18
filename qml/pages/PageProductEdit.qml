@@ -121,7 +121,6 @@ Page {
                 return false;
             }
             messagePopup.show(qsTr("Product saved"), qsTr("Product saved succesfully"), 200); // XXX
-            rootStack.pop();
             return true;
         }
         console.debug("*** Saved failed")
@@ -1236,9 +1235,10 @@ Page {
 
         if (categoryHasLocation) {
             locationID=p.getWarehouse();
-            var i=locationsModel.findLocationByID(locationID);
-            console.debug("Location index is: "+i)
-            if (i>-1)
+            console.debug("Location ID is: "+locationID)
+            var li=locationsModel.findLocationByID(locationID);
+            console.debug("Location index is: "+li)
+            if (li>-1)
                 locationPopup.currentIndex=i;
 
             if (categoryHasLocationDetail && p.hasAttribute("locationdetail"))

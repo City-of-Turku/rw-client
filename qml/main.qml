@@ -605,18 +605,17 @@ ApplicationWindow {
                     editPage.saveInProgress();
                 else
                     editPage.saveFailed();
+                tempProduct.destroy();
             }
             Connections {
                 target: api
                 onProductSaved: {
                     if (editPage.confirmProductSave(true, null, "")) {
-                        tempProduct.removeImages();
+                        rootStack.pop();
                     }
-                    tempProduct.destroy();
                 }
                 onProductFail: {
-                    editPage.confirmProductSave(false, null, msg);
-                    tempProduct.destroy();
+                    editPage.confirmProductSave(false, null, msg)
                 }
             }
 
