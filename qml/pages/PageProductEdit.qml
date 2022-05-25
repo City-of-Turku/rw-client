@@ -7,10 +7,10 @@
  * XXX!!!
  * Re-think handling of Product, perhaps instead use a empty product and bind the properties, with a isValid flag ?
  */
-import QtQuick 2.12
-import QtQuick.Controls 2.12
-import QtQuick.Dialogs 1.2
-import QtQuick.Layouts 1.12
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import QtQuick.Dialogs 1.3
+import QtQuick.Layouts 1.15
 import net.ekotuki 1.0
 
 import "../components"

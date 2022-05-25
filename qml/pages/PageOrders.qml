@@ -5,13 +5,12 @@
  * or if user has enough priviledges, the system orders.
  *
  */
-import QtQuick 2.12
+import QtQuick 2.15
 import QtQml 2.2
-import QtQuick.Controls 2.12
-import QtQuick.Dialogs 1.2
-import QtQuick.Layouts 1.12
+import QtQuick.Controls 2.15
+import QtQuick.Dialogs 1.3
+import QtQuick.Layouts 1.15
 import QtQuick.Controls.Material 2.1
-
 import net.ekotuki 1.0
 
 import "../delegates"

@@ -1,5 +1,5 @@
-import QtQuick 2.12
-import QtQuick.XmlListModel 2.0
+import QtQuick 2.15
+import QtQuick.XmlListModel 2.15
 
 XmlListModel {
     id: newsFeedModel    
