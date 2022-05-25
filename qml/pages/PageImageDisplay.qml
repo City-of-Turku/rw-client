@@ -8,8 +8,9 @@ Page {
     id: imageDisplayPage
     property string image: ""
 
-    property real maxScale: 1.5
-    property real minScale: 0.1
+    property real maxZoom: 2.0
+    property real minZoom: Math.min(f.width / i.width, f.height / i.height, 0.8)
+    property real zoomStep: 0.1
 
     Keys.onReleased: {
         if (event.key === Qt.Key_Back) {
@@ -27,32 +28,32 @@ Page {
         RowLayout {
             ToolButton {
                 text: "Zoom out"
-                enabled: i.scale>minScale                
+                enabled: i.scale>minZoom
                 icon.source: "qrc:/images/icon_zoom_out.png"
                 onClicked: {
-                    i.scale-=0.1;
+                    f.zoomOut()
                 }
             }
             ToolButton {
                 text: "1:1"
                 enabled: i.scale!=1.0                
                 onClicked: {
-                    i.scale=1.0;
+                    f.zoomTo(1.0)
                 }
             }
             ToolButton {
                 text: qsTr("Fit")
-                onClicked: {
-                    i.scale=1.0;
+                enabled: !f.fitToScreenActive
+                onClicked: {                    
                     f.fitToScreen();
                 }
             }
             ToolButton {
                 text: "Zoom in"
-                enabled: i.scale<maxScale                
+                enabled: i.scale<maxZoom
                 icon.source: "qrc:/images/icon_zoom_in.png"
                 onClicked: {
-                    i.scale+=0.1;
+                    f.zoomIn()
                 }                
             }            
         }
@@ -70,18 +71,7 @@ Page {
             contentWidth: iContainer.width;
             clip: true
 
-            onContentXChanged: console.debug("CX"+contentX)
-            onContentYChanged: console.debug("CY"+contentY)
-
-            //Behavior on contentY { NumberAnimation {} }
-            //Behavior on contentX { NumberAnimation {} }
-
-            property bool fitToScreenActive: true
-
-            property real minZoom: 0.1;
-            property real maxZoom: 2
-
-            property real zoomStep: 0.1
+            property bool fitToScreenActive: true                        
 
             onWidthChanged: {
                 if (fitToScreenActive)
@@ -106,12 +96,13 @@ Page {
                     cache: false
                     smooth: f.moving
                     source: imageDisplayPage.image
-                    rotation: appUtil.getImageRotation(source);
+                    // rotation: appUtil.getImageRotation(source);
+                    autoTransform: true
                     anchors.centerIn: parent
                     fillMode: Image.PreserveAspectFit                    
                     transformOrigin: Item.Center
                     onScaleChanged: {
-                        console.debug(scale)
+                        console.debug("ImageScale: "+scale)
                         if ((width * scale) > f.width) {
                             var xoff = (f.width / 2 + f.contentX) * scale / prevScale;
                             f.contentX = xoff - f.width / 2
@@ -139,17 +130,23 @@ Page {
                 f.returnToBounds();
             }
             function zoomIn() {
-                if (f.scale<f.maxZoom)
+                if (i.scale<=maxZoom)
                     i.scale*=(1.0+zoomStep)
                 f.returnToBounds();
                 fitToScreenActive=false;
                 f.returnToBounds();
             }
+            function zoomTo(zoom) {
+                i.scale=zoom
+                f.returnToBounds();
+                fitToScreenActive=false;
+                f.returnToBounds();
+            }
             function zoomOut() {
-                if (f.scale>f.minZoom)
+                if (i.scale>=minZoom)
                     i.scale*=(1.0-zoomStep)
                 else
-                    i.scale=f.minZoom;
+                    i.scale=minZoom;
                 f.returnToBounds();
                 fitToScreenActive=false;
                 f.returnToBounds();
@@ -160,10 +157,8 @@ Page {
                 f.returnToBounds();
             }
 
-
             ScrollIndicator.vertical: ScrollIndicator { }
             ScrollIndicator.horizontal: ScrollIndicator { }
-
         }
 
         PinchArea {
@@ -187,6 +182,31 @@ Page {
                 console.debug("PinchEnd")
                 f.interactive=true;
                 f.returnToBounds();
+            }
+
+            MouseArea {
+                id: ipma
+                anchors.fill: parent
+                propagateComposedEvents: true
+                scrollGestureEnabled: false
+                hoverEnabled: true
+                onDoubleClicked: {
+                    console.debug("ImagePichMADoubleClick")
+                    if (f.fitToScreenActive) {
+                        f.zoomTo(1.5)
+                    } else {
+                        f.fitToScreen();
+                    }
+                }
+                onWheel: {
+                    console.debug("ImageWheel")
+                    if (wheel.angleDelta.y>0) {
+                        f.zoomIn()
+                    } else {
+                        f.zoomOut()
+                    }
+
+                }
             }
         }
     }
