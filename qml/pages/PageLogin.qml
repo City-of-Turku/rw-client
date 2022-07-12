@@ -213,6 +213,14 @@ Page {
                                 doLogin();
                             }
                         }
+                        Button {
+                            text: qsTr("Forgot password ?")
+                            enabled: false && textUsername.acceptableInput && !textPassword.acceptableInput
+                            visible: false
+                            onClicked: {
+                                // XXX: Ask confirmation & send request
+                            }
+                        }
 
                         Button {
                             text: qsTr("Cancel")
