@@ -11,6 +11,7 @@ ToolBar {
     signal menuButton();
 
     property string title: ''
+    property string subTitle: ''
 
     // Automatic page pop on back button. Set to false to get signal instead
     property bool enableBackPop: true
@@ -32,7 +33,7 @@ ToolBar {
         ToolButton {
             id: backButton
             enabled: !api.busy
-            Layout.alignment: Qt.AlignLeft            
+            Layout.alignment: Qt.AlignLeft
             icon.source: "qrc:/images/icon_back.png"
             visible: rootStack.depth>1
             onClicked: {
@@ -41,20 +42,37 @@ ToolBar {
                 else
                     baseToolbar.backButton();
             }
-
         }
 
-        Label {
-            id: currentPageTitle
-            text: rootStack.currentItem ? rootStack.currentItem.title : baseToolbar.title
-            elide: Label.ElideRight
-            horizontalAlignment: Qt.AlignHCenter
-            verticalAlignment: Qt.AlignVCenter
+        ColumnLayout {
+            id: c
             Layout.fillWidth: true
-            font.pixelSize: 22
-            minimumPixelSize: 16
-            fontSizeMode: Text.HorizontalFit
-            Layout.alignment: Qt.AlignCenter
+            spacing: 2
+            Label {
+                id: currentPageTitle
+                text: rootStack.currentItem ? rootStack.currentItem.title : baseToolbar.title
+                elide: Label.ElideRight
+                horizontalAlignment: Qt.AlignLeft
+                verticalAlignment: Qt.AlignVCenter
+                Layout.fillWidth: true
+                font.pixelSize: 22
+                minimumPixelSize: 16
+                fontSizeMode: Text.HorizontalFit
+                Layout.alignment: Qt.AlignCenter
+            }
+            Label {
+                id: currentPageSubTitle
+                text: baseToolbar.subTitle
+                elide: Label.ElideRight
+                horizontalAlignment: Qt.AlignLeft
+                verticalAlignment: Qt.AlignVCenter
+                Layout.fillWidth: true
+                font.pixelSize: 14
+                minimumPixelSize: 10
+                fontSizeMode: Text.HorizontalFit
+                Layout.alignment: Qt.AlignCenter
+                visible: baseToolbar.subTitle!=''
+            }
         }
 
         ToolButton {
@@ -67,7 +85,7 @@ ToolBar {
         ToolButton {
             id: menuBtn
             visible: false
-            enabled: false            
+            enabled: false
             icon.source: "qrc:/images/icon_menu_2.png"
             onClicked: menuButton();
         }
