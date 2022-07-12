@@ -4,7 +4,7 @@ import QtQuick.Layouts 1.15
 
 Item {
     height: c.height
-    width: parent.width-16
+    width: ListView.view.width-16
     anchors.horizontalCenter: parent.horizontalCenter
     Rectangle {
         anchors.fill: parent;

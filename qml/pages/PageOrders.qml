@@ -151,9 +151,6 @@ Page {
 
             delegate: Component {
                 OrderItemDelegate {
-                    width: parent.width
-                    //height: childrenRect.height
-
                     onClicked: openOrderAtIndex(index)
 
                     function openOrderAtIndex(index) {

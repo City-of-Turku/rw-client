@@ -12,6 +12,7 @@ Rectangle {
     signal pressandhold(variant index)
 
     height: c.height+8
+    width: ListView.view.width
 
     RowLayout {
         id: c

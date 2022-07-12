@@ -15,6 +15,7 @@ Rectangle {
     property bool enablePickStatus: true
 
     height: c.height
+    width: ListView.view.width
 
     function getColor(ci, index, type, status) {
         if (type=='product' && status!=OrderLineItem.OrderItemPicked)

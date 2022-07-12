@@ -246,10 +246,8 @@ Page {
             ScrollIndicator.vertical: ScrollIndicator { }
 
             delegate: Component {
-                OrderLineItemDelegate {
-                    width: parent.width
+                OrderLineItemDelegate {                    
                     height: childrenRect.height
-
                     enablePickStatus: order.status!=OrderItem.Shipped
 
                     onClicked:  {
