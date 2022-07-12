@@ -371,8 +371,11 @@ Page {
 
     BusyIndicator {
         id: busyIndicator
+        anchors.centerIn: parent
         visible: running
-        running: false
+        running: api.busy
+        width: 64
+        height: 64
     }
 
     ListModel {
