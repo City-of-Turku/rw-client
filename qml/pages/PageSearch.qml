@@ -38,6 +38,8 @@ Page {
     property string searchString: ''
     property int sortOrder: ServerApi.SortDateDesc
 
+    property bool cartEnabled: api.hasRole("cart")
+
     //onSearchStringChanged: console.debug("SearchString: "+searchString)
     //onCategorySearchIDChanged: console.debug("SearchCategory: "+categorySearchID)
     //onSortOrderChanged: console.debug("SearchSort: "+sortOrder)
@@ -299,7 +301,7 @@ Page {
                         }
                         MenuItem {
                             text: qsTr("Add to cart")
-                            enabled: searchPage.model.get(index).stock>0
+                            enabled: searchPage.model.get(index).stock>0 && cartEnabled
                             onClicked: {
                                 addProductAtIndexToCart(index);
                             }
