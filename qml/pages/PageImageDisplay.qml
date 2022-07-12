@@ -121,10 +121,8 @@ Page {
                     //Behavior on scale { ScaleAnimator { } }
                 }
             }
-            function fitToScreen() {
-                var s = Math.min(f.width / i.width, f.height / i.height, 1)
-                i.scale = s;
-                minZoom = s;
+            function fitToScreen() {                
+                i.scale = minZoom;
                 i.prevScale = scale
                 fitToScreenActive=true;
                 f.returnToBounds();
@@ -143,7 +141,7 @@ Page {
                 f.returnToBounds();
             }
             function zoomOut() {
-                if (i.scale>=minZoom)
+                if (i.scale>minZoom)
                     i.scale*=(1.0-zoomStep)
                 else
                     i.scale=minZoom;
