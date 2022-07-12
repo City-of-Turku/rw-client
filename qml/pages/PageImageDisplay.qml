@@ -124,7 +124,7 @@ Page {
             function fitToScreen() {
                 var s = Math.min(f.width / i.width, f.height / i.height, 1)
                 i.scale = s;
-                f.minZoom = s;
+                minZoom = s;
                 i.prevScale = scale
                 fitToScreenActive=true;
                 f.returnToBounds();
