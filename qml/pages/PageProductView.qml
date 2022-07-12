@@ -38,6 +38,7 @@ Page {
 
     header: ToolbarBasic {
         enableMenuButton: false
+        subTitle: product ? product.barcode : ''
     }
 
     footer: ToolBar {
