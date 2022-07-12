@@ -237,23 +237,27 @@ Page {
             enabled: !searchActive
             // Note: We open the popup from a press'n'hold, if don't disable then the list will continue scrolling in the bg
             interactive: !imagePopup.opened
-            //interactive: true
             clip: true
             Layout.fillWidth: true
             Layout.fillHeight: true
             footer: listFooter;
             highlightFollowsCurrentItem: true
-            //spacing: 4
-            currentIndex: -1;
             cellWidth: model.count>1 ? cellSize : searchResults.width
             cellHeight: model.count>1 ? cellSize : searchResults.width
+            reuseItems: true
 
-            // XXX: Does not trigger atYEnd so can't use this
-            //highlightRangeMode: GridView.StrictlyEnforceRange
+            onCurrentIndexChanged: console.debug(currentIndex)
+
+            // Note: Seems to work in 5.15 now (Does not trigger atYEnd so can't use this)
+            highlightRangeMode: GridView.StrictlyEnforceRange
             snapMode: GridView.SnapToRow
 
             property int rowItems: itemsPerRow
             property int cellSize: searchResults.width/rowItems
+
+            Component.onCompleted: {
+                currentIndex=0;
+            }
 
             delegate: Component {
                 ProductItemDelegate {
@@ -376,7 +380,17 @@ Page {
                     }
                 }
             }
-        }
+        }                
+    }
+
+    Badge {
+        anchors.top: mainContainer.top
+        anchors.horizontalCenter: mainContainer.horizontalCenter
+        anchors.topMargin: 8
+        visible: opacity>0 && searchResults.currentIndex>0 && searchResults.count>4
+        text: searchResults.currentIndex+"/"+searchResults.count + (api.hasMore ? "+" : "")
+        opacity: searchResults.currentIndex>0 ? 0.9 : 0;
+        Behavior on opacity { NumberAnimation { duration: 500; easing.type: Easing.InOutQuad } }
     }
 
     Popup {
