@@ -45,7 +45,7 @@ ApplicationWindow {
 
     property string apiKey: "";
     property string apiUrlProduction: "";
-    property string apiUrlSandbox: "";   
+    property string apiUrlSandbox: "";
 
     property string apiRegistrationUrl: ""
 
@@ -189,9 +189,9 @@ ApplicationWindow {
 
             Label {
                 id: currentPageTitle
-                text: rootStack.currentItem ? rootStack.currentItem.title : ' '
+                text: rootStack.currentItem ? rootStack.currentItem.title : ''
                 elide: Label.ElideRight
-                horizontalAlignment: Qt.AlignHCenter
+                horizontalAlignment: Qt.AlignLeft
                 verticalAlignment: Qt.AlignVCenter
                 Layout.fillWidth: true
                 font.pixelSize: 22
@@ -326,7 +326,7 @@ ApplicationWindow {
                     icon.source: model.image
                     icon.width: 32
                     icon.height: 32
-                    font.pointSize: 22;                    
+                    font.pointSize: 22;
                     enabled: role=="" || api.hasRole(role) // || !(home=='' && role=='home');
                     display: AbstractButton.TextBesideIcon
                     onClicked: {
@@ -651,7 +651,7 @@ ApplicationWindow {
                 loginTimer.start();
             }
             onLoginCanceled: {
-                api.loginCancel();                
+                api.loginCancel();
             }
             Component.onCompleted: {
 
@@ -725,7 +725,7 @@ ApplicationWindow {
     function setOrganization(o) {
         root.apiKey=o.apiKey;
         root.apiUrlProduction=o.apiUrlProduction;
-        root.apiUrlSandbox=o.apiUrlSandbox;        
+        root.apiUrlSandbox=o.apiUrlSandbox;
         root.home=o.code;
     }
 
@@ -947,7 +947,7 @@ ApplicationWindow {
             case 1001: // QNetworkReply::NetworkError + 1000
                 messagePopup.show(qsTr("Network error"), qsTr("Server refused connection"), code);
                 break;
-            //case 1002:
+                //case 1002:
             case 1003:
                 messagePopup.show(qsTr("Network error"), qsTr("Server not found"), code);
                 break;
